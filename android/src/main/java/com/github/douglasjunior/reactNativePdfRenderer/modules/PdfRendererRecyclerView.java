@@ -30,7 +30,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -50,12 +49,12 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class PdfRendererRecyclerView extends RecyclerView {
     private final ViewGroup mParent;
     private final GestureDetector mGestureDetector;
     private boolean mRequestedLayout = false;
+    private float mMinZoom = 1;
     private float mMaxZoom = 5;
     private float mDistanceBetweenPages = 0;
     private int mWidth;
@@ -150,7 +149,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w,h,oldw,oldh);
+        super.onSizeChanged(w, h, oldw, oldh);
         float scale = Math.max(w / mWidth, h / mHeight);
         mMatrix.setScale(scale, scale);
         mMatrix.postTranslate((w - scale * mWidth) / 2f, (h - scale * mHeight) / 2f);
@@ -161,9 +160,6 @@ public class PdfRendererRecyclerView extends RecyclerView {
     public boolean onTouchEvent(MotionEvent e) {
         mScaleDetector.onTouchEvent(e);
         mGestureDetector.onTouchEvent(e);
-        if (mScaleDetector.isInProgress()) {
-            return true;
-        }
         return super.onTouchEvent(e);
     }
 
@@ -192,14 +188,11 @@ public class PdfRendererRecyclerView extends RecyclerView {
         float[] values = new float[9];
         mMatrix.getValues(values);
 
-        Log.d("mMatrix1", Arrays.toString(values) + "");
-        Log.d("size", mWidth + " | " + mHeight);
+        float scaleX = Math.min(Math.max(values[Matrix.MSCALE_X], mMinZoom), mMaxZoom);
+        float posX = values[Matrix.MTRANS_X];
 
-        float scaleX = Math.min(Math.max(values[0], 1), mMaxZoom);
-        float posX = values[2];
-
-        float scaleY = Math.min(Math.max(values[4], 1), mMaxZoom);
-        float posY = values[5];
+        float scaleY = Math.min(Math.max(values[Matrix.MSCALE_Y], mMinZoom), mMaxZoom);
+        float posY = values[Matrix.MTRANS_Y];
 
         float maxPosX = mWidth - mWidth * scaleX;
         float maxPosY = mHeight - mHeight * scaleY;
@@ -214,14 +207,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
         else if (posY < maxPosY)
             posY = maxPosY;
 
-        values[0] = scaleX;
-        values[2] = posX;
-        values[4] = scaleY;
-        values[5] = posY;
+        values[Matrix.MSCALE_X] = scaleX;
+        values[Matrix.MTRANS_X] = posX;
+        values[Matrix.MSCALE_Y] = scaleY;
+        values[Matrix.MTRANS_Y] = posY;
 
         mMatrix.setValues(values);
-
-        Log.d("mMatrix2", Arrays.toString(values) + "");
     }
 
     /**
@@ -243,7 +234,16 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            float[] values = new float[9];
+            mMatrix.getValues(values);
+
+            float zoom = values[Matrix.MSCALE_X];
             float factor = detector.getScaleFactor();
+
+            if (zoom >= mMaxZoom && factor > 1) {
+                return false;
+            }
+
             mMatrix.postScale(factor, factor, getWidth() / 2f, getHeight() / 2f);
             validateMatrixLimits();
             ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
@@ -256,6 +256,29 @@ public class PdfRendererRecyclerView extends RecyclerView {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float dX, float dY) {
             mMatrix.postTranslate(-dX, -dY);
             validateMatrixLimits();
+            ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(@NonNull MotionEvent e) {
+            if (e.getPointerCount() > 1) {
+                return false;
+            }
+
+            float[] values = new float[9];
+            mMatrix.getValues(values);
+
+            float currentZoom = values[Matrix.MSCALE_X];
+            float newZoom = currentZoom > mMinZoom ? mMinZoom : mMaxZoom;
+            float centerX = getWidth() / 2f;
+            float centerY = getHeight() / 2f;
+
+            mMatrix.setScale(newZoom, newZoom, centerX, centerY);
+            mMatrix.postTranslate(centerX - e.getX(), centerY - e.getY());
+
+            validateMatrixLimits();
+
             ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
             return true;
         }

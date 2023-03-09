@@ -20,10 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
   NativeSyntheticEvent,
   requireNativeComponent,
+  StyleSheet,
   ViewProps,
 } from 'react-native';
 
@@ -41,8 +42,20 @@ type OnPageChangeEventType = {
 
 const PdfRendererNative = requireNativeComponent('RNPdfRendererView') as any;
 
+const styles = StyleSheet.create({
+  default: {
+    backgroundColor: 'gray',
+    flex: 1,
+  }
+});
+
 const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
-  const {onPageChange, ...others} = props;
+  const {onPageChange, style, ...others} = props;
+
+  const viewStyles = useMemo(() => [
+    styles.default,
+    style,
+  ], [style]);
 
   const handlePageChange = useCallback(
     (event: NativeSyntheticEvent<OnPageChangeEventType>) => {
@@ -51,7 +64,7 @@ const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
     [onPageChange],
   );
 
-  return <PdfRendererNative {...others} onPageChange={handlePageChange} />;
+  return <PdfRendererNative {...others} style={viewStyles} onPageChange={handlePageChange} />;
 };
 
 PdfRendererView.defaultProps = {

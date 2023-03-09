@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer)
 [![npm downloads](https://img.shields.io/npm/dt/react-native-pdf-renderer.svg)](#install-with-react-native-link)
 
-⚛ A blazing fast, zero dependencies, pure native PDF Renderer for Android and iOS.
+⚛ A blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.
 
 |Android|iOS|
 |-|-|
@@ -38,15 +38,17 @@ import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
    return (
-      <PdfRendererView
-         style={{flex: 1}}
-         source="file:///path/to/local/file.pdf"
-         distanceBetweenPages={16}
-         maxZoom={5}
-         onPageChange={(current, total) => {
-            console.log(current, total);
-         }}
-      />
+      <SafeAreaView style={{flex: 1}}>
+         <PdfRendererView
+            style={{backgroundColor: 'red'}}
+            source="file:///path/to/local/file.pdf"
+            distanceBetweenPages={16}
+            maxZoom={5}
+            onPageChange={(current, total) => {
+               console.log(current, total);
+            }}
+         />
+      </SafeAreaView>
    );
 }
 

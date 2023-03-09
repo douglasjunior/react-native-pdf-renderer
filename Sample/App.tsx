@@ -48,7 +48,7 @@ function App(): JSX.Element {
     return (
       <>
         <PdfRendererView
-          style={{flex: 1, backgroundColor: 'gray'}}
+          style={{backgroundColor: 'red'}}
           source={source}
           distanceBetweenPages={16}
           maxZoom={2}

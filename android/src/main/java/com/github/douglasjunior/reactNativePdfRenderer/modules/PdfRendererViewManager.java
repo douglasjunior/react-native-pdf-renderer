@@ -22,7 +22,6 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -83,7 +82,6 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
 
     @ReactProp(name = "source")
     public void setSource(ViewGroup layout, @Nullable String source) throws IOException {
-        Log.d("PdfRendererViewManager", "setSource");
         PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
 
         if (source != null) {
