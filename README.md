@@ -86,7 +86,7 @@ The creation of this lib was only possible thanks to the help of the community:
 - Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
 - Daniel Felipe Sartório for the help with Android native
 
-## Licence
+## License
 
 ```
 The MIT License (MIT)
