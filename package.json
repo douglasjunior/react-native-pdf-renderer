@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/douglasjunior/react-native-pdf-renderer",
   "scripts": {
-    "prepublish": "run-s build pre-publish-script",
+    "prepublishOnly": "run-s build pre-publish-script",
     "build": "tsc",
     "pre-publish-script": "node scripts/pre-publish.js"
   },
