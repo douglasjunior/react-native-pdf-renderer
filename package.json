@@ -3,7 +3,7 @@
   "displayName": "React-Native Pdf Renderer",
   "version": "0.0.2",
   "description": "⚛ A blazing fast, zero dependencies, pure native PDF Renderer for Android and iOS.",
-  "main": "dist",
+  "main": "src",
   "license": "MIT",
   "private": false,
   "repository": {
@@ -54,6 +54,5 @@
     "react-native": "0.71.4",
     "react-test-renderer": "18.2.0",
     "typescript": "4.8.4"
-  },
-  "types": "dist"
+  }
 }
