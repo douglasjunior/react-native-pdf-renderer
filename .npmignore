@@ -1,6 +1,8 @@
 node_modules/
 __tests__/
+screenshots/
 .vscode/
+.github/
 yarn.lock
 Sample/
 android/build/

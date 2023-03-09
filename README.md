@@ -6,6 +6,10 @@
 
 ⚛ A blazing fast, zero dependencies, pure native PDF Renderer for Android and iOS.
 
+|Android|iOS|
+|-|-|
+|<img src="https://raw.githubusercontent.com/douglasjunior/react-native-pdf-renderer/main/screenshots/android.gif" width="240"/>|<img src="https://raw.githubusercontent.com/douglasjunior/react-native-pdf-renderer/main/screenshots/android.gif" width="240"/>
+
 ## Requirements
 
 - React Native >= 0.60.0

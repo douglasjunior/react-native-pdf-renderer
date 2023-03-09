@@ -17,8 +17,8 @@ function App(): JSX.Element {
        * Download the PDF file with any other library, like "rn-fetch-blob" or 'expo-file-system'
        */
       const response = await FileSystem.downloadAsync(
-        // 'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf', // 600+ pages
-        'https://www.africau.edu/images/default/sample.pdf', // 2 pages
+        'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf', // 612 pages
+        // 'https://www.africau.edu/images/default/sample.pdf', // 2 pages
         FileSystem.documentDirectory + 'file.pdf',
       );
       /*
