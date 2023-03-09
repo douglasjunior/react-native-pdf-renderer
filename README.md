@@ -77,6 +77,15 @@ New features, bug fixes and improvements are welcome! For questions and suggesti
 <a href="https://www.patreon.com/douglasjunior"><img src="http://i.imgur.com/xEO164Z.png" alt="Become a Patron!" width="200" /></a>
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/douglasnassif)
 
+## Thanks to
+
+The creation of this lib was only possible thanks to the help of the community:
+
+- RecyclerView `notifyDataSetChanged()` not working on React Native: https://stackoverflow.com/a/49381907/2826279
+- Add pinch to zoom on RecyclerView: https://stackoverflow.com/a/37895783/2826279
+- Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
+- Daniel Felipe Sartório for the help with Android native
+
 ## Licence
 
 ```
