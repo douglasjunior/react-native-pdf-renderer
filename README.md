@@ -8,7 +8,7 @@
 
 |Android|iOS|
 |-|-|
-|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>
+|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/ios.gif" width="240"/>
 
 ## Requirements
 
