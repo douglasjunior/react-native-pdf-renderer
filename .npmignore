@@ -1,0 +1,8 @@
+node_modules/
+__tests__/
+.vscode/
+yarn.lock
+Sample/
+android/build/
+android/.idea/
+android/.gradle/
