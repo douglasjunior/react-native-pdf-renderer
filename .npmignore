@@ -10,6 +10,7 @@ __tests__/
 screenshots/
 Sample/
 src/
+scripts/
 android/build/
 android/.idea/
 android/.gradle/
