@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer)
 [![npm downloads](https://img.shields.io/npm/dt/react-native-pdf-renderer.svg)](#install-with-react-native-link)
 
-⚛ A blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.
+⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.
 
 |Android|iOS|
 |-|-|
