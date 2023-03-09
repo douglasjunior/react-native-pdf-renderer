@@ -19,10 +19,9 @@ type OnPageChangeEventType = {
 
 const PdfRendererNative = requireNativeComponent('RNPdfRendererView') as any;
 
-const PdfRendererView = ({
-  onPageChange,
-  ...others
-}: PdfRendererViewPropsType): JSX.Element => {
+const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
+  const {onPageChange, ...others} = props;
+
   const handlePageChange = useCallback(
     (event: NativeSyntheticEvent<OnPageChangeEventType>) => {
       onPageChange?.(event.nativeEvent.position, event.nativeEvent.total);
