@@ -81,7 +81,7 @@ New features, bug fixes and improvements are welcome! For questions and suggesti
 
 ## Thanks to
 
-The creation of this lib was only possible thanks to the help of the community:
+This lib is only possible thanks to the community help:
 
 - RecyclerView `notifyDataSetChanged()` not working on React Native: https://stackoverflow.com/a/49381907/2826279
 - Add pinch to zoom on RecyclerView: https://stackoverflow.com/a/37895783/2826279
