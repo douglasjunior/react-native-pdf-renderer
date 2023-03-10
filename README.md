@@ -59,7 +59,7 @@ export default App;
 
 The `source` prop must point to a file stored inside device memory. 
 
-If the file is online, you can use some third part library like `expo-file-system` or `rn-fetch-blob` to download and save locally.
+If the file is online, you can use some third part library like `expo-file-system`, `rn-fetch-blob` or `react-native-blob-util` to download and save locally.
 
 For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/Sample/App.tsx).
 

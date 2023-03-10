@@ -40,7 +40,7 @@ NSMutableDictionary *maxScaleFactors;
     
     RNPDFView *view = [[RNPDFView alloc] init];
     view.tag = [[NSDate new] timeIntervalSince1970];
-        
+    
     return view;
 }
 
@@ -64,6 +64,10 @@ RCT_EXPORT_VIEW_PROPERTY(onPageChange, RCTBubblingEventBlock)
 RCT_CUSTOM_VIEW_PROPERTY(source, NSString, RNPDFView)
 {
     if (json != nil) {
+        if (![json hasPrefix:@"file://"]) {
+            json = [NSString stringWithFormat:@"%@%@", @"file://", json];
+        }
+        
         NSURL *url = [NSURL URLWithString:json];
         PDFDocument *pdfDocument = [[PDFDocument alloc] initWithURL:url];
         

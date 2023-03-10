@@ -2,6 +2,10 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Button, SafeAreaView, StatusBar, Text, View} from 'react-native';
 import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+
+const PDF_URL = 'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf'; // 618 pages
+// const PDF_URL = 'https://www.africau.edu/images/default/sample.pdf'; // 2 pages
 
 function App(): JSX.Element {
   const [totalPages, setTotalPages] = useState(0);
@@ -10,15 +14,14 @@ function App(): JSX.Element {
   const [toggle, setToggle] = useState(true);
   const [source, setSource] = useState<string>();
 
-  const downloadFile = useCallback(async () => {
+  const downloadWithExpoFileSystem = useCallback(async () => {
     try {
       setDownloading(true);
       /**
-       * Download the PDF file with any other library, like "rn-fetch-blob" or 'expo-file-system'
+       * Download the PDF file with any other library, like  "expo-file-system", "rn-fetch-blob" or "react-native-blob-util"
        */
       const response = await FileSystem.downloadAsync(
-        'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf', // 612 pages
-        // 'https://www.africau.edu/images/default/sample.pdf', // 2 pages
+        PDF_URL,
         FileSystem.documentDirectory + 'file.pdf',
       );
       /*
@@ -32,9 +35,32 @@ function App(): JSX.Element {
     }
   }, []);
 
+  const downloadWithBlobUtil = useCallback(async () => {
+    try {
+      setDownloading(true);
+      /**
+       * Download the PDF file with any other library, like  "expo-file-system", "rn-fetch-blob" or "react-native-blob-util"
+       */
+      const dirs = ReactNativeBlobUtil.fs.dirs;
+      const response = await ReactNativeBlobUtil.config({
+        path: dirs.DocumentDir + '/file.pdf',
+      }).fetch('GET', PDF_URL);
+      console.log(response.path());
+      /*
+       * Then, set the local file URI to state and pass to the PdfRendererView source prop.
+       */
+      setSource(response.path());
+    } catch (err) {
+      console.warn(err);
+    } finally {
+      setDownloading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    downloadFile();
-  }, [downloadFile]);
+    downloadWithExpoFileSystem();
+    // downloadWithBlobUtil();
+  }, [downloadWithExpoFileSystem]);
 
   const renderPdfView = () => {
     if (downloading) {
