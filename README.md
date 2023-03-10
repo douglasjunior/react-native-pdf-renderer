@@ -6,6 +6,8 @@
 
 ⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.
 
+It uses [PdfRenderer](https://developer.android.com/reference/android/graphics/pdf/PdfRenderer) for Android and [PdfKit](https://developer.apple.com/documentation/pdfkit) for iOS.
+
 |Android|iOS|
 |-|-|
 |<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/ios.gif" width="240"/>
