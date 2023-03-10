@@ -1,7 +1,7 @@
 {
   "name": "react-native-pdf-renderer",
   "displayName": "React-Native Pdf Renderer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.",
   "main": "src",
   "license": "MIT",
