@@ -55,7 +55,7 @@ const App = () => {
 export default App;
 ```
 
-The `source` prop must point to a file store inside device memory. 
+The `source` prop must point to a file stored inside device memory. 
 
 If the file is online, you can use some third part library like `expo-file-system` or `rn-fetch-blob` to download and save locally.
 
