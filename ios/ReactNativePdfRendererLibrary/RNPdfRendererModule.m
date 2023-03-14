@@ -29,17 +29,16 @@
 
 RCT_EXPORT_MODULE(RNPdfRendererView)
 
-NSMutableDictionary *maxScaleFactors;
+BOOL observerAdded = NO;
 
 - (UIView *)view
 {
-    if (maxScaleFactors == nil) {
-        maxScaleFactors = [[NSMutableDictionary alloc] init];
+    if (!observerAdded) {
+        observerAdded = YES;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
     }
     
     RNPDFView *view = [[RNPDFView alloc] init];
-    view.tag = [[NSDate new] timeIntervalSince1970];
     
     return view;
 }
@@ -61,61 +60,14 @@ NSMutableDictionary *maxScaleFactors;
 
 RCT_EXPORT_VIEW_PROPERTY(onPageChange, RCTBubblingEventBlock)
 
-RCT_CUSTOM_VIEW_PROPERTY(source, NSString, RNPDFView)
+RCT_CUSTOM_VIEW_PROPERTY(params, NSDictionary, RNPDFView)
 {
-    if (json != nil) {
-        if (![json hasPrefix:@"file://"]) {
-            json = [NSString stringWithFormat:@"%@%@", @"file://", json];
-        }
-        
-        NSURL *url = [NSURL URLWithString:json];
-        PDFDocument *pdfDocument = [[PDFDocument alloc] initWithURL:url];
-        
-        view.autoScales = YES;
-        view.displayDirection = kPDFDisplayDirectionVertical;
-        
-        view.displayMode = kPDFDisplaySinglePageContinuous;
-        view.document = pdfDocument;
-    } else {
-        view.document = nil;
-    }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *viewTag =  [NSString stringWithFormat:@"%ld", (long)view.tag];
-        
-        view.minScaleFactor = view.scaleFactorForSizeToFit;
-        
-        NSNumber *maxZoom = [maxScaleFactors valueForKey:viewTag];
-        [maxScaleFactors removeObjectForKey:viewTag];
-        
-        if ([maxZoom floatValue] > 0) {
-            view.maxScaleFactor = view.scaleFactorForSizeToFit * [maxZoom floatValue];
-        }
-    });
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNPDFView)
-{
-    NSString *viewTag =  [NSString stringWithFormat:@"%ld", (long)view.tag];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (json != nil) {
-            if (view.document != nil) {
-                view.maxScaleFactor = view.scaleFactorForSizeToFit * [json floatValue];
-            } else {
-                [maxScaleFactors setValue:json forKey: viewTag];
-            }
-        } else {
-            view.maxScaleFactor = 0;
-            [maxScaleFactors removeObjectForKey: viewTag];
-        }
-    });
+    [view setParams:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(distanceBetweenPages, NSNumber, RNPDFView)
 {
-    view.pageBreakMargins = UIEdgeInsetsMake(0, 0, [json floatValue], 0);
-    [view setNeedsLayout];
+    [view setDistanceBetweenPages:json];
 }
 
 @end

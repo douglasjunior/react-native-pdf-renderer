@@ -63,6 +63,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private ReactApplicationContext mReactApplicationContext;
     private ScaleGestureDetector mScaleDetector;
     private Matrix mMatrix;
+    private boolean mSinglePage;
 
     public PdfRendererRecyclerView(@NonNull ReactApplicationContext context, ViewGroup parent) {
         super(context);
@@ -231,6 +232,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
     }
 
+    public void setSinglePage(boolean singlePage) {
+        this.mSinglePage = singlePage;
+    }
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -307,6 +312,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ImageView imageView = new ImageView(parent.getContext());
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setBackgroundColor(Color.WHITE);
             LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 0);
             imageView.setLayoutParams(params);
@@ -326,10 +332,16 @@ public class PdfRendererRecyclerView extends RecyclerView {
             imageView.setImageBitmap(bitmap);
 
             LayoutParams lp = (LayoutParams) imageView.getLayoutParams();
-            lp.width = LayoutParams.MATCH_PARENT;
-            int parentWidth = holder.getParentView().getWidth();
-            lp.height = Math.round(((float) parentWidth / (float) page.getWidth()) * (float) page.getHeight());
-            lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
+
+            if (mSinglePage) {
+                lp.width = LayoutParams.MATCH_PARENT;
+                lp.height = LayoutParams.MATCH_PARENT;
+            } else {
+                lp.width = LayoutParams.MATCH_PARENT;
+                lp.height = Math.round(((float) mWidth / (float) page.getWidth()) * (float) page.getHeight());
+                lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
+            }
+
             imageView.setLayoutParams(lp);
 
             page.close();
@@ -338,13 +350,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
         @Override
         public int getItemCount() {
             if (mPdfRenderer == null) return 0;
+            if (mSinglePage) {
+                return Math.min(mPdfRenderer.getPageCount(), 1);
+            }
             return mPdfRenderer.getPageCount();
         }
 
-        /**
-         * Provide a reference to the type of views that you are using
-         * (custom ViewHolder).
-         */
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             private final ViewGroup mParentView;

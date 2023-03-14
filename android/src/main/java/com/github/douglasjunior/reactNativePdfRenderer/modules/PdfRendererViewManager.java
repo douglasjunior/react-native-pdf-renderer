@@ -22,13 +22,16 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -80,15 +83,23 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
         return map;
     }
 
-    @ReactProp(name = "source")
-    public void setSource(ViewGroup layout, @Nullable String source) throws IOException {
+    @ReactProp(name = "params")
+    public void setParams(ViewGroup layout, @Nullable ReadableMap params) throws IOException {
         PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
+
+        String source = params.getString("source");
+        Boolean singlePage = params.hasKey("singlePage") ? params.getBoolean("singlePage") : false;
+        float maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
 
         if (source != null) {
             recyclerView.updateSource(source);
         } else {
             recyclerView.closeAdapter();
         }
+
+        recyclerView.setSinglePage(singlePage);
+        recyclerView.setMaxZoom(maxZoom);
+        recyclerView.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
         recyclerView.forceRequestLayout();
     }
@@ -97,12 +108,6 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
     public void setDistanceBetweenPages(ViewGroup layout, @Nullable float distanceBetweenPages) {
         PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
         recyclerView.setDistanceBetweenPages(distanceBetweenPages);
-    }
-
-    @ReactProp(name = "maxZoom")
-    public void setMaxZoom(ViewGroup layout, @Nullable float maxZoom) {
-        PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
-        recyclerView.setMaxZoom(maxZoom);
     }
 
 }

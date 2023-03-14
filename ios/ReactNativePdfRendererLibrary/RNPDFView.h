@@ -33,4 +33,7 @@
 
 @property (nonatomic, copy) RCTBubblingEventBlock onPageChange;
 
+-(void) setDistanceBetweenPages:(NSNumber*) distance;
+-(void) setParams:(NSDictionary*) params;
+
 @end

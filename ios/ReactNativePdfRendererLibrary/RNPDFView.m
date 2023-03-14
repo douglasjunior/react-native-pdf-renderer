@@ -27,4 +27,55 @@
 
 @implementation RNPDFView
 
+-(void) setParams:(NSDictionary*) params {
+    NSString *source = [params objectForKey:@"source"];
+    
+    float maxZoom = [params objectForKey:@"maxZoom"] != nil
+    ? [[params objectForKey:@"maxZoom"] floatValue]
+    : 0;
+    
+    BOOL singlePage = [params objectForKey:@"singlePage"] != nil
+    ? [[params objectForKey:@"singlePage"] boolValue]
+    : NO;
+    
+    if ([params objectForKey:@"source"] != nil) {
+        if (![source hasPrefix:@"file://"]) {
+            source = [NSString stringWithFormat:@"%@%@", @"file://", source];
+        }
+        
+        NSURL *url = [NSURL URLWithString:source];
+        PDFDocument *pdfDocument = [[PDFDocument alloc] initWithURL:url];
+        
+        self.autoScales = YES;
+        self.displayDirection = kPDFDisplayDirectionVertical;
+        self.displaysPageBreaks = YES;
+        if (@available(iOS 12.0, *)) {
+            self.pageShadowsEnabled = NO;
+        }
+        self.displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
+        
+        self.document = pdfDocument;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.minScaleFactor = self.scaleFactorForSizeToFit;
+            if (maxZoom > 0) {
+                self.maxScaleFactor = self.scaleFactorForSizeToFit * maxZoom;
+            }
+            [self setNeedsLayout];
+        });
+    } else {
+        self.document = nil;
+    }
+}
+
+-(void) setDistanceBetweenPages:(NSNumber*) distance {
+    float marginBottom = distance != nil && self.displayMode == kPDFDisplaySinglePageContinuous
+    ? [distance floatValue]
+    : 0;
+    
+    self.pageBreakMargins = UIEdgeInsetsMake(0, 0, marginBottom, 0);
+    
+    [self setNeedsLayout];
+}
+
 @end

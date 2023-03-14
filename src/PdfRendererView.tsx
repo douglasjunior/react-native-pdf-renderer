@@ -32,6 +32,7 @@ export type PdfRendererViewPropsType = ViewProps & {
   source?: string;
   distanceBetweenPages: number;
   maxZoom: number;
+  singlePage: boolean;
   onPageChange?: (page: number, totalPages: number) => void;
 };
 
@@ -46,16 +47,13 @@ const styles = StyleSheet.create({
   default: {
     backgroundColor: 'gray',
     flex: 1,
-  }
+  },
 });
 
 const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
-  const {onPageChange, style, ...others} = props;
+  const {onPageChange, style, source, singlePage, maxZoom, ...others} = props;
 
-  const viewStyles = useMemo(() => [
-    styles.default,
-    style,
-  ], [style]);
+  const viewStyles = useMemo(() => [styles.default, style], [style]);
 
   const handlePageChange = useCallback(
     (event: NativeSyntheticEvent<OnPageChangeEventType>) => {
@@ -64,12 +62,29 @@ const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
     [onPageChange],
   );
 
-  return <PdfRendererNative {...others} style={viewStyles} onPageChange={handlePageChange} />;
+  const params = useMemo(
+    () => ({
+      source,
+      singlePage,
+      maxZoom,
+    }),
+    [source, singlePage, maxZoom],
+  );
+
+  return (
+    <PdfRendererNative
+      {...others}
+      style={viewStyles}
+      params={params}
+      onPageChange={handlePageChange}
+    />
+  );
 };
 
 PdfRendererView.defaultProps = {
   maxZoom: 5,
   distanceBetweenPages: 16,
+  singlePage: false,
 };
 
 export default PdfRendererView;

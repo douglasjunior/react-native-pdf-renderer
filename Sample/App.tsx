@@ -11,6 +11,7 @@ function App(): JSX.Element {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [singlePage, setSinglePage] = useState(false);
   const [toggle, setToggle] = useState(true);
   const [source, setSource] = useState<string>();
 
@@ -45,7 +46,6 @@ function App(): JSX.Element {
       const response = await ReactNativeBlobUtil.config({
         path: dirs.DocumentDir + '/file.pdf',
       }).fetch('GET', PDF_URL);
-      console.log(response.path());
       /*
        * Then, set the local file URI to state and pass to the PdfRendererView source prop.
        */
@@ -73,11 +73,16 @@ function App(): JSX.Element {
 
     return (
       <>
+        <Button
+          title="Single Page"
+          onPress={() => setSinglePage(prev => !prev)}
+        />
         <PdfRendererView
           style={{backgroundColor: 'red'}}
           source={source}
           distanceBetweenPages={16}
           maxZoom={2}
+          singlePage={singlePage}
           onPageChange={(current, total) => {
             console.log({current, total});
             setCurrentPage(current);

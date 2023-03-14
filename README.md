@@ -73,6 +73,7 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
+|singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
 
 ## Contribute
 
