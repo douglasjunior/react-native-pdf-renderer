@@ -7,8 +7,7 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest",
-    "postinstall": "rimraf node_modules/react-native-pdf-renderer/Sample/"
+    "test": "jest"
   },
   "dependencies": {
     "expo": "^48.0.0",
