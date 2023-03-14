@@ -84,7 +84,7 @@ function App(): JSX.Element {
           maxZoom={2}
           singlePage={singlePage}
           onPageChange={(current, total) => {
-            console.log({current, total});
+            console.log('onPageChange', {current, total});
             setCurrentPage(current);
             setTotalPages(total);
           }}

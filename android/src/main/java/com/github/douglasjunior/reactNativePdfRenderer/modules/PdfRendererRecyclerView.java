@@ -125,7 +125,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
             WritableMap event = Arguments.createMap();
             event.putInt("position", position);
-            event.putInt("total", adapter.getItemCount());
+            event.putInt("total", adapter.getPageCount());
 
             mReactApplicationContext
                     .getJSModule(RCTEventEmitter.class)
@@ -332,12 +332,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
             imageView.setImageBitmap(bitmap);
 
             LayoutParams lp = (LayoutParams) imageView.getLayoutParams();
+            lp.width = LayoutParams.MATCH_PARENT;
 
             if (mSinglePage) {
-                lp.width = LayoutParams.MATCH_PARENT;
                 lp.height = LayoutParams.MATCH_PARENT;
+                lp.setMargins(0, 0, 0, 0);
             } else {
-                lp.width = LayoutParams.MATCH_PARENT;
                 lp.height = Math.round(((float) mWidth / (float) page.getWidth()) * (float) page.getHeight());
                 lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
             }
@@ -353,6 +353,11 @@ public class PdfRendererRecyclerView extends RecyclerView {
             if (mSinglePage) {
                 return Math.min(mPdfRenderer.getPageCount(), 1);
             }
+            return mPdfRenderer.getPageCount();
+        }
+
+        public int getPageCount() {
+            if (mPdfRenderer == null) return 0;
             return mPdfRenderer.getPageCount();
         }
 
