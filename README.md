@@ -35,7 +35,7 @@ Go to the folder **your-project/ios** and run `pod install`, and you're done.
 
 There is only one component that you need to use to render the PDF file.
 
-```js
+```jsx
 import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
@@ -80,6 +80,14 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. 
 
 So, if you need the best option is to wrap the `PdfRendererView` in another `View`.
+
+```jsx
+<View style={{ borderRadius: 24, overflow: 'hidden' }}>
+   <PdfRendererView
+      ...
+   />
+</View>
+```
 
 ## Contribute
 
