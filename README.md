@@ -77,12 +77,18 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 
 ## Limitations
 
+### Size measuring
+
+The `PdfRendererView` is `flex: 1` by default, so you need to make sure that your parents `View` are `flex: 1` or have a fixed `width/height`.
+
+### Border radius
+
 The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. 
 
 So, if you need the best option is to wrap the `PdfRendererView` in another `View`.
 
 ```jsx
-<View style={{ borderRadius: 24, overflow: 'hidden' }}>
+<View style={{ flex: 1, borderRadius: 24, overflow: 'hidden' }}>
    <PdfRendererView
       ...
    />
