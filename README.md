@@ -63,7 +63,7 @@ If the file is online, you can use some third part library like `expo-file-syste
 
 For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/Sample/App.tsx).
 
-## Props
+## PdfRendererView props
 
 Inherits [View Props](https://reactnative.dev/docs/view#props).
 
@@ -74,6 +74,12 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 |maxZoom|`number`|`5`|Max zoom scale.|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
 |singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
+
+## Limitations
+
+The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. 
+
+So, if you need the best option is to wrap the `PdfRendererView` in another `View`.
 
 ## Contribute
 
