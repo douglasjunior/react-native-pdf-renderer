@@ -35,7 +35,7 @@ Go to the folder **your-project/ios** and run `pod install`, and you're done.
 
 There is only one component that you need to use to render the PDF file.
 
-```js
+```jsx
 import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
@@ -72,14 +72,28 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 |source|`string`||Path to a file stored on device.|
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
+|singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
-|singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
 
 ## Limitations
 
-The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. 
+### Size measuring
 
-So, if you need the best option is to wrap the `PdfRendererView` in another `View`.
+The `PdfRendererView` is `flex: 1` by default, so you need to make sure that your parents `View` are `flex: 1` or have a fixed `width/height`.
+
+### Border radius
+
+The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. (read more #1)
+
+If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in another `View`.
+
+```jsx
+<View style={{ flex: 1, borderRadius: 24, overflow: 'hidden' }}>
+   <PdfRendererView
+      // ...
+   />
+</View>
+```
 
 ## Contribute
 
@@ -105,4 +119,4 @@ The MIT License (MIT)
 Copyright (c) 2023 Douglas Nassif Roma Junior
 ```
 
-See the full [licence file](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE).
+See the full [license file](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE).
