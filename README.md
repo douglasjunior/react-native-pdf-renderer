@@ -111,6 +111,10 @@ This lib is only possible thanks to the community help:
 - Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
 - Daniel Felipe Sartório for the help with Android native
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=douglasjunior/react-native-pdf-renderer&type=Date)](https://star-history.com/#douglasjunior/react-native-pdf-renderer)
+
 ## License
 
 ```
