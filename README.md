@@ -1,6 +1,6 @@
 # React-Native Pdf Renderer
 
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE)
+[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer?activeTab=versions)
 [![npm downloads](https://img.shields.io/npm/dt/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer)
 

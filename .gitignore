@@ -63,3 +63,5 @@ yarn-error.log
 .metro-health-check*
 
 /dist
+!/dist/.gitkeep
+
