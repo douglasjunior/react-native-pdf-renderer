@@ -165,12 +165,6 @@ public class PdfRendererRecyclerView extends RecyclerView {
     }
 
     @Override
-    public void destroyDrawingCache() {
-        super.destroyDrawingCache();
-        closeAdapter();
-    }
-
-    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         try {
             return super.onInterceptTouchEvent(ev);
