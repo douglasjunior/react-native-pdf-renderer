@@ -109,7 +109,7 @@ This lib is only possible thanks to the community help:
 - RecyclerView `notifyDataSetChanged()` not working on React Native: https://stackoverflow.com/a/49381907/2826279
 - Add pinch to zoom on RecyclerView: https://stackoverflow.com/a/37895783/2826279
 - Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
-- Daniel Felipe Sartório for the help with Android native
+- **Daniel Felipe Sartório** for the help with Android native code
 
 ## Star History
 
