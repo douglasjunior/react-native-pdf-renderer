@@ -23,6 +23,7 @@
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -67,12 +68,16 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     public PdfRendererRecyclerView(@NonNull ReactApplicationContext context, ViewGroup parent) {
         super(context);
-        LinearLayoutManager lm = new LinearLayoutManager(context);
+
+        LayoutManager lm = new LayoutManager(context);
         lm.setOrientation(LinearLayoutManager.VERTICAL);
-        this.setLayoutManager(lm);
+
         PdfRendererAdapter adapter = new PdfRendererAdapter();
+
+        this.setLayoutManager(lm);
         this.setAdapter(adapter);
         this.addOnScrollListener(new ScrollListener());
+
         mReactApplicationContext = context;
         mParent = parent;
         mMatrix = new Matrix();
@@ -156,11 +161,32 @@ public class PdfRendererRecyclerView extends RecyclerView {
         mMatrix.postTranslate((w - scale * mWidth) / 2f, (h - scale * mHeight) / 2f);
     }
 
+    private boolean isScrollingInsideZoomedArea() {
+        float[] values = new float[9];
+        mMatrix.getValues(values);
+
+        float scaleY = Math.min(Math.max(values[Matrix.MSCALE_Y], mMinZoom), mMaxZoom);
+        float posY = values[Matrix.MTRANS_Y];
+
+        float maxPosY = mHeight - mHeight * scaleY;
+
+        return posY < 0 && posY > maxPosY;
+    }
+
     @Override
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(MotionEvent e) {
         mScaleDetector.onTouchEvent(e);
         mGestureDetector.onTouchEvent(e);
+
+        /*
+         * Disables the RecyclerView scroll when scrolling inside zoomed area
+         * https://github.com/douglasjunior/react-native-pdf-renderer/issues/3
+         */
+        if (isScrollingInsideZoomedArea()) {
+            return true;
+        }
+
         return super.onTouchEvent(e);
     }
 
@@ -379,6 +405,29 @@ public class PdfRendererRecyclerView extends RecyclerView {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             dispatchPageChangeEvent();
+        }
+    }
+
+    class LayoutManager extends LinearLayoutManager {
+        public LayoutManager(Context context) {
+            super(context);
+        }
+
+        @Override
+        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
+            /*
+             * Reduces the scroll speed when zoomed
+             * https://github.com/douglasjunior/react-native-pdf-renderer/issues/3
+             */
+
+            float[] values = new float[9];
+            mMatrix.getValues(values);
+
+            float scaleY = values[Matrix.MSCALE_Y];
+
+            int dyWithScale = Math.round(dy / scaleY);
+
+            return super.scrollVerticallyBy(dyWithScale, recycler, state);
         }
     }
 }
