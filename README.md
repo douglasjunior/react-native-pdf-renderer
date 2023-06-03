@@ -1,6 +1,6 @@
 # React-Native Pdf Renderer
 
-[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE)
+[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/LICENSE)
 [![npm version](https://img.shields.io/npm/v/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer?activeTab=versions)
 [![npm downloads](https://img.shields.io/npm/dt/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer)
 
@@ -61,7 +61,7 @@ The `source` prop must point to a file stored inside device memory.
 
 If the file is online, you can use some third part library like `expo-file-system`, `rn-fetch-blob` or `react-native-blob-util` to download and save locally.
 
-For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/Sample/App.tsx).
+For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/Sample/App.tsx).
 
 ## PdfRendererView props
 
@@ -123,4 +123,4 @@ The MIT License (MIT)
 Copyright (c) 2023 Douglas Nassif Roma Junior
 ```
 
-See the full [license file](https://github.com/douglasjunior/react-native-pdf-renderer/blob/master/LICENSE).
+See the full [license file](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/LICENSE).
