@@ -156,7 +156,9 @@ public class PdfRendererRecyclerView extends RecyclerView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        float scale = Math.max(w / mWidth, h / mHeight);
+        float scale = mWidth > 0 && mHeight > 0
+                ? Math.max(w / mWidth, h / mHeight)
+                : 1;
         mMatrix.setScale(scale, scale);
         mMatrix.postTranslate((w - scale * mWidth) / 2f, (h - scale * mHeight) / 2f);
     }

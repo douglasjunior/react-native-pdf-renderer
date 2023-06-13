@@ -431,7 +431,7 @@ PODS:
     - React-jsi (= 0.71.4)
     - React-logger (= 0.71.4)
     - React-perflogger (= 0.71.4)
-  - ReactNativePdfRenderer (1.0.2):
+  - ReactNativePdfRenderer (1.1.1):
     - React-Core
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
@@ -669,11 +669,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: ad17efcfb2fa8f6bfd8ac0cf48d96668b8b28e0b
   React-runtimeexecutor: 8fa50b38df6b992c76537993a2b0553d3b088004
   ReactCommon: b49a4b00ca6d181ff74b17c12b2d59ac4add0bde
-  ReactNativePdfRenderer: b85f20bb86ac7494fadd0f7713b9fe19432fd457
+  ReactNativePdfRenderer: 128c978c4752d8aa97dc241f9538f99a71fe0045
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 79dd7410de6f8ad73a77c868d3d368843f0c93e0
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: ce35c4af6caaba3c4a2d86d66de97bf56a7970b1
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.12.0
