@@ -28,7 +28,8 @@ import {
   ViewProps,
 } from 'react-native';
 
-export type PdfRendererViewPropsType = ViewProps & {
+export type PdfRendererViewPropsType = {
+  style?: ViewProps['style'],
   source?: string;
   distanceBetweenPages: number;
   maxZoom: number;
