@@ -65,8 +65,6 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 
 ## PdfRendererView props
 
-Inherits [View Props](https://reactnative.dev/docs/view#props).
-
 |Name|Value|Default|Description|
 |-|-|-|-|
 |source|`string`||Path to a file stored on device.|
@@ -74,6 +72,7 @@ Inherits [View Props](https://reactnative.dev/docs/view#props).
 |maxZoom|`number`|`5`|Max zoom scale.|
 |singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
+|style|`StyleProp<ViewStyle>`||Styles to be applied to the View |
 
 ## Limitations
 
