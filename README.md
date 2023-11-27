@@ -12,6 +12,14 @@ It uses [PdfRenderer](https://developer.android.com/reference/android/graphics/p
 |-|-|
 |<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/ios.gif" width="240"/>
 
+## Why another PDF renderer?
+
+The main reason why I create this library is to avoid using third party native dependencies, like `com.github.TalbotGooday:AndroidPdfViewer`, `com.github.mhiew:android-pdf-viewer`, `react-native-blob-util` or even `react-native-webview`. 
+
+But why?
+
+Every React Native developer knows (or will discover soon) the pain of updating the React Native ecosystem when a new version of Android or iOS comes out, so here we want to avoid this pain as much as possible.
+
 ## Requirements
 
 - React Native >= 0.60.0
