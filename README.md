@@ -90,7 +90,7 @@ The `PdfRendererView` is `flex: 1` by default, so you need to make sure that you
 
 ### Border radius
 
-The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. (read more #1)
+The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. (read more [#1](https://github.com/douglasjunior/react-native-pdf-renderer/issues/1#issuecomment-1483395465))
 
 If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in another `View`.
 
