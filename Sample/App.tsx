@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Button, SafeAreaView, StatusBar, Text, View} from 'react-native';
 import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
-import ReactNativeBlobUtil from 'react-native-blob-util';
+// import ReactNativeBlobUtil from 'react-native-blob-util';
 
 const PDF_URL = 'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf'; // 618 pages
 // const PDF_URL = 'https://www.africau.edu/images/default/sample.pdf'; // 2 pages
@@ -36,26 +36,26 @@ function App(): JSX.Element {
     }
   }, []);
 
-  const downloadWithBlobUtil = useCallback(async () => {
-    try {
-      setDownloading(true);
-      /**
-       * Download the PDF file with any other library, like  "expo-file-system", "rn-fetch-blob" or "react-native-blob-util"
-       */
-      const dirs = ReactNativeBlobUtil.fs.dirs;
-      const response = await ReactNativeBlobUtil.config({
-        path: dirs.DocumentDir + '/file.pdf',
-      }).fetch('GET', PDF_URL);
-      /*
-       * Then, set the local file URI to state and pass to the PdfRendererView source prop.
-       */
-      setSource(response.path());
-    } catch (err) {
-      console.warn(err);
-    } finally {
-      setDownloading(false);
-    }
-  }, []);
+  // const downloadWithBlobUtil = useCallback(async () => {
+  //   try {
+  //     setDownloading(true);
+  //     /**
+  //      * Download the PDF file with any other library, like  "expo-file-system", "rn-fetch-blob" or "react-native-blob-util"
+  //      */
+  //     const dirs = ReactNativeBlobUtil.fs.dirs;
+  //     const response = await ReactNativeBlobUtil.config({
+  //       path: dirs.DocumentDir + '/file.pdf',
+  //     }).fetch('GET', PDF_URL);
+  //     /*
+  //      * Then, set the local file URI to state and pass to the PdfRendererView source prop.
+  //      */
+  //     setSource(response.path());
+  //   } catch (err) {
+  //     console.warn(err);
+  //   } finally {
+  //     setDownloading(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
     downloadWithExpoFileSystem();
@@ -81,7 +81,7 @@ function App(): JSX.Element {
           style={{backgroundColor: 'red'}}
           source={source}
           distanceBetweenPages={16}
-          maxZoom={2}
+          maxZoom={5}
           singlePage={singlePage}
           onPageChange={(current, total) => {
             console.log('onPageChange', {current, total});
