@@ -4,7 +4,8 @@ import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 
-const PDF_URL = 'https://www.hq.nasa.gov/alsj/a17/A17_FlightPlan.pdf'; // 618 pages
+const PDF_URL =
+  'https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11final-fltpln.pdf'; // 618 pages
 // const PDF_URL = 'https://www.africau.edu/images/default/sample.pdf'; // 2 pages
 
 function App(): JSX.Element {
@@ -81,7 +82,7 @@ function App(): JSX.Element {
           style={{backgroundColor: 'red'}}
           source={source}
           distanceBetweenPages={16}
-          maxZoom={2}
+          maxZoom={5}
           singlePage={singlePage}
           onPageChange={(current, total) => {
             console.log('onPageChange', {current, total});

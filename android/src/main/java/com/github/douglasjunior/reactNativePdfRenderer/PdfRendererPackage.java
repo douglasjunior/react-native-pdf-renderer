@@ -30,7 +30,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.github.douglasjunior.reactNativePdfRenderer.modules.PdfRendererViewManager;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class PdfRendererPackage implements ReactPackage {
     @NonNull
     @Override
     public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactApplicationContext) {
-        return Arrays.asList(
+        return Collections.singletonList(
                 new PdfRendererViewManager(reactApplicationContext)
         );
     }
