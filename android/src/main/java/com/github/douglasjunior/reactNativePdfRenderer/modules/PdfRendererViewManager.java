@@ -55,12 +55,12 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
     @NonNull
     @Override
     protected ViewGroup createViewInstance(@NonNull ThemedReactContext themedReactContext) {
-        LinearLayout layout = new LinearLayout(themedReactContext);
+        var layout = new LinearLayout(themedReactContext);
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        var params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        PdfRendererRecyclerView recyclerView = new PdfRendererRecyclerView(mReactApplicationContext, layout);
+        var recyclerView = new PdfRendererRecyclerView(mReactApplicationContext, layout);
         recyclerView.setLayoutParams(params);
 
         layout.addView(recyclerView);
@@ -72,7 +72,8 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
     @Nullable
     @Override
     public Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
-        Map<String, Object> map = super.getExportedCustomBubblingEventTypeConstants();
+        var map = super.getExportedCustomBubblingEventTypeConstants();
+        if (map == null) map = MapBuilder.of();
         map.put("pageChange", MapBuilder.of(
                 "phasedRegistrationNames",
                 MapBuilder.of("bubbled", "onPageChange")
@@ -82,11 +83,13 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
 
     @ReactProp(name = "params")
     public void setParams(ViewGroup layout, @Nullable ReadableMap params) throws IOException {
-        PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
+        if (params == null) return;
 
-        String source = params.getString("source");
-        boolean singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
-        float maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
+        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
+
+        var source = params.getString("source");
+        var singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
+        var maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
 
         if (source != null) {
             recyclerView.updateSource(source);
@@ -103,8 +106,7 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
 
     @ReactProp(name = "distanceBetweenPages")
     public void setDistanceBetweenPages(ViewGroup layout, @Nullable float distanceBetweenPages) {
-        PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
+        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
         recyclerView.setDistanceBetweenPages(distanceBetweenPages);
     }
-
 }

@@ -22,12 +22,12 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ObservableZoom {
-    private final List<ZoomChangeListener> listeners = new ArrayList<>();
-    private int zoom;
+    private final Set<ZoomChangeListener> listeners = new HashSet<>();
+    private float zoom;
 
     public ObservableZoom(int initialZoom) {
         this.zoom = initialZoom;
@@ -37,23 +37,27 @@ public class ObservableZoom {
         this.listeners.add(listener);
     }
 
+    public void removeListener(ZoomChangeListener zoomListener) {
+        this.listeners.remove(zoomListener);
+    }
+
     private void notifyListeners() {
         for (ZoomChangeListener listener : listeners) {
             listener.onZoomChange(this.zoom);
         }
     }
 
-    public int getZoom() {
+    public float getZoom() {
         return zoom;
     }
 
-    public void setZoom(int newZoom) {
+    public void setZoom(float newZoom) {
         if (newZoom == this.zoom) return;
         this.zoom = newZoom;
         notifyListeners();
     }
 
     public interface ZoomChangeListener {
-        void onZoomChange(int newZoom);
+        void onZoomChange(float newZoom);
     }
 }
