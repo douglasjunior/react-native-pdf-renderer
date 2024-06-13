@@ -31,6 +31,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -51,19 +53,21 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
     private final ViewGroup mParent;
     private final GestureDetector mGestureDetector;
+    private final int mMinZoom = 1;
+    private final ReactApplicationContext mReactApplicationContext;
+    private final ScaleGestureDetector mScaleDetector;
+    private final Matrix mMatrix;
+    private final ObservableZoom mZoom = new ObservableZoom(mMinZoom);
     private boolean mRequestedLayout = false;
-    private float mMinZoom = 1;
     private float mMaxZoom = 5;
     private float mDistanceBetweenPages = 0;
     private int mWidth;
     private int mHeight;
     private int mCurrentItemPosition = -1;
-    private ReactApplicationContext mReactApplicationContext;
-    private ScaleGestureDetector mScaleDetector;
-    private Matrix mMatrix;
     private boolean mSinglePage;
 
     public PdfRendererRecyclerView(@NonNull ReactApplicationContext context, ViewGroup parent) {
@@ -100,36 +104,40 @@ public class PdfRendererRecyclerView extends RecyclerView {
     public void closeAdapter() {
         try {
             PdfRendererAdapter adapter = (PdfRendererAdapter) getAdapter();
+            assert adapter != null;
             adapter.close();
             adapter.notifyDataSetChanged();
         } catch (Exception ex) {
-            ex.printStackTrace();
-            // do nothing
+            Log.e("PdfRendererRecyclerView", "Error closing adapter", ex);
         }
     }
 
     public void updateSource(String source) throws IOException {
         mCurrentItemPosition = -1;
         PdfRendererAdapter adapter = (PdfRendererAdapter) getAdapter();
+        if (adapter == null) return;
+        adapter.close();
         adapter.updateSource(source);
         adapter.notifyDataSetChanged();
         dispatchPageChangeEvent();
     }
 
     private void dispatchPageChangeEvent() {
-        int position = ((LinearLayoutManager) getLayoutManager()).findLastCompletelyVisibleItemPosition();
+        LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
+        if (layoutManager == null) return;
 
-        if (position < 0) {
-            position = ((LinearLayoutManager) getLayoutManager()).findLastVisibleItemPosition();
-        }
+        int newPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+        if (newPosition < 0) newPosition = layoutManager.findLastVisibleItemPosition();
 
-        if (position != mCurrentItemPosition) {
-            mCurrentItemPosition = position;
+        if (newPosition != mCurrentItemPosition) {
+            mCurrentItemPosition = newPosition;
 
             PdfRendererAdapter adapter = (PdfRendererAdapter) getAdapter();
 
+            if (adapter == null) return;
+
             WritableMap event = Arguments.createMap();
-            event.putInt("position", position);
+            event.putInt("position", newPosition);
             event.putInt("total", adapter.getPageCount());
 
             mReactApplicationContext
@@ -197,7 +205,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
         try {
             return super.onInterceptTouchEvent(ev);
         } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
+            Log.e("PdfRendererRecyclerView", "Error intercepting touch event", ex);
         }
         return false;
     }
@@ -274,6 +282,8 @@ public class PdfRendererRecyclerView extends RecyclerView {
             mMatrix.postScale(factor, factor, getWidth() / 2f, getHeight() / 2f);
             validateMatrixLimits();
             ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+
+            mZoom.setZoom(Math.round(zoom));
             return true;
         }
     }
@@ -307,6 +317,8 @@ public class PdfRendererRecyclerView extends RecyclerView {
             validateMatrixLimits();
 
             ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+
+            mZoom.setZoom(Math.round(newZoom));
             return true;
         }
     }
@@ -317,15 +329,15 @@ public class PdfRendererRecyclerView extends RecyclerView {
         private PdfRenderer mPdfRenderer;
 
         public void updateSource(String source) throws IOException {
-            if (source == null || source.isEmpty()) return;
+            if (TextUtils.isEmpty(source)) return;
             File file = new File(source.replace("file://", ""));
             mFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             mPdfRenderer = new PdfRenderer(mFileDescriptor);
         }
 
         public void close() throws IOException {
-            mPdfRenderer.close();
-            mFileDescriptor.close();
+            if (mPdfRenderer != null) mPdfRenderer.close();
+            if (mFileDescriptor != null) mFileDescriptor.close();
             mPdfRenderer = null;
             mFileDescriptor = null;
         }
@@ -338,35 +350,26 @@ public class PdfRendererRecyclerView extends RecyclerView {
             imageView.setBackgroundColor(Color.WHITE);
             LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, 0);
             imageView.setLayoutParams(params);
-            ViewHolder viewHolder = new ViewHolder(parent, imageView);
-            return viewHolder;
+            return new ViewHolder(imageView);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
+            holder.destroy();
+        }
+
+        @Override
+        public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
+            super.onViewAttachedToWindow(holder);
+            holder.init();
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             if (mPdfRenderer == null) return;
 
-            PdfRenderer.Page page = mPdfRenderer.openPage(position);
-            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_4444);
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-
-            ImageView imageView = holder.getImageView();
-            imageView.setImageBitmap(bitmap);
-
-            LayoutParams lp = (LayoutParams) imageView.getLayoutParams();
-            lp.width = LayoutParams.MATCH_PARENT;
-
-            if (mSinglePage) {
-                lp.height = LayoutParams.MATCH_PARENT;
-                lp.setMargins(0, 0, 0, 0);
-            } else {
-                lp.height = Math.round(((float) mWidth / (float) page.getWidth()) * (float) page.getHeight());
-                lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
-            }
-
-            imageView.setLayoutParams(lp);
-
-            page.close();
+            holder.update(position);
         }
 
         @Override
@@ -384,20 +387,53 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
+            private int position = -1;
+            private ObservableZoom.ZoomChangeListener listener;
 
-            private final ViewGroup mParentView;
-
-            public ViewHolder(ViewGroup parentView, ImageView imageView) {
+            public ViewHolder(ImageView imageView) {
                 super(imageView);
-                mParentView = parentView;
-            }
-
-            public ViewGroup getParentView() {
-                return mParentView;
             }
 
             public ImageView getImageView() {
                 return (ImageView) this.itemView;
+            }
+
+            public void update(int position) {
+                if (position == -1) return;
+                this.position = position;
+                PdfRenderer.Page page = mPdfRenderer.openPage(position);
+                Bitmap bitmap = Bitmap.createBitmap(
+                        page.getWidth() * mZoom.getZoom(),
+                        page.getHeight() * mZoom.getZoom(),
+                        Bitmap.Config.ARGB_4444
+                );
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                ImageView imageView = getImageView();
+                imageView.setImageBitmap(bitmap);
+
+                LayoutParams lp = (LayoutParams) imageView.getLayoutParams();
+                lp.width = LayoutParams.MATCH_PARENT;
+
+                if (mSinglePage) {
+                    lp.height = LayoutParams.MATCH_PARENT;
+                    lp.setMargins(0, 0, 0, 0);
+                } else {
+                    lp.height = Math.round(((float) mWidth / (float) page.getWidth()) * (float) page.getHeight());
+                    lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
+                }
+                imageView.setLayoutParams(lp);
+
+                page.close();
+            }
+
+            public void destroy() {
+                mZoom.addListener(listener);
+            }
+
+            public void init() {
+                listener = newZoom -> update(position);
+                mZoom.addListener(listener);
             }
         }
     }

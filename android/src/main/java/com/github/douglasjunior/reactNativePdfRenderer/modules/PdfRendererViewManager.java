@@ -28,7 +28,6 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
@@ -41,8 +40,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
-
-    private ReactApplicationContext mReactApplicationContext;
+    private final ReactApplicationContext mReactApplicationContext;
 
     public PdfRendererViewManager(ReactApplicationContext reactApplicationContext) {
         this.mReactApplicationContext = reactApplicationContext;
@@ -66,7 +64,6 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
         recyclerView.setLayoutParams(params);
 
         layout.addView(recyclerView);
-
         layout.setClipToOutline(true);
 
         return layout;
@@ -75,7 +72,7 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
     @Nullable
     @Override
     public Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
-        Map map = super.getExportedCustomBubblingEventTypeConstants();
+        Map<String, Object> map = super.getExportedCustomBubblingEventTypeConstants();
         map.put("pageChange", MapBuilder.of(
                 "phasedRegistrationNames",
                 MapBuilder.of("bubbled", "onPageChange")
@@ -88,7 +85,7 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
         PdfRendererRecyclerView recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
 
         String source = params.getString("source");
-        Boolean singlePage = params.hasKey("singlePage") ? params.getBoolean("singlePage") : false;
+        boolean singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
         float maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
 
         if (source != null) {
