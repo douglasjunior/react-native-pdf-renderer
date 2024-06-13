@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
 });
 
 const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
-  const {onPageChange, style, source, singlePage, maxZoom, ...others} = props;
+  const {onPageChange, style, source, singlePage = false, maxZoom = 5, distanceBetweenPages = 16, ...others} = props;
 
   const viewStyles = useMemo(() => [styles.default, style, {
     // See https://github.com/douglasjunior/react-native-pdf-renderer#limitations
@@ -78,17 +78,12 @@ const PdfRendererView = (props: PdfRendererViewPropsType): JSX.Element => {
   return (
     <PdfRendererNative
       {...others}
+      distanceBetweenPages={distanceBetweenPages}
       style={viewStyles}
       params={params}
       onPageChange={handlePageChange}
     />
   );
-};
-
-PdfRendererView.defaultProps = {
-  maxZoom: 5,
-  distanceBetweenPages: 16,
-  singlePage: false,
 };
 
 export default PdfRendererView;
