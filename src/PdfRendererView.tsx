@@ -29,11 +29,44 @@ import {
 } from 'react-native';
 
 export type PdfRendererViewPropsType = {
+  /**
+   * Styles to be applied to the View.
+   *
+   * Note: Border radius is not supported.
+   */
   style?: ViewProps['style'];
+  /**
+   * Path to a file stored on device.
+   *
+   * Ex.: `file:///path/to/file.pdf`
+   */
   source?: string;
-  distanceBetweenPages: number;
-  maxZoom: number;
-  singlePage: boolean;
+  /**
+   * Distance in `DPI` between pages.
+   *
+   * Default: 16
+   */
+  distanceBetweenPages?: number;
+  /**
+   * Max zoom scale.
+   *
+   * Default: 5
+   */
+  maxZoom?: number;
+  /**
+   * (Experimental)
+   *
+   * Renders only the first page without scroll. (useful for display thumbnail).
+   *
+   * Default: false
+   */
+  singlePage?: boolean;
+  /**
+   * Invoked on pages scroll.
+   *
+   * @param page current page number
+   * @param totalPages total pages number
+   */
   onPageChange?: (page: number, totalPages: number) => void;
 };
 
