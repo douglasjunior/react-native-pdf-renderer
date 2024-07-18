@@ -18,7 +18,7 @@ The main reason why I create this library is to avoid using third party native d
 
 But why?
 
-Every React Native developer knows (or will discover soon) the pain of updating the React Native ecosystem when a new version of Android or iOS comes out, so here we want to avoid this pain as much as possible.
+Every React Native developer knows (or will discover soon) [the pain of updating the React Native ecosystem](https://x.com/flexbox_/status/1806786055057674337) when a new version of Android or iOS comes out, so here we want to avoid this pain as much as possible.
 
 ## Requirements
 
