@@ -14,3 +14,4 @@ scripts/
 android/build/
 android/.idea/
 android/.gradle/
+DEPENDENTS.md
