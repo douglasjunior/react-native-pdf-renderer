@@ -29,6 +29,7 @@ import {
 } from 'react-native';
 
 export type PdfRendererViewPropsType = {
+  testID?: string;
   /**
    * Styles to be applied to the View.
    *
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
 });
 
 const PdfRendererView = ({
+  testID = undefined,
   onPageChange,
   style,
   source,
@@ -122,6 +124,7 @@ const PdfRendererView = ({
 
   return (
     <PdfRendererNative
+      testID={testID}
       distanceBetweenPages={distanceBetweenPages}
       style={viewStyles}
       params={params}

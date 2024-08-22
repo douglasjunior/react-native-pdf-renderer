@@ -73,14 +73,14 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 
 ## PdfRendererView props
 
-|Name|Value|Default|Description|
+|Name|Type|Default|Description|
 |-|-|-|-|
 |source|`string`||Path to a file stored on device.|
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
 |singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
-|style|`StyleProp<ViewStyle>`||Styles to be applied to the View |
+|style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|
 
 ## Limitations
 
@@ -102,6 +102,12 @@ If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in 
 </View>
 ```
 
+## Mock with jest
+
+```js
+jest.mock('react-native-pdf-renderer', () => require('react-native-pdf-renderer/dist/mock'));
+```
+
 ## Contribute
 
 New features, bug fixes and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/react-native-pdf-renderer/issues).
@@ -116,7 +122,7 @@ This lib is only possible thanks to the community help:
 - RecyclerView `notifyDataSetChanged()` not working on React Native: https://stackoverflow.com/a/49381907/2826279
 - Add pinch to zoom on RecyclerView: https://stackoverflow.com/a/37895783/2826279
 - Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
-- **Daniel Felipe Sartório** for the help with Android native code
+- [Daniel Felipe Sartório](https://github.com/danielfelipesartorio) for the help with Android native code
 
 ## Star History
 
