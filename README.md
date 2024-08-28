@@ -14,7 +14,7 @@ It uses [PdfRenderer](https://developer.android.com/reference/android/graphics/p
 
 ## Why another PDF renderer?
 
-The main reason why I create this library is to avoid using third party native dependencies, like `com.github.TalbotGooday:AndroidPdfViewer`, `com.github.mhiew:android-pdf-viewer`, `react-native-blob-util` or even `react-native-webview`. 
+The main reason why I create this library is to avoid using third-party native dependencies, like `com.github.TalbotGooday:AndroidPdfViewer`, `com.github.mhiew:android-pdf-viewer`, `react-native-blob-util` or even `react-native-webview`. 
 
 But why?
 
@@ -65,9 +65,9 @@ const App = () => {
 export default App;
 ```
 
-The `source` prop must point to a file stored inside device memory. 
+The `source` prop must point to a file stored inside the device memory. 
 
-If the file is online, you can use some third part library like `expo-file-system`, `rn-fetch-blob` or `react-native-blob-util` to download and save locally.
+If the file is online, you can use some third-party library like `expo-file-system`, `rn-fetch-blob`, or `react-native-blob-util` to download and save it locally.
 
 For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/Sample/App.tsx).
 
@@ -75,7 +75,7 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 
 |Name|Type|Default|Description|
 |-|-|-|-|
-|source|`string`||Path to a file stored on device.|
+|source|`string`||Path to a file stored on the device.|
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
 |singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
@@ -84,13 +84,19 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 
 ## Limitations
 
+### Page interactions
+
+Because Android renders the PDF page as a full image, it does not support text selection, accessibility, or handling links. 
+
+If any of these features are important for your product, we recommend adding a button to open the PDF in an external PDF viewer.
+
 ### Size measuring
 
-The `PdfRendererView` is `flex: 1` by default, so you need to make sure that your parents `View` are `flex: 1` or have a fixed `width/height`.
+The `PdfRendererView` is `flex: 1` by default, so you need to make sure that your parents `View`s are `flex: 1` or have a fixed `width/height`.
 
 ### Border radius
 
-The `borderRadius` style is ignored by React Native custom view in Android and crash on iOS. (read more [#1](https://github.com/douglasjunior/react-native-pdf-renderer/issues/1#issuecomment-1483395465))
+The `borderRadius` style is ignored by React Native custom view in Android and crashes on iOS. (read more [#1](https://github.com/douglasjunior/react-native-pdf-renderer/issues/1#issuecomment-1483395465))
 
 If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in another `View`.
 
@@ -110,7 +116,7 @@ jest.mock('react-native-pdf-renderer', () => require('react-native-pdf-renderer/
 
 ## Contribute
 
-New features, bug fixes and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/react-native-pdf-renderer/issues).
+New features, bug fixes, and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/react-native-pdf-renderer/issues).
 
 <a href="https://www.patreon.com/douglasjunior"><img src="http://i.imgur.com/xEO164Z.png" alt="Become a Patron!" width="200" /></a>
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/douglasnassif)
