@@ -52,9 +52,11 @@ BOOL observerAdded = NO;
     
     NSUInteger currentPageNumber = [view.document indexForPage:view.currentPage];
     
-    view.onPageChange(@{
-        @"position": [NSNumber numberWithInteger:currentPageNumber],
-        @"total":  [NSNumber numberWithInteger:view.document.pageCount],
+    dispatch_async(dispatch_get_main_queue(), ^{
+        view.onPageChange(@{
+            @"position": [NSNumber numberWithInteger:currentPageNumber],
+            @"total":  [NSNumber numberWithInteger:view.document.pageCount],
+        });
     });
 }
 
