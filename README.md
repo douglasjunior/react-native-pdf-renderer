@@ -109,6 +109,12 @@ If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in 
 </View>
 ```
 
+### Android crash when zooming too much
+
+To prevent Android from crashing when zooming too much, we have a `maxPageResolution` prop that limits the page resolution when zooming. (read more [#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26))
+
+If you are receiving the error `java.lang.RuntimeException: Canvas: trying to draw too large(134806560bytes) bitmap`, try to reduce the `maxPageResolution` prop.
+
 ## Mock with jest
 
 ```js
