@@ -55,6 +55,16 @@ export type PdfRendererViewPropsType = {
    */
   maxZoom?: number;
   /**
+   * (Android only)
+   *
+   * Max page resolution (width/height) in pixels when zooming.
+   *
+   * Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26
+   *
+   * Default: 2048
+   */
+  maxPageResolution?: number;
+  /**
    * (Experimental)
    *
    * Renders only the first page without scroll. (useful for display thumbnail).
@@ -93,6 +103,7 @@ const PdfRendererView = ({
   singlePage = false,
   distanceBetweenPages = 16,
   maxZoom = 5,
+  maxPageResolution = 2048,
 }: PdfRendererViewPropsType): JSX.Element => {
   const viewStyles = useMemo(
     () => [
@@ -125,6 +136,7 @@ const PdfRendererView = ({
   return (
     <PdfRendererNative
       testID={testID}
+      maxPageResolution={maxPageResolution}
       distanceBetweenPages={distanceBetweenPages}
       style={viewStyles}
       params={params}
