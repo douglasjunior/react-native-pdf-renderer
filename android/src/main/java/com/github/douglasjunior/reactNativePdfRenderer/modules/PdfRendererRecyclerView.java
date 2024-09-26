@@ -64,6 +64,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private final LayoutManager mLayoutManager;
     private boolean mRequestedLayout = false;
     private float mMaxZoom = 5;
+    private float mMaxPageResolution;
     private float mDistanceBetweenPages = 0;
     private int mWidth;
     private int mHeight;
@@ -102,6 +103,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 distanceBetweenPages,
                 Resources.getSystem().getDisplayMetrics()
         );
+    }
+
+    public void setMaxPageResolution(float maxPageResolution) {
+        this.mMaxPageResolution = maxPageResolution;
     }
 
     public void setMaxZoom(float maxZoom) {
@@ -153,7 +158,11 @@ public class PdfRendererRecyclerView extends RecyclerView {
     protected void dispatchDraw(@NonNull Canvas canvas) {
         canvas.save();
         canvas.concat(mMatrix);
-        super.dispatchDraw(canvas);
+        try {
+            super.dispatchDraw(canvas);
+        } catch (Exception ex) {
+            Log.e("PdfRendererRecyclerView", "Error dispatching draw", ex);
+        }
         canvas.restore();
     }
 
@@ -409,13 +418,30 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 return (ImageView) this.itemView;
             }
 
-            public void update(int position, float newZoom) {
-                var page = mPdfRenderer.openPage(position);
-                var bitmap = Bitmap.createBitmap(
-                        Math.round(page.getWidth() * newZoom),
-                        Math.round(page.getHeight() * newZoom),
+            private @NonNull Bitmap createBitmap(float newZoom, int pageWidth, int pageHeight) {
+                var scaledPageWidth = Math.round(pageWidth * newZoom);
+                var scaledPageHeight = Math.round(pageHeight * newZoom);
+
+                float scalingFactor = Math.min(
+                        mMaxPageResolution / scaledPageWidth,
+                        mMaxPageResolution / scaledPageHeight
+                );
+
+                float zoomFactor = Math.min(newZoom, scalingFactor);
+
+                return Bitmap.createBitmap(
+                        Math.round(scaledPageWidth * zoomFactor),
+                        Math.round(scaledPageHeight * zoomFactor),
                         Bitmap.Config.ARGB_4444
                 );
+            }
+
+            public void update(int position, float newZoom) {
+                var page = mPdfRenderer.openPage(position);
+                var pageWidth = page.getWidth();
+                var pageHeight = page.getHeight();
+                var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
+
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
                 var imageView = getImageView();
@@ -428,7 +454,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
                     lp.height = LayoutParams.MATCH_PARENT;
                     lp.setMargins(0, 0, 0, 0);
                 } else {
-                    lp.height = Math.round(((float) mWidth / (float) page.getWidth()) * (float) page.getHeight());
+                    lp.height = Math.round(((float) mWidth / (float) pageWidth) * (float) pageHeight);
                     lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
                 }
                 imageView.setLayoutParams(lp);

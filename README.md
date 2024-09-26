@@ -78,6 +78,7 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |source|`string`||Path to a file stored on the device.|
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
+|maxPageResolution|`number`|`2048`|(Android only) Max page resolution (width/height) when zooming. Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26 . |
 |singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
 |style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|

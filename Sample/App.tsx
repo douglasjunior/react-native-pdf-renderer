@@ -82,7 +82,8 @@ function App(): JSX.Element {
           style={{backgroundColor: 'red'}}
           source={source}
           distanceBetweenPages={16}
-          maxZoom={5}
+          maxZoom={20}
+          maxPageResolution={2048}
           singlePage={singlePage}
           onPageChange={(current, total) => {
             console.log('onPageChange', {current, total});

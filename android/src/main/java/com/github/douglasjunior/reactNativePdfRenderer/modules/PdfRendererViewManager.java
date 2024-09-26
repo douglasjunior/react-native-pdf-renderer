@@ -109,4 +109,10 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
         var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
         recyclerView.setDistanceBetweenPages(distanceBetweenPages);
     }
+
+    @ReactProp(name = "maxPageResolution")
+    public void setMaxPageResolution(ViewGroup layout, @Nullable float maxPageResolution) {
+        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
+        recyclerView.setMaxPageResolution(maxPageResolution);
+    }
 }
