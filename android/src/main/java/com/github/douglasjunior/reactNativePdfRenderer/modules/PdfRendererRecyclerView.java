@@ -446,6 +446,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 var pageHeight = page.getHeight();
                 var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
 
+                Canvas canvas = new Canvas(bitmap);
+                canvas.drawColor(Color.WHITE);
+                canvas.drawBitmap(bitmap, 0, 0, null);
+
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
                 var imageView = getImageView();
