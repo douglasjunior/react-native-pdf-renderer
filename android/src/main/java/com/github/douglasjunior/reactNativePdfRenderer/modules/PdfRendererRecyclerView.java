@@ -419,8 +419,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
             }
 
             private @NonNull Bitmap createBitmap(float newZoom, int pageWidth, int pageHeight) {
-                var scaledPageWidth = Math.round(pageWidth * newZoom);
-                var scaledPageHeight = Math.round(pageHeight * newZoom);
+                // We need to take account of these points to avoid low quality image on large screen:
+                // - target DPI resolution
+                // - PDF print default resolution (72dpi)
+                // see https://stackoverflow.com/a/32327174/2826279
+                var scaledPageWidth = Math.round(getResources().getDisplayMetrics().densityDpi * pageWidth * newZoom / 72);
+                var scaledPageHeight = Math.round(getResources().getDisplayMetrics().densityDpi * pageHeight * newZoom / 72);
 
                 float scalingFactor = Math.min(
                         mMaxPageResolution / scaledPageWidth,
@@ -432,7 +436,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 return Bitmap.createBitmap(
                         Math.round(scaledPageWidth * zoomFactor),
                         Math.round(scaledPageHeight * zoomFactor),
-                        Bitmap.Config.ARGB_4444
+                        Bitmap.Config.ARGB_8888
                 );
             }
 
