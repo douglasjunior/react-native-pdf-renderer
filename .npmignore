@@ -9,7 +9,7 @@ node_modules/
 __tests__/
 screenshots/
 Sample/
-src/
+/src/
 scripts/
 android/build/
 android/.idea/
