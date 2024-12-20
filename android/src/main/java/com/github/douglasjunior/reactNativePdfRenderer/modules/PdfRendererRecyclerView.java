@@ -433,20 +433,21 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
                 float zoomFactor = Math.min(newZoom, scalingFactor);
 
-                return Bitmap.createBitmap(
+                var bitmap = Bitmap.createBitmap(
                         Math.round(scaledPageWidth * zoomFactor),
                         Math.round(scaledPageHeight * zoomFactor),
                         Bitmap.Config.ARGB_8888
                 );
+                // Fill the bitmap with white color by default to prevent issues with transparent PDFs
+                bitmap.eraseColor(Color.WHITE);
+                return bitmap;
             }
 
             public void update(int position, float newZoom) {
                 var page = mPdfRenderer.openPage(position);
                 var pageWidth = page.getWidth();
                 var pageHeight = page.getHeight();
-
                 var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
-                bitmap.eraseColor(Color.WHITE); // fix text color issue with some pdf
 
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 

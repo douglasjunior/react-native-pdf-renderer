@@ -39,6 +39,21 @@ npm i -S react-native-pdf-renderer
 
 Go to the folder **your-project/ios** and run `pod install`, and you're done. 
 
+### Android specific (optional)
+
+Customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by setting `ext` in your `android/build.gradle` file.
+
+Example:
+
+```gradle
+buildscript {
+  ext {
+    recyclerviewVersion = "1.2.1"
+  }
+  ...
+}
+```
+
 ## Basic usage
 
 There is only one component that you need to use to render the PDF file.
@@ -47,19 +62,19 @@ There is only one component that you need to use to render the PDF file.
 import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
-   return (
-      <SafeAreaView style={{flex: 1}}>
-         <PdfRendererView
-            style={{backgroundColor: 'red'}}
-            source="file:///path/to/local/file.pdf"
-            distanceBetweenPages={16}
-            maxZoom={5}
-            onPageChange={(current, total) => {
-               console.log(current, total);
-            }}
-         />
-      </SafeAreaView>
-   );
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <PdfRendererView
+        style={{backgroundColor: 'red'}}
+        source="file:///path/to/local/file.pdf"
+        distanceBetweenPages={16}
+        maxZoom={5}
+        onPageChange={(current, total) => {
+          console.log(current, total);
+        }}
+      />
+    </SafeAreaView>
+  );
 }
 
 export default App;
@@ -103,9 +118,9 @@ If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in 
 
 ```jsx
 <View style={{ flex: 1, borderRadius: 24, overflow: 'hidden' }}>
-   <PdfRendererView
-      // ...
-   />
+  <PdfRendererView
+    // ...
+  />
 </View>
 ```
 

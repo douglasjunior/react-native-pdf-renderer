@@ -1,20 +1,56 @@
+def safeAppExtGet(prop, fallback) {
+    def appProject = rootProject.allprojects.find { it.plugins.hasPlugin('com.android.application') }
+    appProject?.ext?.has(prop) ? appProject.ext.get(prop) : fallback
+}
+
+def resolveReactNativeDirectory() {
+    def reactNativeLocation = safeAppExtGet("REACT_NATIVE_NODE_MODULES_DIR", null)
+    if (reactNativeLocation != null) {
+        return file(reactNativeLocation)
+    }
+
+    // monorepo workaround
+    // react-native can be hoisted or in project's own node_modules
+    def reactNativeFromProjectNodeModules = file("${rootProject.projectDir}/../node_modules/react-native")
+    if (reactNativeFromProjectNodeModules.exists()) {
+        return reactNativeFromProjectNodeModules
+    }
+
+    def reactNativeFromNodeModulesWithReanimated = file("${projectDir}/../../react-native")
+    if (reactNativeFromNodeModulesWithReanimated.exists()) {
+        return reactNativeFromNodeModulesWithReanimated
+    }
+
+    throw new GradleException(
+            "Unable to resolve react-native location in node_modules. You should project extension property (in `app/build.gradle`) `REACT_NATIVE_NODE_MODULES_DIR` with path to react-native."
+    )
+}
+
+def reactNativeRootDir = resolveReactNativeDirectory()
+
+def reactProperties = new Properties()
+file("$reactNativeRootDir/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+
+def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME")
+def REACT_NATIVE_MINOR_VERSION = REACT_NATIVE_VERSION.startsWith("0.0.0-") ? 1000 : REACT_NATIVE_VERSION.split("\\.")[1].toInteger()
+
 buildscript {
-    ext.safeExtGet = {prop, fallback ->
+    ext.safeExtGet = { prop, fallback ->
         rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
     }
+    ext.IS_ROOT = project == rootProject
 
     // The Android Gradle plugin is only required when opening the android folder stand-alone.
     // This avoids unnecessary downloads and potential conflicts when the library is included as a
     // module dependency in an application project.
-    if (project == rootProject) {
+
+    if (IS_ROOT) {
         repositories {
             google()
             mavenCentral()
         }
-
         dependencies {
-            //noinspection GradleDependency
-            classpath("com.android.tools.build:gradle:4.2.2")
+            classpath "com.android.tools.build:gradle:7.3.1"
         }
     }
 }
@@ -22,14 +58,12 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion safeExtGet('compileSdkVersion', 30)
-    //noinspection GradleDependency
-    buildToolsVersion safeExtGet('buildToolsVersion', '30.0.2')
-
+    namespace "com.github.douglasjunior.reactNativePdfRenderer"
+    compileSdkVersion safeExtGet("compileSdkVersion", 33)
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', 21)
         //noinspection OldTargetApi
-        targetSdkVersion safeExtGet('targetSdkVersion', 30)
+        targetSdkVersion safeExtGet('targetSdkVersion', 33)
     }
     lintOptions {
         abortOnError false
@@ -37,26 +71,29 @@ android {
 }
 
 repositories {
-    repositories {
-        mavenCentral()
-        mavenLocal()
+    mavenCentral()
+    mavenLocal()
+    if (REACT_NATIVE_MINOR_VERSION < 71) {
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
+            url "$reactNativeRootDir/android"
         }
         maven {
             // Android JSC is installed from npm
-            url("$rootDir/../node_modules/jsc-android/dist")
+            url "$reactNativeRootDir/../jsc-android/dist"
         }
-
-        google()
-        maven { url 'https://www.jitpack.io' }
     }
+    google()
 }
 
 dependencies {
-    //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
+    if (REACT_NATIVE_MINOR_VERSION >= 71) {
+        implementation "com.facebook.react:react-android${IS_ROOT ? ':+' : ''}"
+        // version substituted by RNGP
+    } else {
+        // noinspection GradleDynamicVersion
+        implementation "com.facebook.react:react-native:+" // From node_modules
+    }
 
     implementation "androidx.recyclerview:recyclerview:${safeExtGet('recyclerViewVersion', '1.2.1')}"
 }
