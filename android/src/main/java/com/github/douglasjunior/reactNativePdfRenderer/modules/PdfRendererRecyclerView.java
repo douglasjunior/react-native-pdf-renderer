@@ -444,7 +444,9 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 var page = mPdfRenderer.openPage(position);
                 var pageWidth = page.getWidth();
                 var pageHeight = page.getHeight();
+
                 var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
+                bitmap.eraseColor(Color.WHITE); // fix text color issue with some pdf
 
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
