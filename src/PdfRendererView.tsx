@@ -104,7 +104,7 @@ const PdfRendererView = ({
   distanceBetweenPages = 16,
   maxZoom = 5,
   maxPageResolution = 2048,
-}: PdfRendererViewPropsType): JSX.Element => {
+}: PdfRendererViewPropsType): React.JSX.Element => {
   const viewStyles = useMemo(
     () => [
       styles.default,
