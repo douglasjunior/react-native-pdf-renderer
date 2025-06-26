@@ -39,6 +39,10 @@ npm i -S react-native-pdf-renderer
 
 Go to the folder **your-project/ios** and run `pod install`, and you're done. 
 
+### New Architecture
+
+See https://github.com/douglasjunior/react-native-pdf-renderer/issues/31#issuecomment-2564782735
+
 ### Android specific (optional)
 
 Customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by setting `ext` in your `android/build.gradle` file.
