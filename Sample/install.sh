@@ -7,4 +7,4 @@ yarn install
 rm -rf node_modules/react-native-pdf-renderer/Sample/ 
 rm -rf node_modules/react-native-pdf-renderer/.git/
 
-npx pod-install -y
+npx -y pod-install
