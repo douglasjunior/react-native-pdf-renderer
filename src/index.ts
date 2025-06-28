@@ -20,5 +20,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-export {default} from './PdfRendererView';
-export type {PdfRendererViewPropsType} from './PdfRendererView';
+export { default } from './PdfRendererView';
+export type { PdfRendererViewPropsType } from './PdfRendererView';

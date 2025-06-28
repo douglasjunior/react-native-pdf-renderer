@@ -21,23 +21,27 @@
 // SOFTWARE.
 
 import type { HostComponent, ViewProps } from 'react-native';
-import { BubblingEventHandler } from 'react-native/Libraries/Types/CodegenTypes';
+import {
+  BubblingEventHandler,
+  Float,
+  Int32,
+} from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
 export type NativeParams = {
   source?: string;
   singlePage: boolean;
-  maxZoom: number;
+  maxZoom: Float;
 };
 
 type PageChangeEventPayload = {
-  position: number;
-  total: number;
+  position: Int32;
+  total: Int32;
 };
 
 export interface NativeProps extends ViewProps {
-  maxPageResolution: number;
-  distanceBetweenPages: number;
+  maxPageResolution: Float;
+  distanceBetweenPages: Float;
   params: NativeParams;
   onPageChange: BubblingEventHandler<PageChangeEventPayload>;
 }

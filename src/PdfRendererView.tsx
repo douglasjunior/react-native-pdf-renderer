@@ -20,16 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   NativeSyntheticEvent,
-  requireNativeComponent,
   StyleProp,
   StyleSheet,
   ViewStyle,
 } from 'react-native';
 
-import type { NativeProps, NativeParams } from '../specs/RNPdfRendererViewNativeComponent';
+import PdfRendererNative, { NativeParams } from './specs/RNPdfRendererViewNativeComponent';
 
 export type PdfRendererViewPropsType = {
   testID?: string;
@@ -87,10 +86,6 @@ type OnPageChangeEventType = {
   position: number;
   total: number;
 };
-
-const PdfRendererNative = requireNativeComponent(
-  'RNPdfRendererView',
-) as unknown as FunctionComponent<NativeProps>;
 
 const styles = StyleSheet.create({
   default: {

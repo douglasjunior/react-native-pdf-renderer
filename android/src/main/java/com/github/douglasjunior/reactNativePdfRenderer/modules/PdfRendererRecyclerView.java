@@ -39,20 +39,16 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.facebook.react.bridge.ReactApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
 
 @SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
-    private final LinearLayout mParent;
     private final GestureDetector mGestureDetector;
     private final int mMinZoom = 1;
     private final ScaleGestureDetector mScaleDetector;
@@ -69,9 +65,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private int mCurrentItemPosition = -1;
     private boolean mSinglePage;
 
-    public PdfRendererRecyclerView(@NonNull ReactApplicationContext context,
-                                   LinearLayout parent,
-                                   PdfRendererRecyclerViewListener listener) {
+    public PdfRendererRecyclerView(@NonNull Context context, PdfRendererRecyclerViewListener listener) {
         super(context);
 
         mZoomObserver = new ObservableZoom(mMinZoom);
@@ -90,15 +84,13 @@ public class PdfRendererRecyclerView extends RecyclerView {
             }
         });
 
-        mParent = parent;
         mListener = listener;
         mMatrix = new Matrix();
         mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         mGestureDetector = new GestureDetector(context, new GestureListener());
-    }
 
-    public LinearLayout getRnParent() {
-        return mParent;
+        this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        this.setClipToOutline(true);
     }
 
     public void setDistanceBetweenPages(float distanceBetweenPages) {

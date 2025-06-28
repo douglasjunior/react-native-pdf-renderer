@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2023 Douglas Nassif Roma Junior
+// Copyright (c) 2025 Douglas Nassif Roma Junior
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,27 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import static com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl.REACT_CLASS;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.common.MapBuilder;
+import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.annotations.ReactProp;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.viewmanagers.RNPdfRendererViewManagerInterface;
+import com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl;
 
-import java.io.IOException;
 import java.util.Map;
 
-public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> implements PdfRendererRecyclerView.PdfRendererRecyclerViewListener {
+@ReactModule(name = REACT_CLASS)
+public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecyclerView> implements RNPdfRendererViewManagerInterface<PdfRendererRecyclerView>, PdfRendererRecyclerView.PdfRendererRecyclerViewListener {
+
     private final ReactApplicationContext mReactApplicationContext;
 
     public PdfRendererViewManager(ReactApplicationContext reactApplicationContext) {
@@ -51,81 +52,51 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> impleme
     @NonNull
     @Override
     public String getName() {
-        return "RNPdfRendererView";
+        return REACT_CLASS;
     }
 
     @NonNull
     @Override
-    protected ViewGroup createViewInstance(@NonNull ThemedReactContext themedReactContext) {
-        var layout = new LinearLayout(themedReactContext);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        var params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
-        var recyclerView = new PdfRendererRecyclerView(mReactApplicationContext, layout, this);
-        recyclerView.setLayoutParams(params);
-
-        layout.addView(recyclerView);
-        layout.setClipToOutline(true);
-
-        return layout;
+    protected PdfRendererRecyclerView createViewInstance(@NonNull ThemedReactContext themedReactContext) {
+        return new PdfRendererRecyclerView(mReactApplicationContext, this);
     }
 
     @Nullable
     @Override
     public Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
-        var map = super.getExportedCustomBubblingEventTypeConstants();
-        if (map == null) map = MapBuilder.of();
-        map.put("pageChange", MapBuilder.of(
-                "phasedRegistrationNames",
-                MapBuilder.of("bubbled", "onPageChange")
-        ));
-        return map;
-    }
-
-    @ReactProp(name = "params")
-    public void setParams(ViewGroup layout, @Nullable ReadableMap params) throws IOException {
-        if (params == null) return;
-
-        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
-
-        var source = params.getString("source");
-        var singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
-        var maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
-
-        if (source != null) {
-            recyclerView.updateSource(source);
-        } else {
-            recyclerView.closeAdapter();
-        }
-
-        recyclerView.setSinglePage(singlePage);
-        recyclerView.setMaxZoom(maxZoom);
-        recyclerView.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
-
-        recyclerView.forceRequestLayout();
-    }
-
-    @ReactProp(name = "distanceBetweenPages")
-    public void setDistanceBetweenPages(ViewGroup layout, @Nullable float distanceBetweenPages) {
-        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
-        recyclerView.setDistanceBetweenPages(distanceBetweenPages);
-    }
-
-    @ReactProp(name = "maxPageResolution")
-    public void setMaxPageResolution(ViewGroup layout, @Nullable float maxPageResolution) {
-        var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
-        recyclerView.setMaxPageResolution(maxPageResolution);
+        return PdfRendererViewManagerImpl.getExportedCustomBubblingEventTypeConstants();
     }
 
     @Override
     public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
-        var event = Arguments.createMap();
-        event.putInt("position", position);
-        event.putInt("total", total);
+        EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
+                mReactApplicationContext,
+                target.getId()
+        );
 
-        mReactApplicationContext
-                .getJSModule(RCTEventEmitter.class)
-                .receiveEvent(target.getRnParent().getId(), "pageChange", event);
+        if (eventDispatcher != null) {
+            int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
+            eventDispatcher.dispatchEvent(
+                    PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
+            );
+        }
+    }
+
+    @ReactProp(name = "maxPageResolution")
+    @Override
+    public void setMaxPageResolution(PdfRendererRecyclerView view, float value) {
+        view.setMaxPageResolution(value);
+    }
+
+    @ReactProp(name = "distanceBetweenPages")
+    @Override
+    public void setDistanceBetweenPages(PdfRendererRecyclerView view, float value) {
+        view.setDistanceBetweenPages(value);
+    }
+
+    @ReactProp(name = "params")
+    @Override
+    public void setParams(PdfRendererRecyclerView view, @Nullable ReadableMap params) {
+        PdfRendererViewManagerImpl.setParams(view, params);
     }
 }
