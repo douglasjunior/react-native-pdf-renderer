@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2024 Douglas Nassif Roma Junior
+// Copyright (c) 2025 Douglas Nassif Roma Junior
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React from 'react';
+import type { HostComponent, ViewProps } from 'react-native';
+import { BubblingEventHandler } from 'react-native/Libraries/Types/CodegenTypes';
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
-import {View} from 'react-native';
-import {PdfRendererViewPropsType} from './PdfRendererView';
-
-const PdfRendererViewMock = (props: PdfRendererViewPropsType) => {
-  return <View testID={props.testID} style={props.style} />;
+export type NativeParams = {
+  source?: string;
+  singlePage: boolean;
+  maxZoom: number;
 };
 
-export default PdfRendererViewMock;
+type PageChangeEventPayload = {
+  position: number;
+  total: number;
+};
+
+export interface NativeProps extends ViewProps {
+  maxPageResolution: number;
+  distanceBetweenPages: number;
+  params: NativeParams;
+  onPageChange: BubblingEventHandler<PageChangeEventPayload>;
+}
+
+export default codegenNativeComponent<NativeProps>(
+  'RNPdfRendererView',
+) as HostComponent<NativeProps>;

@@ -35,11 +35,13 @@ import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
+public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> implements PdfRendererRecyclerView.PdfRendererRecyclerViewListener {
     private final ReactApplicationContext mReactApplicationContext;
 
     public PdfRendererViewManager(ReactApplicationContext reactApplicationContext) {
@@ -60,7 +62,7 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
 
         var params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        var recyclerView = new PdfRendererRecyclerView(mReactApplicationContext, layout);
+        var recyclerView = new PdfRendererRecyclerView(mReactApplicationContext, layout, this);
         recyclerView.setLayoutParams(params);
 
         layout.addView(recyclerView);
@@ -114,5 +116,16 @@ public class PdfRendererViewManager extends SimpleViewManager<ViewGroup> {
     public void setMaxPageResolution(ViewGroup layout, @Nullable float maxPageResolution) {
         var recyclerView = (PdfRendererRecyclerView) layout.getChildAt(0);
         recyclerView.setMaxPageResolution(maxPageResolution);
+    }
+
+    @Override
+    public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
+        var event = Arguments.createMap();
+        event.putInt("position", position);
+        event.putInt("total", total);
+
+        mReactApplicationContext
+                .getJSModule(RCTEventEmitter.class)
+                .receiveEvent(target.getRnParent().getId(), "pageChange", event);
     }
 }

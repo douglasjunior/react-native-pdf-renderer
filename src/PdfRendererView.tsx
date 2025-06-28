@@ -20,13 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React, {useCallback, useMemo} from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import {
   NativeSyntheticEvent,
   requireNativeComponent,
+  StyleProp,
   StyleSheet,
-  ViewProps,
+  ViewStyle,
 } from 'react-native';
+
+import type { NativeProps, NativeParams } from '../specs/RNPdfRendererViewNativeComponent';
 
 export type PdfRendererViewPropsType = {
   testID?: string;
@@ -35,7 +38,7 @@ export type PdfRendererViewPropsType = {
    *
    * Note: Border radius is not supported.
    */
-  style?: ViewProps['style'];
+  style?: StyleProp<ViewStyle>;
   /**
    * Path to a file stored on device.
    *
@@ -65,7 +68,6 @@ export type PdfRendererViewPropsType = {
    */
   maxPageResolution?: number;
   /**
-   * (Experimental)
    *
    * Renders only the first page without scroll. (useful for display thumbnail).
    *
@@ -86,7 +88,9 @@ type OnPageChangeEventType = {
   total: number;
 };
 
-const PdfRendererNative = requireNativeComponent('RNPdfRendererView') as any;
+const PdfRendererNative = requireNativeComponent(
+  'RNPdfRendererView',
+) as unknown as FunctionComponent<NativeProps>;
 
 const styles = StyleSheet.create({
   default: {
@@ -105,13 +109,13 @@ const PdfRendererView = ({
   maxZoom = 5,
   maxPageResolution = 2048,
 }: PdfRendererViewPropsType): React.JSX.Element => {
-  const viewStyles = useMemo(
+  const viewStyles: StyleProp<ViewStyle> = useMemo(
     () => [
       styles.default,
       style,
       {
         // See https://github.com/douglasjunior/react-native-pdf-renderer#limitations
-        borderRadius: null,
+        borderRadius: undefined,
       },
     ],
     [style],
@@ -124,7 +128,7 @@ const PdfRendererView = ({
     [onPageChange],
   );
 
-  const params = useMemo(
+  const params: NativeParams = useMemo(
     () => ({
       source,
       singlePage,
