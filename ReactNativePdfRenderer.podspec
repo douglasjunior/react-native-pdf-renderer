@@ -3,6 +3,7 @@ require 'json'
 packageJson = JSON.parse(File.read('package.json'))
 version = packageJson["version"]
 repository = packageJson["repository"]["url"]
+fabric_enabled = ENV['RCT_NEW_ARCH_ENABLED'] == '1'
 
 Pod::Spec.new do |s|
 	s.name           = "ReactNativePdfRenderer"
@@ -19,5 +20,9 @@ Pod::Spec.new do |s|
 
 	s.frameworks     = 'PDFKit'
 	
-	install_modules_dependencies(s)
+	if fabric_enabled
+		install_modules_dependencies(s)
+	else
+		s.dependency "React-Core"
+	end
 end

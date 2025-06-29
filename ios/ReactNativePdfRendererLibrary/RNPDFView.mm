@@ -29,16 +29,13 @@
 
 -(void) setParams:(NSDictionary*) params {
     NSString *source = [params objectForKey:@"source"];
+    NSString *maxZoomString = [params objectForKey:@"maxZoom"];
+    NSString *singlePageString = [params objectForKey:@"singlePage"];
     
-    float maxZoom = [params objectForKey:@"maxZoom"] != nil
-    ? [[params objectForKey:@"maxZoom"] floatValue]
-    : 0;
-    
-    BOOL singlePage = [params objectForKey:@"singlePage"] != nil
-    ? [[params objectForKey:@"singlePage"] boolValue]
-    : NO;
-    
-    if ([params objectForKey:@"source"] != nil) {
+    if (source != nil) {
+        float maxZoom = maxZoomString != nil ? [maxZoomString floatValue] : 0;
+        BOOL singlePage = singlePageString != nil ? [singlePageString boolValue] : NO;
+        
         if (![source hasPrefix:@"file://"]) {
             source = [NSString stringWithFormat:@"%@%@", @"file://", source];
         }

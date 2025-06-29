@@ -46,6 +46,14 @@ BOOL observerAdded = NO;
     return view;
 }
 
+- (void)dealloc
+{
+    if (observerAdded) {
+        observerAdded = NO;
+        [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
+    }
+}
+
 - (void)handlePageChange:(NSNotification*) notification {
     if ([RNPDFView class] != [notification.object class]) {
         return;
