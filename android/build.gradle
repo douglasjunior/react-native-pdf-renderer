@@ -1,99 +1,144 @@
-def safeAppExtGet(prop, fallback) {
-    def appProject = rootProject.allprojects.find { it.plugins.hasPlugin('com.android.application') }
-    appProject?.ext?.has(prop) ? appProject.ext.get(prop) : fallback
+buildscript {
+    ext.IS_ROOT = project == rootProject
+
+    repositories {
+        mavenCentral()
+        google()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.10.1")
+    }
+}
+
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
 def resolveReactNativeDirectory() {
-    def reactNativeLocation = safeAppExtGet("REACT_NATIVE_NODE_MODULES_DIR", null)
+    def reactNativeLocation = safeExtGet("REACT_NATIVE_NODE_MODULES_DIR", null)
     if (reactNativeLocation != null) {
         return file(reactNativeLocation)
     }
 
-    // monorepo workaround
-    // react-native can be hoisted or in project's own node_modules
-    def reactNativeFromProjectNodeModules = file("${rootProject.projectDir}/../node_modules/react-native")
-    if (reactNativeFromProjectNodeModules.exists()) {
-        return reactNativeFromProjectNodeModules
+    // Fallback to node resolver for custom directory structures like monorepos.
+    def reactNativePackage = file(
+            providers.exec {
+                workingDir(rootDir)
+                commandLine("node", "--print", "require.resolve('react-native/package.json')")
+            }.standardOutput.asText.get().trim()
+    )
+
+    if (reactNativePackage.exists()) {
+        return reactNativePackage.parentFile
     }
 
-    def reactNativeFromNodeModulesWithReanimated = file("${projectDir}/../../react-native")
-    if (reactNativeFromNodeModulesWithReanimated.exists()) {
-        return reactNativeFromNodeModulesWithReanimated
-    }
-
-    throw new GradleException(
-            "Unable to resolve react-native location in node_modules. You should project extension property (in `app/build.gradle`) `REACT_NATIVE_NODE_MODULES_DIR` with path to react-native."
+    throw new Exception(
+            "[react-native-pdf-renderer] Unable to resolve react-native location in " +
+                    "node_modules. You should add project extension property (in app/build.gradle) " +
+                    "`REACT_NATIVE_NODE_MODULES_DIR` with path to react-native."
     )
 }
 
-def reactNativeRootDir = resolveReactNativeDirectory()
-
-def reactProperties = new Properties()
-file("$reactNativeRootDir/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
-
-def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME")
-def REACT_NATIVE_MINOR_VERSION = REACT_NATIVE_VERSION.startsWith("0.0.0-") ? 1000 : REACT_NATIVE_VERSION.split("\\.")[1].toInteger()
-
-buildscript {
-    ext.safeExtGet = { prop, fallback ->
-        rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-    }
-    ext.IS_ROOT = project == rootProject
-
-    // The Android Gradle plugin is only required when opening the android folder stand-alone.
-    // This avoids unnecessary downloads and potential conflicts when the library is included as a
-    // module dependency in an application project.
-
-    if (IS_ROOT) {
-        repositories {
-            google()
-            mavenCentral()
-        }
-        dependencies {
-            classpath "com.android.tools.build:gradle:7.3.1"
-        }
-    }
+if (isNewArchitectureEnabled()) {
+    apply plugin: 'com.facebook.react'
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
-android {
-    namespace "com.github.douglasjunior.reactNativePdfRenderer"
-    compileSdkVersion safeExtGet("compileSdkVersion", 33)
-    defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 21)
-        //noinspection OldTargetApi
-        targetSdkVersion safeExtGet('targetSdkVersion', 33)
-    }
-    lintOptions {
-        abortOnError false
-    }
+def reactNativeArchitectures() {
+    def value = project.getProperties().get("reactNativeArchitectures")
+    return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
+
+def REACT_NATIVE_DIR = resolveReactNativeDirectory()
+
+def reactProperties = new Properties()
+file("$REACT_NATIVE_DIR/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+
+def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME")
+def REACT_NATIVE_MINOR_VERSION = REACT_NATIVE_VERSION.split("\\.")[1].toInteger()
 
 repositories {
     mavenCentral()
-    mavenLocal()
-    if (REACT_NATIVE_MINOR_VERSION < 71) {
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$reactNativeRootDir/android"
+}
+
+android {
+    compileSdk safeExtGet('compileSdkVersion', 35)
+
+    namespace = "com.github.douglasjunior.reactNativePdfRenderer"
+    buildFeatures {
+        buildConfig = true
+        prefab = true
+    }
+
+    // Used to override the NDK path/version on internal CI or by allowing
+    // users to customize the NDK path/version from their root project (e.g. for M1 support)
+    if (rootProject.hasProperty("ndkPath")) {
+        ndkPath rootProject.ext.ndkPath
+    }
+    if (rootProject.hasProperty("ndkVersion")) {
+        ndkVersion rootProject.ext.ndkVersion
+    }
+
+    defaultConfig {
+        minSdkVersion safeExtGet('minSdkVersion', 24)
+        targetSdkVersion safeExtGet('targetSdkVersion', 35)
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+        buildConfigField "int", "REACT_NATIVE_MINOR_VERSION", REACT_NATIVE_MINOR_VERSION.toString()
+
+        if (isNewArchitectureEnabled()) {
+            var appProject = rootProject.allprojects.find { it.plugins.hasPlugin('com.android.application') }
+            externalNativeBuild {
+                cmake {
+                    cppFlags "-O2", "-frtti", "-fexceptions", "-Wall", "-Werror", "-std=c++20", "-DANDROID"
+                    arguments "-DREACT_NATIVE_DIR=${REACT_NATIVE_DIR}",
+                            "-DREACT_NATIVE_MINOR_VERSION=${REACT_NATIVE_MINOR_VERSION}",
+                            "-DANDROID_STL=c++_shared",
+                            "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                    abiFilters(*reactNativeArchitectures())
+                }
+            }
         }
-        maven {
-            // Android JSC is installed from npm
-            url "$reactNativeRootDir/../jsc-android/dist"
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
+        packagingOptions {
+            // For some reason gradle only complains about the duplicated version of libreact_render libraries
+            // while there are more libraries copied in intermediates folder of the lib build directory, we exclude
+            // only the ones that make the build fail
+            exclude "**/libreact_render*.so"
+            exclude "**/libreactnative.so"
+            exclude "**/libjsi.so"
+            exclude "**/libc++_shared.so"
+        }
+
+        sourceSets {
+            main {
+                if (isNewArchitectureEnabled()) {
+                    java.srcDirs += ['src/newarch']
+                } else {
+                    java.srcDirs += ['src/oldarch']
+                }
+            }
         }
     }
-    google()
 }
 
 dependencies {
-    if (REACT_NATIVE_MINOR_VERSION >= 71) {
-        implementation "com.facebook.react:react-android${IS_ROOT ? ':+' : ''}"
-        // version substituted by RNGP
-    } else {
-        // noinspection GradleDynamicVersion
-        implementation "com.facebook.react:react-native:+" // From node_modules
-    }
+    implementation 'com.facebook.react:react-native:+' // from node_modules
 
-    implementation "androidx.recyclerview:recyclerview:${safeExtGet('recyclerViewVersion', '1.2.1')}"
+    implementation "androidx.recyclerview:recyclerview:${safeExtGet('recyclerViewVersion', '1.4.0')}"
 }

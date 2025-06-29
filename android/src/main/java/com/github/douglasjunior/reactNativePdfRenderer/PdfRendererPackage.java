@@ -23,28 +23,51 @@
 package com.github.douglasjunior.reactNativePdfRenderer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.facebook.react.ReactPackage;
+import com.facebook.react.BaseReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.module.model.ReactModuleInfo;
+import com.facebook.react.module.model.ReactModuleInfoProvider;
 import com.facebook.react.uimanager.ViewManager;
 import com.github.douglasjunior.reactNativePdfRenderer.modules.PdfRendererViewManager;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class PdfRendererPackage implements ReactPackage {
-    @NonNull
+public class PdfRendererPackage extends BaseReactPackage {
+
+    @Nullable
     @Override
-    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactApplicationContext) {
-        return Collections.emptyList();
+    public NativeModule getModule(@NonNull String s, @NonNull ReactApplicationContext reactApplicationContext) {
+        if (PdfRendererViewManagerImpl.REACT_CLASS.equals(s)) {
+            return new PdfRendererViewManager(reactApplicationContext);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+        return Collections.singletonList(new PdfRendererViewManager(reactContext));
     }
 
     @NonNull
     @Override
-    public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactApplicationContext) {
-        return Collections.singletonList(
-                new PdfRendererViewManager(reactApplicationContext)
-        );
+    public ReactModuleInfoProvider getReactModuleInfoProvider() {
+        return () -> {
+            Map<String, ReactModuleInfo> map = new HashMap<>();
+            map.put(PdfRendererViewManagerImpl.REACT_CLASS, new ReactModuleInfo(
+                    PdfRendererViewManagerImpl.REACT_CLASS, // name
+                    PdfRendererViewManagerImpl.REACT_CLASS, // className
+                    false,                                  // canOverrideExistingModule
+                    false,                                  // needsEagerInit
+                    false,                                  // isCxxModule
+                    false                                   // isTurboModule
+            ));
+            return map;
+        };
     }
 }

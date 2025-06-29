@@ -23,15 +23,21 @@
 //  Created by Douglas Nassif Roma Junior on 08/03/23.
 //
 
-@import Foundation;
-@import UIKit;
-@import PDFKit;
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <PDFKit/PDFKit.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#else
 #import <React/RCTComponent.h>
+#endif
 
 @interface RNPDFView: PDFView
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#else
 @property (nonatomic, copy) RCTBubblingEventBlock onPageChange;
+#endif
 
 -(void) setDistanceBetweenPages:(NSNumber*) distance;
 -(void) setParams:(NSDictionary*) params;

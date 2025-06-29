@@ -8,7 +8,7 @@ const PDF_URL =
   'https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11final-fltpln.pdf'; // 618 pages
 // const PDF_URL = 'https://www.africau.edu/images/default/sample.pdf'; // 2 pages
 
-function App(): JSX.Element {
+function App() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [downloading, setDownloading] = useState(false);

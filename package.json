@@ -1,7 +1,7 @@
 {
   "name": "react-native-pdf-renderer",
   "displayName": "React-Native Pdf Renderer",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.",
   "main": "src",
   "license": "MIT",
@@ -26,30 +26,49 @@
     "url": "https://github.com/douglasjunior/react-native-pdf-renderer/issues"
   },
   "homepage": "https://github.com/douglasjunior/react-native-pdf-renderer",
+  "codegenConfig": {
+    "name": "rnpdfrenderer_codegen",
+    "type": "components",
+    "jsSrcsDir": "./src/specs",
+    "android": {
+      "javaPackageName": "com.github.douglasjunior.reactNativePdfRenderer"
+    },
+    "ios": {
+      "componentProvider": {
+        "RNPdfRendererView": "RNPdfRendererComponentView"
+      }
+    }
+  },
   "scripts": {
     "build": "tsc",
     "publish-script": "node scripts/publish.js"
   },
   "peerDependencies": {
-    "react-native": ">=0.60"
+    "react-native": ">=0.71"
   },
   "devDependencies": {
-    "react": "18.2.0",
-    "react-native": "0.74.1",
-    "@babel/core": "^7.20.0",
-    "@babel/preset-env": "^7.20.0",
-    "@babel/runtime": "^7.20.0",
-    "@react-native/babel-preset": "0.74.83",
-    "@react-native/eslint-config": "0.74.83",
-    "@react-native/metro-config": "0.74.83",
-    "@react-native/typescript-config": "0.74.83",
-    "@types/react": "^18.2.6",
-    "@types/react-test-renderer": "^18.0.0",
-    "babel-jest": "^29.6.3",
+    "react": "19.0.0",
+    "react-native": "0.79.4",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "18.0.0",
+    "@react-native-community/cli-platform-android": "18.0.0",
+    "@react-native-community/cli-platform-ios": "18.0.0",
+    "@react-native/babel-preset": "0.79.4",
+    "@react-native/eslint-config": "0.79.4",
+    "@react-native/metro-config": "0.79.4",
+    "@react-native/typescript-config": "0.79.4",
+    "@types/jest": "^29.5.13",
+    "@types/react": "^19.0.0",
+    "@types/react-test-renderer": "^19.0.0",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
     "prettier": "2.8.8",
-    "react-test-renderer": "18.2.0",
-    "typescript": "5.0.4"
+    "react-test-renderer": "19.0.0",
+    "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

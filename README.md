@@ -39,10 +39,6 @@ npm i -S react-native-pdf-renderer
 
 Go to the folder **your-project/ios** and run `pod install`, and you're done. 
 
-### New Architecture
-
-See https://github.com/douglasjunior/react-native-pdf-renderer/issues/31#issuecomment-2564782735
-
 ### Android specific (optional)
 
 Customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by setting `ext` in your `android/build.gradle` file.
@@ -98,7 +94,7 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
 |maxZoom|`number`|`5`|Max zoom scale.|
 |maxPageResolution|`number`|`2048`|(Android only) Max page resolution (width/height) in pixels when zooming. Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26 . |
-|singlePage|`boolean`|`false`|(Experimental) Renders only the first page without scroll. (useful for display thumbnail)|
+|singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
 |style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|
 

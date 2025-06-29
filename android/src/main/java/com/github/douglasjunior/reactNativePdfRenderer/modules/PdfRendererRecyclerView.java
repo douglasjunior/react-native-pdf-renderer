@@ -41,27 +41,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
 import java.io.IOException;
 
 @SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
-    private final ViewGroup mParent;
     private final GestureDetector mGestureDetector;
     private final int mMinZoom = 1;
-    private final ReactApplicationContext mReactApplicationContext;
     private final ScaleGestureDetector mScaleDetector;
     private final Matrix mMatrix;
     private final ObservableZoom mZoomObserver;
     private final LayoutManager mLayoutManager;
+    private final PdfRendererRecyclerViewListener mListener;
     private boolean mRequestedLayout = false;
     private float mMaxZoom = 5;
     private float mMaxPageResolution;
@@ -71,7 +65,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private int mCurrentItemPosition = -1;
     private boolean mSinglePage;
 
-    public PdfRendererRecyclerView(@NonNull ReactApplicationContext context, ViewGroup parent) {
+    public PdfRendererRecyclerView(@NonNull Context context, PdfRendererRecyclerViewListener listener) {
         super(context);
 
         mZoomObserver = new ObservableZoom(mMinZoom);
@@ -90,11 +84,13 @@ public class PdfRendererRecyclerView extends RecyclerView {
             }
         });
 
-        mReactApplicationContext = context;
-        mParent = parent;
+        mListener = listener;
         mMatrix = new Matrix();
         mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         mGestureDetector = new GestureDetector(context, new GestureListener());
+
+        this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        this.setClipToOutline(true);
     }
 
     public void setDistanceBetweenPages(float distanceBetweenPages) {
@@ -124,16 +120,6 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
     }
 
-    public void updateSource(String source) throws IOException {
-        mCurrentItemPosition = -1;
-        var adapter = (PdfRendererAdapter) getAdapter();
-        if (adapter == null) return;
-        adapter.close();
-        adapter.updateSource(source);
-        adapter.notifyDataSetChanged();
-        post(this::dispatchPageChangeEvent);
-    }
-
     private void dispatchPageChangeEvent() {
         var newPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
         if (newPosition < 0) newPosition = mLayoutManager.findLastVisibleItemPosition();
@@ -144,14 +130,18 @@ public class PdfRendererRecyclerView extends RecyclerView {
             var adapter = (PdfRendererAdapter) getAdapter();
             if (adapter == null) return;
 
-            var event = Arguments.createMap();
-            event.putInt("position", newPosition);
-            event.putInt("total", adapter.getPageCount());
-
-            mReactApplicationContext
-                    .getJSModule(RCTEventEmitter.class)
-                    .receiveEvent(mParent.getId(), "pageChange", event);
+            mListener.onPageChange(this, newPosition, adapter.getPageCount());
         }
+    }
+
+    public void updateSource(String source) throws IOException {
+        mCurrentItemPosition = -1;
+        var adapter = (PdfRendererAdapter) getAdapter();
+        if (adapter == null) return;
+        adapter.close();
+        adapter.updateSource(source);
+        adapter.notifyDataSetChanged();
+        post(this::dispatchPageChangeEvent);
     }
 
     @Override
@@ -260,7 +250,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     /**
      * Fix a problem with React Native layout
-     * https://stackoverflow.com/a/49381907/2826279
+     * <a href="https://stackoverflow.com/a/49381907/2826279">Read more</a>
      */
     @SuppressLint("WrongCall")
     @Override
@@ -278,6 +268,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
         this.mSinglePage = singlePage;
     }
 
+    public interface PdfRendererRecyclerViewListener {
+        void onPageChange(PdfRendererRecyclerView target, int position, int total);
+    }
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -293,7 +287,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
             mMatrix.postScale(factor, factor, getWidth() / 2f, getHeight() / 2f);
             validateMatrixLimits();
-            ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+            postInvalidateOnAnimation();
 
             return true;
         }
@@ -312,10 +306,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float dX, float dY) {
+        public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2, float dX, float dY) {
             mMatrix.postTranslate(-dX, -dY);
             validateMatrixLimits();
-            ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+            postInvalidateOnAnimation();
             return true;
         }
 
@@ -338,7 +332,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
             validateMatrixLimits();
 
-            ViewCompat.postInvalidateOnAnimation(PdfRendererRecyclerView.this);
+            postInvalidateOnAnimation();
 
             mZoomObserver.setZoom(newZoom);
             return true;

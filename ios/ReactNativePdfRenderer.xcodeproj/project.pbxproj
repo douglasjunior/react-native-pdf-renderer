@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		241DF20429B9FD8B003ED990 /* RNPDFView.m in Sources */ = {isa = PBXBuildFile; fileRef = 241DF20129B9FD8B003ED990 /* RNPDFView.m */; };
+		241DF20429B9FD8B003ED990 /* RNPDFView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 241DF20129B9FD8B003ED990 /* RNPDFView.mm */; };
 		241DF20529B9FD8B003ED990 /* RNPdfRendererModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 241DF20329B9FD8B003ED990 /* RNPdfRendererModule.m */; };
+		248B169F2E10C36D00F84136 /* RNPdfRendererComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248B169E2E10C36D00F84136 /* RNPdfRendererComponentView.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,9 +26,11 @@
 
 /* Begin PBXFileReference section */
 		241DF20029B9FD8A003ED990 /* RNPDFView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNPDFView.h; sourceTree = "<group>"; };
-		241DF20129B9FD8B003ED990 /* RNPDFView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNPDFView.m; sourceTree = "<group>"; };
+		241DF20129B9FD8B003ED990 /* RNPDFView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNPDFView.mm; sourceTree = "<group>"; };
 		241DF20229B9FD8B003ED990 /* RNPdfRendererModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNPdfRendererModule.h; sourceTree = "<group>"; };
 		241DF20329B9FD8B003ED990 /* RNPdfRendererModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNPdfRendererModule.m; sourceTree = "<group>"; };
+		248B169D2E10C36D00F84136 /* RNPdfRendererComponentView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNPdfRendererComponentView.h; sourceTree = "<group>"; };
+		248B169E2E10C36D00F84136 /* RNPdfRendererComponentView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNPdfRendererComponentView.mm; sourceTree = "<group>"; };
 		A5AF7CE21FAA17C900C5BDC0 /* libReactNativePdfRendererLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativePdfRendererLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -57,10 +60,12 @@
 		A5AF7CE31FAA17C900C5BDC0 /* ReactNativePdfRendererLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				248B169D2E10C36D00F84136 /* RNPdfRendererComponentView.h */,
+				248B169E2E10C36D00F84136 /* RNPdfRendererComponentView.mm */,
 				241DF20229B9FD8B003ED990 /* RNPdfRendererModule.h */,
 				241DF20329B9FD8B003ED990 /* RNPdfRendererModule.m */,
 				241DF20029B9FD8A003ED990 /* RNPDFView.h */,
-				241DF20129B9FD8B003ED990 /* RNPDFView.m */,
+				241DF20129B9FD8B003ED990 /* RNPDFView.mm */,
 			);
 			path = ReactNativePdfRendererLibrary;
 			sourceTree = "<group>";
@@ -138,8 +143,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				241DF20429B9FD8B003ED990 /* RNPDFView.m in Sources */,
+				241DF20429B9FD8B003ED990 /* RNPDFView.mm in Sources */,
 				241DF20529B9FD8B003ED990 /* RNPdfRendererModule.m in Sources */,
+				248B169F2E10C36D00F84136 /* RNPdfRendererComponentView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
