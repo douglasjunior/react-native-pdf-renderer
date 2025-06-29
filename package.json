@@ -35,7 +35,7 @@
     },
     "ios": {
       "componentProvider": {
-        "RNPdfRendererView": "RNPDFView"
+        "RNPdfRendererView": "RNPdfRendererComponentView"
       }
     }
   },
@@ -44,7 +44,7 @@
     "publish-script": "node scripts/publish.js"
   },
   "peerDependencies": {
-    "react-native": ">=0.72"
+    "react-native": ">=0.71"
   },
   "devDependencies": {
     "react": "19.0.0",

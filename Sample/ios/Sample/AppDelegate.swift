@@ -29,7 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       launchOptions: launchOptions
     )
 
-    super.application(application, didFinishLaunchingWithOptions: launchOptions)
     return true
   }
 }

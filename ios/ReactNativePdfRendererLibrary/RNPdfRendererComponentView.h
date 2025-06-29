@@ -1,6 +1,6 @@
 //  MIT License
 //
-//  Copyright (c) 2023 Douglas Nassif Roma Junior
+//  Copyright (c) 2025 Douglas Nassif Roma Junior
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,21 @@
 //
 
 #ifdef RCT_NEW_ARCH_ENABLED
-#else
 
-@import Foundation;
-@import UIKit;
-@import PDFKit;
 
-#import <React/RCTViewManager.h>
+#import <UIKit/UIKit.h>
 #import <PDFKit/PDFKit.h>
+#import <React/RCTViewComponentView.h>
 
 #import "RNPDFView.h"
 
-@interface RNPdfRendererModule : RCTViewManager
+NS_ASSUME_NONNULL_BEGIN
+
+@interface RNPdfRendererComponentView : RCTViewComponentView
+
 @end
 
+NS_ASSUME_NONNULL_END
+
 #endif // RCT_NEW_ARCH_ENABLED
+

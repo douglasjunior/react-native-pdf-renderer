@@ -23,6 +23,9 @@
 //  Created by Douglas Nassif Roma Junior on 08/03/23.
 //
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#else
+
 #import "RNPdfRendererModule.h"
 
 @implementation RNPdfRendererModule
@@ -73,3 +76,5 @@ RCT_CUSTOM_VIEW_PROPERTY(distanceBetweenPages, NSNumber, RNPDFView)
 }
 
 @end
+
+#endif // RCT_NEW_ARCH_ENABLED

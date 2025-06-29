@@ -54,7 +54,9 @@
         }
         self.displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
         
-        self.document = pdfDocument;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.document = pdfDocument;
+        });
         
         dispatch_async(dispatch_get_main_queue(), ^{
             self.minScaleFactor = self.scaleFactorForSizeToFit;

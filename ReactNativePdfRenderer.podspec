@@ -15,7 +15,9 @@ Pod::Spec.new do |s|
 	s.source         = { :git => repository, :tag => version }
 	s.platform       = :ios, "11.0"
 	s.preserve_paths = 'README.md', 'package.json', '*.js'
-	s.source_files   = 'ios/ReactNativePdfRendererLibrary/**/*.{h,m}'
+	s.source_files   = 'ios/ReactNativePdfRendererLibrary/**/*.{h,m,mm,swift}'
 
-	s.dependency 'React-Core'
+	s.frameworks     = 'PDFKit'
+	
+	install_modules_dependencies(s)
 end
