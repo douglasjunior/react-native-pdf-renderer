@@ -4,6 +4,7 @@
   "version": "2.0.0",
   "description": "⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.",
   "main": "src",
+  "react-native": "src",
   "license": "MIT",
   "repository": {
     "type": "git",
