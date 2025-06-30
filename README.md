@@ -22,9 +22,9 @@ Every React Native developer knows (or will discover soon) [the pain of updating
 
 ## Requirements
 
-- React Native >= 0.60.0
-- iOS >= 11.0
-- Android >= API 19
+- React Native >= 0.71.0
+- iOS >= 12.0
+- Android >= API 21
 
 ## Install
 
