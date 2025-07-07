@@ -1,0 +1,39 @@
+{
+  "name": "@db1group/dgs-ai-agents-software-architect-backend",
+  "version": "1.0.0",
+  "description": "Backend package following Clean Architecture, SOLID principles, and DDD",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "clean-architecture",
+    "solid",
+    "ddd",
+    "domain-driven-design",
+    "dependency-injection",
+    "repository-pattern",
+    "backend"
+  ],
+  "author": "DB1 Group",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.19.4",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "typescript": "^5.8.3"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
+}
