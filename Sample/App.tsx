@@ -4,9 +4,9 @@ import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
 // import ReactNativeBlobUtil from 'react-native-blob-util';
 
-const PDF_URL =
-  'https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11final-fltpln.pdf'; // 618 pages
-// const PDF_URL = 'https://www.africau.edu/images/default/sample.pdf'; // 2 pages
+const PDF_URL = 'https://github.com/douglasjunior/react-native-pdf-renderer/raw/refs/heads/main/Sample/A17_FlightPlan.pdf'; // 618 pages
+// const PDF_URL = 'https://github.com/ArturT/Test-PDF-Files/raw/refs/heads/master/not_encrypted.pdf'; // 1 pages
+// const PDF_URL = 'https://github.com/ArturT/Test-PDF-Files/raw/refs/heads/master/corrupted.pdf'; // corrupted
 
 function App() {
   const [totalPages, setTotalPages] = useState(0);
@@ -73,7 +73,7 @@ function App() {
     }
 
     return (
-      <>
+      <View style={{flex: 1}}>
         <Button
           title="Single Page"
           onPress={() => setSinglePage(prev => !prev)}
@@ -109,7 +109,7 @@ function App() {
             {currentPage + 1}/{totalPages}
           </Text>
         </View>
-      </>
+      </View>
     );
   };
 

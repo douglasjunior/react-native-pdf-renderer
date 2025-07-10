@@ -48,6 +48,7 @@ BOOL observerAdded = NO;
     if (!observerAdded) {
         observerAdded = YES;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
     }
     if(self = [super init]) {
         _pdfView = [RNPDFView new];
@@ -65,18 +66,26 @@ BOOL observerAdded = NO;
     }
 }
 
-- (void)handlePageChange:(NSNotification*) notification {
-    if ([RNPDFView class] != [notification.object class]) {
+- (void) handleError:(NSNotification*) notification {
+    if (notification.object != _pdfView) {
         return;
     }
     
-    RNPDFView *view = notification.object;
+    if (_eventEmitter) {
+        self.eventEmitter.onError({});
+    }
+}
+
+- (void)handlePageChange:(NSNotification*) notification {
+    if (notification.object != _pdfView) {
+        return;
+    }
     
-    NSUInteger currentPageNumber = [view.document indexForPage:view.currentPage];
+    NSUInteger currentPageNumber = [_pdfView.document indexForPage:_pdfView.currentPage];
     
     RNPdfRendererViewEventEmitter::OnPageChange result = RNPdfRendererViewEventEmitter::OnPageChange{};
     result.position = currentPageNumber;
-    result.total = view.document.pageCount;
+    result.total = _pdfView.document.pageCount;
     
     if (_eventEmitter) {
         self.eventEmitter.onPageChange(result);

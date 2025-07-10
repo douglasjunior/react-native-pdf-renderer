@@ -39,6 +39,7 @@ BOOL observerAdded = NO;
     if (!observerAdded) {
         observerAdded = YES;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
     }
     
     RNPDFView *view = [[RNPDFView alloc] init];
@@ -54,6 +55,18 @@ BOOL observerAdded = NO;
     }
 }
 
+- (void) handleError:(NSNotification*) notification {
+    if ([RNPDFView class] != [notification.object class]) {
+        return;
+    }
+    
+    RNPDFView *view = notification.object;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        view.onRnPdfError(@{});
+    });
+}
+
 - (void)handlePageChange:(NSNotification*) notification {
     if ([RNPDFView class] != [notification.object class]) {
         return;
@@ -64,14 +77,15 @@ BOOL observerAdded = NO;
     NSUInteger currentPageNumber = [view.document indexForPage:view.currentPage];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        view.onPageChange(@{
+        view.onRnPdfPageChange(@{
             @"position": [NSNumber numberWithInteger:currentPageNumber],
             @"total":  [NSNumber numberWithInteger:view.document.pageCount],
         });
     });
 }
 
-RCT_EXPORT_VIEW_PROPERTY(onPageChange, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onRnPdfPageChange, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onRnPdfError, RCTBubblingEventBlock)
 
 RCT_CUSTOM_VIEW_PROPERTY(params, NSDictionary, RNPDFView)
 {

@@ -27,6 +27,8 @@
 
 @implementation RNPDFView
 
+NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
+
 -(void) setParams:(NSDictionary*) params {
     NSString *source = [params objectForKey:@"source"];
     NSString *maxZoomString = [params objectForKey:@"maxZoom"];
@@ -52,6 +54,10 @@
         self.displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            if (pdfDocument == nil || pdfDocument.pageCount == 0) {
+                [NSNotificationCenter.defaultCenter postNotificationName:RNPDFViewErrorNotification object:self];
+                return;
+            }
             self.document = pdfDocument;
         });
         

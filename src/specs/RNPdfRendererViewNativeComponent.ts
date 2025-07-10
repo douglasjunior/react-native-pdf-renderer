@@ -44,6 +44,7 @@ export interface NativeProps extends ViewProps {
   distanceBetweenPages: Float;
   params: NativeParams;
   onPageChange: BubblingEventHandler<PageChangeEventPayload>;
+  onError: BubblingEventHandler<{}>;
 }
 
 export default codegenNativeComponent<NativeProps>(

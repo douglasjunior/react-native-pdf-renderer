@@ -36,9 +36,11 @@
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #else
-@property (nonatomic, copy) RCTBubblingEventBlock onPageChange;
+@property (nonatomic, copy) RCTBubblingEventBlock onRnPdfPageChange;
+@property (nonatomic, copy) RCTBubblingEventBlock onRnPdfError;
 #endif
 
+FOUNDATION_EXPORT NSNotificationName const RNPDFViewErrorNotification;
 -(void) setDistanceBetweenPages:(NSNumber*) distance;
 -(void) setParams:(NSDictionary*) params;
 

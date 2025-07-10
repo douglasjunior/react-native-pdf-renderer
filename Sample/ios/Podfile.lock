@@ -1740,7 +1740,7 @@ PODS:
     - React-logger (= 0.79.4)
     - React-perflogger (= 0.79.4)
     - React-utils (= 0.79.4)
-  - ReactNativePdfRenderer (2.0.0):
+  - ReactNativePdfRenderer (2.0.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2093,7 +2093,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 04be2a00933bf0930cafcc4da1e0760143573d82
   ReactCodegen: 1bcfcb6519fadfb3e0072e27b8ff868b7dfbac64
   ReactCommon: 2bc79208d91eda74edeff759d82c93460b07612f
-  ReactNativePdfRenderer: 776f3e1e51b0e42fbbe739d1042ac39ef14dea69
+  ReactNativePdfRenderer: 234866730af5a5eae357d6f59199b9d28acee82a
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 

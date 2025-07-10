@@ -96,6 +96,7 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |maxPageResolution|`number`|`2048`|(Android only) Max page resolution (width/height) in pixels when zooming. Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26 . |
 |singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
+|onError|`() => void`||Invoked when an error occurs.|
 |style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|
 
 ## Limitations

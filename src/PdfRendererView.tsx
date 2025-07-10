@@ -80,6 +80,10 @@ export type PdfRendererViewPropsType = {
    * @param totalPages total pages number
    */
   onPageChange?: (page: number, totalPages: number) => void;
+  /**
+   * Invoked when an error occurs.
+   */
+  onError?: () => void;
 };
 
 type OnPageChangeEventType = {
@@ -97,6 +101,7 @@ const styles = StyleSheet.create({
 const PdfRendererView = ({
   testID = undefined,
   onPageChange,
+  onError = undefined,
   style,
   source,
   singlePage = false,
@@ -123,6 +128,17 @@ const PdfRendererView = ({
     [onPageChange],
   );
 
+  const handleError = useCallback((event: NativeSyntheticEvent<{}>) => {
+    if (!onError && __DEV__) {
+      console.warn(
+        'react-native-pdf-renderer: An error occurred while rendering the PDF. ',
+        event.nativeEvent
+      );
+      return;
+    }
+    onError?.();
+  }, [onError]);
+
   const params: NativeParams = useMemo(
     () => ({
       source,
@@ -140,6 +156,11 @@ const PdfRendererView = ({
       style={viewStyles}
       params={params}
       onPageChange={handlePageChange}
+      onError={handleError}
+      // old architecture
+      // @ts-ignore
+      onRnPdfPageChange={handlePageChange} 
+      onRnPdfError={handleError}
     />
   );
 };
