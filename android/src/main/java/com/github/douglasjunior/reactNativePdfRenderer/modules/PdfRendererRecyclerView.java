@@ -30,8 +30,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
-import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -43,9 +41,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.io.File;
-import java.io.IOException;
 
 @SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
@@ -110,14 +105,10 @@ public class PdfRendererRecyclerView extends RecyclerView {
     }
 
     public void closeAdapter() {
-        try {
-            var adapter = (PdfRendererAdapter) getAdapter();
-            assert adapter != null;
-            adapter.close();
-            adapter.notifyDataSetChanged();
-        } catch (Exception ex) {
-            Log.e("PdfRendererRecyclerView", "Error closing adapter", ex);
-        }
+        var adapter = (PdfRendererAdapter) getAdapter();
+        assert adapter != null;
+        adapter.close();
+        adapter.notifyDataSetChanged();
     }
 
     private void dispatchPageChangeEvent() {
@@ -134,12 +125,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
     }
 
-    public void updateSource(String source) throws IOException {
+    public void updateSource(PdfRenderer pdfRenderer) {
         mCurrentItemPosition = -1;
         var adapter = (PdfRendererAdapter) getAdapter();
         if (adapter == null) return;
         adapter.close();
-        adapter.updateSource(source);
+        adapter.updateSource(pdfRenderer);
         adapter.notifyDataSetChanged();
         post(this::dispatchPageChangeEvent);
     }
@@ -340,22 +331,15 @@ public class PdfRendererRecyclerView extends RecyclerView {
     }
 
     class PdfRendererAdapter extends Adapter<PdfRendererAdapter.ViewHolder> {
-
-        private ParcelFileDescriptor mFileDescriptor;
         private PdfRenderer mPdfRenderer;
 
-        public void updateSource(String source) throws IOException {
-            if (TextUtils.isEmpty(source)) return;
-            var file = new File(source.replace("file://", ""));
-            mFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            mPdfRenderer = new PdfRenderer(mFileDescriptor);
+        public void updateSource(PdfRenderer pdfRenderer) {
+            mPdfRenderer = pdfRenderer;
         }
 
-        public void close() throws IOException {
+        public void close() {
             if (mPdfRenderer != null) mPdfRenderer.close();
-            if (mFileDescriptor != null) mFileDescriptor.close();
             mPdfRenderer = null;
-            mFileDescriptor = null;
         }
 
         @NonNull

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, SafeAreaView, StatusBar, Text, View} from 'react-native';
+import {Alert, Button, SafeAreaView, StatusBar, Text, View} from 'react-native';
 import PdfRendererView from 'react-native-pdf-renderer';
 import * as FileSystem from 'expo-file-system';
 // import ReactNativeBlobUtil from 'react-native-blob-util';
@@ -89,6 +89,10 @@ function App() {
             console.log('onPageChange', {current, total});
             setCurrentPage(current);
             setTotalPages(total);
+          }}
+          onError={() => {
+            console.warn('Error loading PDF');
+            Alert.alert('Error', 'Error loading PDF');
           }}
         />
         <View

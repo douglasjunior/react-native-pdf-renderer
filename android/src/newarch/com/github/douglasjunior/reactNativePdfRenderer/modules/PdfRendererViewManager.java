@@ -22,7 +22,7 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
-import static com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl.REACT_CLASS;
+import static com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl.REACT_MODULE_NAME;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,13 +34,14 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.viewmanagers.RNPdfRendererViewManagerInterface;
 import com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl;
 
 import java.util.Map;
 
-@ReactModule(name = REACT_CLASS)
+@ReactModule(name = REACT_MODULE_NAME)
 public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecyclerView> implements RNPdfRendererViewManagerInterface<PdfRendererRecyclerView>, PdfRendererRecyclerView.PdfRendererRecyclerViewListener {
 
     private final ReactApplicationContext mReactApplicationContext;
@@ -52,7 +53,7 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     @NonNull
     @Override
     public String getName() {
-        return REACT_CLASS;
+        return REACT_MODULE_NAME;
     }
 
     @NonNull
@@ -67,6 +68,19 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
         return PdfRendererViewManagerImpl.getExportedCustomBubblingEventTypeConstants();
     }
 
+    private void sendEvent(PdfRendererRecyclerView target, Event<?> event) {
+        EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
+                mReactApplicationContext,
+                target.getId()
+        );
+
+        if (eventDispatcher != null) {
+            eventDispatcher.dispatchEvent(
+                    event
+            );
+        }
+    }
+
     @Override
     public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
         EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
@@ -78,6 +92,20 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
             int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
             eventDispatcher.dispatchEvent(
                     PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
+            );
+        }
+    }
+
+    private void onError(PdfRendererRecyclerView target) {
+        EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
+                mReactApplicationContext,
+                target.getId()
+        );
+
+        if (eventDispatcher != null) {
+            int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
+            eventDispatcher.dispatchEvent(
+                    PdfRendererViewManagerImpl.createOnErrorEvent(surfaceId, target.getId())
             );
         }
     }
@@ -97,6 +125,6 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     @ReactProp(name = "params")
     @Override
     public void setParams(PdfRendererRecyclerView view, @Nullable ReadableMap params) {
-        PdfRendererViewManagerImpl.setParams(view, params);
+        PdfRendererViewManagerImpl.setParams(view, params, () -> onError(view));
     }
 }

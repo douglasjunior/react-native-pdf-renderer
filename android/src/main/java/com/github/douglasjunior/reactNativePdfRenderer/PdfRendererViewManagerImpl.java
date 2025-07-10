@@ -22,6 +22,9 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer;
 
+import android.graphics.pdf.PdfRenderer;
+import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -32,46 +35,60 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 import com.github.douglasjunior.reactNativePdfRenderer.modules.PdfRendererRecyclerView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PdfRendererViewManagerImpl {
-    public static final String REACT_CLASS = "RNPdfRendererView";
-    public static final String ON_PAGE_CHANGE_EVENT = "onPageChange";
+    public static final String REACT_MODULE_NAME = "RNPdfRendererView";
+    private static final String ON_PAGE_CHANGE_EVENT = "onPageChange";
+    private static final String ON_ERROR_EVENT = "onError";
 
     public static Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
-        Map<String, Object> map = new HashMap<>();
-        Map<String, Object> bubblingMap = new HashMap<>();
-        bubblingMap.put("phasedRegistrationNames", new HashMap<String, String>() {{
-            put("bubbled", ON_PAGE_CHANGE_EVENT);
-        }});
-        map.put("pageChange", bubblingMap);
-        return map;
+        return new HashMap<>() {{
+            put(ON_PAGE_CHANGE_EVENT, new HashMap<>() {{
+                put("phasedRegistrationNames", new HashMap<String, String>() {{
+                    put("bubbled", ON_PAGE_CHANGE_EVENT);
+                }});
+            }});
+            put(ON_ERROR_EVENT, new HashMap<>() {{
+                put("phasedRegistrationNames", new HashMap<String, String>() {{
+                    put("bubbled", ON_ERROR_EVENT);
+                }});
+            }});
+        }};
     }
 
-    public static void setParams(PdfRendererRecyclerView view, ReadableMap params) {
+    public static void setParams(PdfRendererRecyclerView view, ReadableMap params, Runnable errorCallback) {
         if (params == null) return;
 
         var source = params.getString("source");
         var singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
         var maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
 
-        try {
-            if (source != null) {
-                view.updateSource(source);
-            } else {
-                view.closeAdapter();
-            }
+        if (TextUtils.isEmpty(source)) return;
+        var file = new File(source.replace("file://", ""));
+
+        try (var fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)) {
+            final PdfRenderer pdfRenderer = new PdfRenderer(fileDescriptor);
+
+            view.post(() -> {
+                view.updateSource(pdfRenderer);
+
+                view.setSinglePage(singlePage);
+                view.setMaxZoom(maxZoom);
+                view.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+
+                view.forceRequestLayout();
+            });
         } catch (IOException e) {
-            throw new RuntimeException("Error setting PDF source: " + e.getMessage(), e);
+            if (BuildConfig.DEBUG) {
+                // noinspection CallToPrintStackTrace
+                e.printStackTrace();
+            }
+            errorCallback.run();
         }
-
-        view.setSinglePage(singlePage);
-        view.setMaxZoom(maxZoom);
-        view.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
-
-        view.forceRequestLayout();
     }
 
     public static Event<?> createOnPageChangeEvent(int surfaceId, int targetId, int position, int total) {
@@ -79,7 +96,7 @@ public class PdfRendererViewManagerImpl {
             @NonNull
             @Override
             public String getEventName() {
-                return "pageChange";
+                return ON_PAGE_CHANGE_EVENT;
             }
 
             @Override
@@ -88,6 +105,16 @@ public class PdfRendererViewManagerImpl {
                 data.putInt("position", position);
                 data.putInt("total", total);
                 return data;
+            }
+        };
+    }
+
+    public static Event<?> createOnErrorEvent(int surfaceId, int targetId) {
+        return new Event<>(surfaceId, targetId) {
+            @NonNull
+            @Override
+            public String getEventName() {
+                return ON_ERROR_EVENT;
             }
         };
     }

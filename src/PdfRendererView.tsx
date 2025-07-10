@@ -131,7 +131,7 @@ const PdfRendererView = ({
   const handleError = useCallback((event: NativeSyntheticEvent<{}>) => {
     if (!onError && __DEV__) {
       console.warn(
-        'react-native-pdf-renderer: An error occurred while rendering the PDF. ',
+        'react-native-pdf-renderer: An error occurred while rendering the PDF.',
         event.nativeEvent
       );
       return;

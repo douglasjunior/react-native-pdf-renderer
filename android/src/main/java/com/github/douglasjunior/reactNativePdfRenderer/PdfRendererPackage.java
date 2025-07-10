@@ -43,7 +43,7 @@ public class PdfRendererPackage extends BaseReactPackage {
     @Nullable
     @Override
     public NativeModule getModule(@NonNull String s, @NonNull ReactApplicationContext reactApplicationContext) {
-        if (PdfRendererViewManagerImpl.REACT_CLASS.equals(s)) {
+        if (PdfRendererViewManagerImpl.REACT_MODULE_NAME.equals(s)) {
             return new PdfRendererViewManager(reactApplicationContext);
         }
         return null;
@@ -59,9 +59,9 @@ public class PdfRendererPackage extends BaseReactPackage {
     public ReactModuleInfoProvider getReactModuleInfoProvider() {
         return () -> {
             Map<String, ReactModuleInfo> map = new HashMap<>();
-            map.put(PdfRendererViewManagerImpl.REACT_CLASS, new ReactModuleInfo(
-                    PdfRendererViewManagerImpl.REACT_CLASS, // name
-                    PdfRendererViewManagerImpl.REACT_CLASS, // className
+            map.put(PdfRendererViewManagerImpl.REACT_MODULE_NAME, new ReactModuleInfo(
+                    PdfRendererViewManagerImpl.REACT_MODULE_NAME, // name
+                    PdfRendererViewManagerImpl.REACT_MODULE_NAME, // className
                     false,                                  // canOverrideExistingModule
                     false,                                  // needsEagerInit
                     false,                                  // isCxxModule

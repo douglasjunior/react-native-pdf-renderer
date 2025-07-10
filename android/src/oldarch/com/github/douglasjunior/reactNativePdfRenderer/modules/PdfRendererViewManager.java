@@ -22,7 +22,7 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer.modules;
 
-import static com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl.REACT_CLASS;
+import static com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl.REACT_MODULE_NAME;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +34,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.events.Event;
 import com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     @NonNull
     @Override
     public String getName() {
-        return REACT_CLASS;
+        return REACT_MODULE_NAME;
     }
 
     @NonNull
@@ -66,7 +67,7 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
 
     @ReactProp(name = "params")
     public void setParams(PdfRendererRecyclerView view, @Nullable ReadableMap params) throws IOException {
-        PdfRendererViewManagerImpl.setParams(view, params);
+        PdfRendererViewManagerImpl.setParams(view, params, () -> onError(view));
     }
 
     @ReactProp(name = "distanceBetweenPages")
@@ -79,14 +80,27 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
         view.setMaxPageResolution(maxPageResolution);
     }
 
-    @Override
-    public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
+    private void sendEvent(Event<?> event) {
         UIManagerModule uiManager = mReactApplicationContext.getNativeModule(UIManagerModule.class);
         if (uiManager != null) {
-            int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
             uiManager.getEventDispatcher().dispatchEvent(
-                    PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
+                    event
             );
         }
+    }
+
+    private void onError(PdfRendererRecyclerView target) {
+        int surfaceId = UIManagerHelper.getSurfaceId(target);
+        sendEvent(
+                PdfRendererViewManagerImpl.createOnErrorEvent(surfaceId, target.getId())
+        );
+    }
+
+    @Override
+    public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
+        int surfaceId = UIManagerHelper.getSurfaceId(target);
+        sendEvent(
+                PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
+        );
     }
 }
