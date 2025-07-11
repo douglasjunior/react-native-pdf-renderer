@@ -157,9 +157,9 @@ const PdfRendererView = ({
       params={params}
       onPageChange={handlePageChange}
       onError={handleError}
-      // old architecture
+      // old architecture events for iOS, because iOS require unique names
       // @ts-ignore
-      onRnPdfPageChange={handlePageChange} 
+      onRnPdfPageChange={handlePageChange}
       onRnPdfError={handleError}
     />
   );
