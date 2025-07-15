@@ -92,7 +92,7 @@ public class PdfRendererViewManagerImpl {
     }
 
     public static Event<?> createOnPageChangeEvent(int surfaceId, int targetId, int position, int total) {
-        return new Event<>(surfaceId, targetId) {
+        return new Event(surfaceId, targetId) {
             @NonNull
             @Override
             public String getEventName() {
@@ -110,7 +110,7 @@ public class PdfRendererViewManagerImpl {
     }
 
     public static Event<?> createOnErrorEvent(int surfaceId, int targetId) {
-        return new Event<>(surfaceId, targetId) {
+        return new Event(surfaceId, targetId) {
             @NonNull
             @Override
             public String getEventName() {
