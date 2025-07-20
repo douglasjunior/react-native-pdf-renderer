@@ -42,6 +42,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.douglasjunior.reactNativePdfRenderer.BuildConfig;
+
 @SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
     private final GestureDetector mGestureDetector;
@@ -104,13 +106,6 @@ public class PdfRendererRecyclerView extends RecyclerView {
         this.mMaxZoom = maxZoom;
     }
 
-    public void closeAdapter() {
-        var adapter = (PdfRendererAdapter) getAdapter();
-        assert adapter != null;
-        adapter.close();
-        adapter.notifyDataSetChanged();
-    }
-
     private void dispatchPageChangeEvent() {
         var newPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
         if (newPosition < 0) newPosition = mLayoutManager.findLastVisibleItemPosition();
@@ -121,7 +116,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
             var adapter = (PdfRendererAdapter) getAdapter();
             if (adapter == null) return;
 
-            mListener.onPageChange(this, newPosition, adapter.getPageCount());
+            mListener.onPageChange(this, newPosition, adapter.getItemCount());
         }
     }
 
@@ -422,29 +417,35 @@ public class PdfRendererRecyclerView extends RecyclerView {
             }
 
             public void update(int position, float newZoom) {
-                var page = mPdfRenderer.openPage(position);
-                var pageWidth = page.getWidth();
-                var pageHeight = page.getHeight();
-                var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
+                try (var page = mPdfRenderer.openPage(position)) {
+                    var pageWidth = page.getWidth();
+                    var pageHeight = page.getHeight();
+                    var bitmap = createBitmap(newZoom, pageWidth, pageHeight);
 
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
-                var imageView = getImageView();
-                imageView.setImageBitmap(bitmap);
+                    var imageView = getImageView();
+                    imageView.setImageBitmap(bitmap);
 
-                var lp = (LayoutParams) imageView.getLayoutParams();
-                lp.width = LayoutParams.MATCH_PARENT;
+                    var lp = (LayoutParams) imageView.getLayoutParams();
+                    lp.width = LayoutParams.MATCH_PARENT;
 
-                if (mSinglePage) {
-                    lp.height = LayoutParams.MATCH_PARENT;
-                    lp.setMargins(0, 0, 0, 0);
-                } else {
-                    lp.height = Math.round(((float) mWidth / (float) pageWidth) * (float) pageHeight);
-                    lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
+                    if (mSinglePage) {
+                        lp.height = LayoutParams.MATCH_PARENT;
+                        lp.setMargins(0, 0, 0, 0);
+                    } else {
+                        lp.height = Math.round(((float) mWidth / (float) pageWidth) * (float) pageHeight);
+                        lp.setMargins(0, 0, 0, (int) mDistanceBetweenPages);
+                    }
+                    imageView.setLayoutParams(lp);
+                } catch (Exception e) {
+                    // Prevents the app from crashing if the adapter tries to render a page when the view is detached
+                    // https://github.com/douglasjunior/react-native-pdf-renderer/issues/52
+                    if (BuildConfig.DEBUG) {
+                        // noinspection CallToPrintStackTrace
+                        e.printStackTrace();
+                    }
                 }
-                imageView.setLayoutParams(lp);
-
-                page.close();
             }
 
             public void detachFromWindow() {
@@ -475,18 +476,28 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
         @Override
         public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
-            /*
-             * Reduces the scroll speed when zoomed
-             * https://github.com/douglasjunior/react-native-pdf-renderer/issues/3
-             */
+            try {
+                /*
+                 * Reduces the scroll speed when zoomed
+                 * https://github.com/douglasjunior/react-native-pdf-renderer/issues/3
+                 */
 
-            var values = new float[9];
-            mMatrix.getValues(values);
+                var values = new float[9];
+                mMatrix.getValues(values);
 
-            var scaleY = values[Matrix.MSCALE_Y];
-            var dyWithScale = Math.round(dy / scaleY);
+                var scaleY = values[Matrix.MSCALE_Y];
+                var dyWithScale = Math.round(dy / scaleY);
 
-            return super.scrollVerticallyBy(dyWithScale, recycler, state);
+                return super.scrollVerticallyBy(dyWithScale, recycler, state);
+            } catch (Exception e) {
+                if (BuildConfig.DEBUG) {
+                    // noinspection CallToPrintStackTrace
+                    e.printStackTrace();
+                }
+                // Fallback to default behavior in case of an error
+                // https://github.com/douglasjunior/react-native-pdf-renderer/issues/52
+                return super.scrollVerticallyBy(dy, recycler, state);
+            }
         }
     }
 }
