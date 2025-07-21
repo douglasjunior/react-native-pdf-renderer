@@ -22,8 +22,6 @@
 
 package com.github.douglasjunior.reactNativePdfRenderer;
 
-import android.graphics.pdf.PdfRenderer;
-import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -70,25 +68,23 @@ public class PdfRendererViewManagerImpl {
         if (TextUtils.isEmpty(source)) return;
         var file = new File(source.replace("file://", ""));
 
-        try (var fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)) {
-            final PdfRenderer pdfRenderer = new PdfRenderer(fileDescriptor);
-
-            view.post(() -> {
-                view.updateSource(pdfRenderer);
-
+        view.post(() -> {
+            try {
                 view.setSinglePage(singlePage);
                 view.setMaxZoom(maxZoom);
                 view.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
+                view.updateSource(file);
+
                 view.forceRequestLayout();
-            });
-        } catch (IOException e) {
-            if (BuildConfig.DEBUG) {
-                // noinspection CallToPrintStackTrace
-                e.printStackTrace();
+            } catch (IOException e) {
+                if (BuildConfig.DEBUG) {
+                    // noinspection CallToPrintStackTrace
+                    e.printStackTrace();
+                }
+                errorCallback.run();
             }
-            errorCallback.run();
-        }
+        });
     }
 
     public static Event<?> createOnPageChangeEvent(int surfaceId, int targetId, int position, int total) {

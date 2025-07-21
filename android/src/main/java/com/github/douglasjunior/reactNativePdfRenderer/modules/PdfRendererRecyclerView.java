@@ -30,6 +30,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -43,6 +44,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.douglasjunior.reactNativePdfRenderer.BuildConfig;
+
+import java.io.File;
+import java.io.IOException;
 
 @SuppressLint({"ViewConstructor", "NotifyDataSetChanged"})
 public class PdfRendererRecyclerView extends RecyclerView {
@@ -120,12 +124,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
     }
 
-    public void updateSource(PdfRenderer pdfRenderer) {
+    public void updateSource(File file) throws IOException {
         mCurrentItemPosition = -1;
         var adapter = (PdfRendererAdapter) getAdapter();
         if (adapter == null) return;
         adapter.close();
-        adapter.updateSource(pdfRenderer);
+        adapter.updateSource(file);
         adapter.notifyDataSetChanged();
         post(this::dispatchPageChangeEvent);
     }
@@ -252,6 +256,16 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     public void setSinglePage(boolean singlePage) {
         this.mSinglePage = singlePage;
+        if (mSinglePage) {
+            resetZoom();
+        }
+    }
+
+    private void resetZoom() {
+        mMatrix.setScale(1, 1, 0, 0);
+        validateMatrixLimits();
+        postInvalidateOnAnimation();
+        mZoomObserver.setZoom(1);
     }
 
     public interface PdfRendererRecyclerViewListener {
@@ -327,14 +341,30 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     class PdfRendererAdapter extends Adapter<PdfRendererAdapter.ViewHolder> {
         private PdfRenderer mPdfRenderer;
+        private ParcelFileDescriptor mFileDescriptor;
 
-        public void updateSource(PdfRenderer pdfRenderer) {
-            mPdfRenderer = pdfRenderer;
+        public void updateSource(File file) throws IOException {
+            mFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            mPdfRenderer = new PdfRenderer(mFileDescriptor);
         }
 
         public void close() {
-            if (mPdfRenderer != null) mPdfRenderer.close();
-            mPdfRenderer = null;
+            if (mPdfRenderer != null) {
+                mPdfRenderer.close();
+                mPdfRenderer = null;
+            }
+            if (mFileDescriptor != null) {
+                try {
+                    mFileDescriptor.close();
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) {
+                        // noinspection CallToPrintStackTrace
+                        e.printStackTrace();
+                    }
+                }
+                mFileDescriptor = null;
+            }
+
         }
 
         @NonNull
@@ -372,11 +402,6 @@ public class PdfRendererRecyclerView extends RecyclerView {
             if (mSinglePage) {
                 return Math.min(mPdfRenderer.getPageCount(), 1);
             }
-            return mPdfRenderer.getPageCount();
-        }
-
-        public int getPageCount() {
-            if (mPdfRenderer == null) return 0;
             return mPdfRenderer.getPageCount();
         }
 

@@ -83,31 +83,19 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
 
     @Override
     public void onPageChange(PdfRendererRecyclerView target, int position, int total) {
-        EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
-                mReactApplicationContext,
-                target.getId()
+        int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
+        sendEvent(
+                target,
+                PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
         );
-
-        if (eventDispatcher != null) {
-            int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
-            eventDispatcher.dispatchEvent(
-                    PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
-            );
-        }
     }
 
     private void onError(PdfRendererRecyclerView target) {
-        EventDispatcher eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(
-                mReactApplicationContext,
-                target.getId()
+        int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
+        sendEvent(
+                target,
+                PdfRendererViewManagerImpl.createOnErrorEvent(surfaceId, target.getId())
         );
-
-        if (eventDispatcher != null) {
-            int surfaceId = UIManagerHelper.getSurfaceId(mReactApplicationContext);
-            eventDispatcher.dispatchEvent(
-                    PdfRendererViewManagerImpl.createOnErrorEvent(surfaceId, target.getId())
-            );
-        }
     }
 
     @ReactProp(name = "maxPageResolution")
