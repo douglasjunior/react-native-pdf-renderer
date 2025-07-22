@@ -27,6 +27,9 @@
     "url": "https://github.com/douglasjunior/react-native-pdf-renderer/issues"
   },
   "homepage": "https://github.com/douglasjunior/react-native-pdf-renderer",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "codegenConfig": {
     "name": "rnpdfrenderer_codegen",
     "type": "components",
