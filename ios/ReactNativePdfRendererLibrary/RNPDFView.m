@@ -56,12 +56,20 @@
         
         self.document = pdfDocument;
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.minScaleFactor = self.scaleFactorForSizeToFit;
-            if (maxZoom > 0) {
-                self.maxScaleFactor = self.scaleFactorForSizeToFit * maxZoom;
-            }
-            [self setNeedsLayout];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            // In certain scenarios, scaleFactorForSizeToFit may be 0.
+            // This results in invalid calculations for the CoreGraphics API, affecting the PDF positioning.
+            // Consequence: PDF displayed in the wrong position and zoom unavailable.
+            // This is a temporary workaround to handle the production bug until a better approach is implemented.
+            sleep(1);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.minScaleFactor = self.scaleFactorForSizeToFit == 0 ? 1 : self.scaleFactorForSizeToFit;
+                if (maxZoom > 0) {
+                    self.maxScaleFactor = maxZoom * self.minScaleFactor;
+                }
+                [self setNeedsLayout];
+            });
         });
     } else {
         self.document = nil;
