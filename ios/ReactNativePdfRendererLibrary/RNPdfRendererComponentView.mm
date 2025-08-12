@@ -58,6 +58,14 @@ BOOL observerAdded = NO;
     return self;
 }
 
++(BOOL)shouldBeRecycled
+{
+    // We are disabling recycling for this native view to prevent it from being cached.
+    // This ensures that the PDF is reloaded every time the component is re-mounted
+    // or any of its props change, providing a fresh instance for each render.
+    return NO;
+}
+
 - (void)dealloc
 {
     if (observerAdded) {
