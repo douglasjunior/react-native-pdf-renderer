@@ -7,13 +7,13 @@
 
 | Repository | Stars  |
 | :--------  | -----: |
-|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/88734086?s=40&v=4" width="20" height="20" alt="">  &nbsp; [FilenCloudDienste](https://github.com/FilenCloudDienste) / [filen-mobile](https://github.com/FilenCloudDienste/filen-mobile) | 446 |
+|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/88734086?s=40&v=4" width="20" height="20" alt="">  &nbsp; [FilenCloudDienste](https://github.com/FilenCloudDienste) / [filen-mobile](https://github.com/FilenCloudDienste/filen-mobile) | 449 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/1512341?s=40&v=4" width="20" height="20" alt="">  &nbsp; [douglasjunior](https://github.com/douglasjunior) / [react-native-pdf-renderer](https://github.com/douglasjunior/react-native-pdf-renderer) | 289 |
-|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/47049949?s=40&v=4" width="20" height="20" alt="">  &nbsp; [sbhjt-gr](https://github.com/sbhjt-gr) / [InferrLM](https://github.com/sbhjt-gr/InferrLM) | 86 |
+|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/47049949?s=40&v=4" width="20" height="20" alt="">  &nbsp; [sbhjt-gr](https://github.com/sbhjt-gr) / [InferrLM](https://github.com/sbhjt-gr/InferrLM) | 87 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/39365117?s=40&v=4" width="20" height="20" alt="">  &nbsp; [digitalfabrik](https://github.com/digitalfabrik) / [integreat-app](https://github.com/digitalfabrik/integreat-app) | 57 |
+|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/29230196?s=40&v=4" width="20" height="20" alt="">  &nbsp; [Muxi-X](https://github.com/Muxi-X) / [ccnubox_rn](https://github.com/Muxi-X/ccnubox_rn) | 11 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/59431532?s=40&v=4" width="20" height="20" alt="">  &nbsp; [kat-tax](https://github.com/kat-tax) / [exo-kit](https://github.com/kat-tax/exo-kit) | 11 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/13810855?s=40&v=4" width="20" height="20" alt="">  &nbsp; [chsdwn](https://github.com/chsdwn) / [react-native-examples](https://github.com/chsdwn/react-native-examples) | 11 |
-|<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/29230196?s=40&v=4" width="20" height="20" alt="">  &nbsp; [Muxi-X](https://github.com/Muxi-X) / [ccnubox_rn](https://github.com/Muxi-X/ccnubox_rn) | 10 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/729752?s=40&v=4" width="20" height="20" alt="">  &nbsp; [kamatsuoka](https://github.com/kamatsuoka) / [goodtags](https://github.com/kamatsuoka/goodtags) | 9 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/62928481?s=40&v=4" width="20" height="20" alt="">  &nbsp; [Caeli-technologies](https://github.com/Caeli-technologies) / [rotary_nl_rye](https://github.com/Caeli-technologies/rotary_nl_rye) | 7 |
 |<img class="avatar mr-2" src="https://avatars.githubusercontent.com/u/8111847?s=40&v=4" width="20" height="20" alt="">  &nbsp; [hmichael26](https://github.com/hmichael26) / [crmevents](https://github.com/hmichael26/crmevents) | 1 |
