@@ -59,6 +59,7 @@ buildscript {
 There is only one component that you need to use to render the PDF file.
 
 ```jsx
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
