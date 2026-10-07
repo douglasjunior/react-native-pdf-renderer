@@ -97,6 +97,7 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |maxPageResolution|`number`|`2048`|(Android only) Max page resolution (width/height) in pixels when zooming. Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26 . |
 |singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
 |onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
+|onScaleChange|`(scale: number) => void`||(Android only) Invoked when the zoom scale changes, continuously while the pinch gesture is in progress. `1` is the unzoomed baseline: the page at its laid-out size, which is fit-to-width in multi-page mode and fit-to-center when `singlePage` is set. The value never exceeds `maxZoom`.|
 |onError|`() => void`||Invoked when an error occurs.|
 |style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|
 
