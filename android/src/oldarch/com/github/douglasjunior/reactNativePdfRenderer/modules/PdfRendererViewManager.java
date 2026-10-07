@@ -103,4 +103,12 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
                 PdfRendererViewManagerImpl.createOnPageChangeEvent(surfaceId, target.getId(), position, total)
         );
     }
+
+    @Override
+    public void onScaleChange(PdfRendererRecyclerView target, float scale) {
+        int surfaceId = UIManagerHelper.getSurfaceId(target);
+        sendEvent(
+                PdfRendererViewManagerImpl.createOnScaleChangeEvent(surfaceId, target.getId(), scale)
+        );
+    }
 }
