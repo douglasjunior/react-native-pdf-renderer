@@ -81,6 +81,19 @@ export type PdfRendererViewPropsType = {
    */
   onPageChange?: (page: number, totalPages: number) => void;
   /**
+   * (Android only)
+   *
+   * Invoked when the zoom scale changes, continuously while the pinch gesture
+   * is in progress.
+   *
+   * `1` is the unzoomed baseline: the page at its laid-out size, which is
+   * fit-to-width in multi-page mode and fit-to-center when `singlePage` is set.
+   * The value never exceeds `maxZoom`.
+   *
+   * @param scale current zoom scale
+   */
+  onScaleChange?: (scale: number) => void;
+  /**
    * Invoked when an error occurs.
    */
   onError?: () => void;
@@ -89,6 +102,10 @@ export type PdfRendererViewPropsType = {
 type OnPageChangeEventType = {
   position: number;
   total: number;
+};
+
+type OnScaleChangeEventType = {
+  scale: number;
 };
 
 const styles = StyleSheet.create({
@@ -101,6 +118,7 @@ const styles = StyleSheet.create({
 const PdfRendererView = ({
   testID = undefined,
   onPageChange,
+  onScaleChange,
   onError = undefined,
   style,
   source,
@@ -126,6 +144,13 @@ const PdfRendererView = ({
       onPageChange?.(event.nativeEvent.position, event.nativeEvent.total);
     },
     [onPageChange],
+  );
+
+  const handleScaleChange = useCallback(
+    (event: NativeSyntheticEvent<OnScaleChangeEventType>) => {
+      onScaleChange?.(event.nativeEvent.scale);
+    },
+    [onScaleChange],
   );
 
   const handleError = useCallback((event: NativeSyntheticEvent<{}>) => {
@@ -156,6 +181,7 @@ const PdfRendererView = ({
       style={viewStyles}
       params={params}
       onPageChange={handlePageChange}
+      onScaleChange={handleScaleChange}
       onError={handleError}
       // old architecture events for iOS, because iOS require unique names
       // @ts-ignore
