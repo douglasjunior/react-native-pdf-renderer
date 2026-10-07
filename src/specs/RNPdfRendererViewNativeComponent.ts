@@ -39,11 +39,16 @@ type PageChangeEventPayload = {
   total: Int32;
 };
 
+type ScaleChangeEventPayload = {
+  scale: Float;
+};
+
 export interface NativeProps extends ViewProps {
   maxPageResolution: Float;
   distanceBetweenPages: Float;
   params: NativeParams;
   onPageChange: BubblingEventHandler<PageChangeEventPayload>;
+  onScaleChange: BubblingEventHandler<ScaleChangeEventPayload>;
   onError: BubblingEventHandler<{}>;
 }
 

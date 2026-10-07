@@ -55,6 +55,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private final ScaleGestureDetector mScaleDetector;
     private final Matrix mMatrix;
     private final ObservableZoom mZoomObserver;
+    private final ScaleTracker mScaleTracker;
     private final LayoutManager mLayoutManager;
     private final PdfRendererRecyclerViewListener mListener;
     private boolean mRequestedLayout = false;
@@ -70,6 +71,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
         super(context);
 
         mZoomObserver = new ObservableZoom(mMinZoom);
+        mScaleTracker = new ScaleTracker(mMinZoom, mMaxZoom);
 
         mLayoutManager = new LayoutManager(context);
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -108,6 +110,47 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     public void setMaxZoom(float maxZoom) {
         this.mMaxZoom = maxZoom;
+        mScaleTracker.setMaxScale(maxZoom);
+
+        /*
+         * Lowering the cap below the zoom already applied would leave the matrix above
+         * the new limit: the view would keep drawing the old zoom while the reported
+         * scale, which is clamped, stopped describing it. Bring the matrix down now.
+         */
+        var values = new float[9];
+        mMatrix.getValues(values);
+        if (values[Matrix.MSCALE_X] > mMaxZoom) {
+            validateMatrixLimits();
+            postInvalidateOnAnimation();
+            dispatchScaleChangeEvent();
+            mZoomObserver.setZoom(mMaxZoom);
+        }
+    }
+
+    /**
+     * Reports the effective scale to JavaScript. Must be called only once the matrix
+     * holds a value inside the allowed range, either because
+     * {@link #validateMatrixLimits()} just ran or because the scale was reset to a
+     * known-valid one.
+     * <p>
+     * This is intentionally separate from {@link ObservableZoom}, which stays on its
+     * gesture-end cadence because every notification re-renders the visible page bitmaps.
+     */
+    private void dispatchScaleChangeEvent() {
+        var values = new float[9];
+        mMatrix.getValues(values);
+
+        dispatchScaleChangeEvent(values[Matrix.MSCALE_X]);
+    }
+
+    /**
+     * Reports a zoom level that is already known, for the paths that set it rather
+     * than read it back from the matrix.
+     */
+    private void dispatchScaleChangeEvent(float scale) {
+        if (mScaleTracker.shouldDispatch(scale)) {
+            mListener.onScaleChange(this, mScaleTracker.getScale());
+        }
     }
 
     private void dispatchPageChangeEvent() {
@@ -161,6 +204,16 @@ public class PdfRendererRecyclerView extends RecyclerView {
                 : 1;
         mMatrix.setScale(scale, scale);
         mMatrix.postTranslate((w - scale * mWidth) / 2f, (h - scale * mHeight) / 2f);
+
+        /*
+         * The matrix was just reset, so whatever zoom the user had applied is gone
+         * (a device rotation is the common case). Report it, otherwise JavaScript
+         * keeps the stale scale until the next gesture.
+         *
+         * The value above is a layout compensation factor from integer division, not
+         * a zoom level, so the baseline is reported instead of reading the matrix back.
+         */
+        dispatchScaleChangeEvent(mMinZoom);
     }
 
     private boolean isScrollingInsideZoomedArea() {
@@ -265,11 +318,14 @@ public class PdfRendererRecyclerView extends RecyclerView {
         mMatrix.setScale(1, 1, 0, 0);
         validateMatrixLimits();
         postInvalidateOnAnimation();
+        dispatchScaleChangeEvent();
         mZoomObserver.setZoom(1);
     }
 
     public interface PdfRendererRecyclerViewListener {
         void onPageChange(PdfRendererRecyclerView target, int position, int total);
+
+        void onScaleChange(PdfRendererRecyclerView target, float scale);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -288,6 +344,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
             mMatrix.postScale(factor, factor, getWidth() / 2f, getHeight() / 2f);
             validateMatrixLimits();
             postInvalidateOnAnimation();
+            dispatchScaleChangeEvent();
 
             return true;
         }
@@ -333,6 +390,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
             validateMatrixLimits();
 
             postInvalidateOnAnimation();
+            dispatchScaleChangeEvent();
 
             mZoomObserver.setZoom(newZoom);
             return true;

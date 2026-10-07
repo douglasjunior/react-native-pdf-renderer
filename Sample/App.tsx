@@ -8,20 +8,22 @@ const PDF_URL = 'https://github.com/douglasjunior/react-native-pdf-renderer/raw/
 // const PDF_URL = 'https://github.com/ArturT/Test-PDF-Files/raw/refs/heads/master/not_encrypted.pdf'; // 1 pages
 // const PDF_URL = 'https://github.com/ArturT/Test-PDF-Files/raw/refs/heads/master/corrupted.pdf'; // corrupted
 
-
 const PdfView = ({ source }: { source: string }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [singlePage, setSinglePage] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  const dim = Math.min((scale - 1) / 2, 1);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` }}>
       <Button
         title="Single Page"
         onPress={() => setSinglePage(prev => !prev)}
       />
       <PdfRendererView
-        style={{ backgroundColor: 'red' }}
+        style={{ margin: 24, backgroundColor: 'transparent' }}
         source={source}
         distanceBetweenPages={16}
         maxZoom={20}
@@ -31,6 +33,10 @@ const PdfView = ({ source }: { source: string }) => {
           console.log('onPageChange', { current, total });
           setCurrentPage(current);
           setTotalPages(total);
+        }}
+        onScaleChange={newScale => {
+          console.log('onScaleChange', { scale: newScale });
+          setScale(newScale);
         }}
         onError={() => {
           console.warn('Error loading PDF');
@@ -52,7 +58,7 @@ const PdfView = ({ source }: { source: string }) => {
             padding: 4,
             borderRadius: 4,
           }}>
-          {currentPage + 1}/{totalPages}
+          {currentPage + 1}/{totalPages} · {scale.toFixed(1)}x
         </Text>
       </View>
     </View>
