@@ -41,6 +41,7 @@ import java.util.Map;
 public class PdfRendererViewManagerImpl {
     public static final String REACT_MODULE_NAME = "RNPdfRendererView";
     private static final String ON_PAGE_CHANGE_EVENT = "onPageChange";
+    private static final String ON_SCALE_CHANGE_EVENT = "onScaleChange";
     private static final String ON_ERROR_EVENT = "onError";
 
     public static Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
@@ -48,6 +49,11 @@ public class PdfRendererViewManagerImpl {
             put(ON_PAGE_CHANGE_EVENT, new HashMap<>() {{
                 put("phasedRegistrationNames", new HashMap<String, String>() {{
                     put("bubbled", ON_PAGE_CHANGE_EVENT);
+                }});
+            }});
+            put(ON_SCALE_CHANGE_EVENT, new HashMap<>() {{
+                put("phasedRegistrationNames", new HashMap<String, String>() {{
+                    put("bubbled", ON_SCALE_CHANGE_EVENT);
                 }});
             }});
             put(ON_ERROR_EVENT, new HashMap<>() {{
@@ -100,6 +106,23 @@ public class PdfRendererViewManagerImpl {
                 var data = Arguments.createMap();
                 data.putInt("position", position);
                 data.putInt("total", total);
+                return data;
+            }
+        };
+    }
+
+    public static Event<?> createOnScaleChangeEvent(int surfaceId, int targetId, float scale) {
+        return new Event(surfaceId, targetId) {
+            @NonNull
+            @Override
+            public String getEventName() {
+                return ON_SCALE_CHANGE_EVENT;
+            }
+
+            @Override
+            protected WritableMap getEventData() {
+                var data = Arguments.createMap();
+                data.putDouble("scale", scale);
                 return data;
             }
         };
