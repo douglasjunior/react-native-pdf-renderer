@@ -81,13 +81,11 @@ export type PdfRendererViewPropsType = {
    */
   onPageChange?: (page: number, totalPages: number) => void;
   /**
-   * (Android only)
+   * Invoked when the zoom scale changes, continuously during pinch gestures.
+   * On iOS, also invoked during zoom animations, including double-tap zoom.
    *
-   * Invoked when the zoom scale changes, continuously while the pinch gesture
-   * is in progress.
-   *
-   * `1` is the unzoomed baseline: the page at its laid-out size, which is
-   * fit-to-width in multi-page mode and fit-to-center when `singlePage` is set.
+   * `1` is the unzoomed baseline: fit-to-width in multi-page mode and fit-to-center
+   * in single-page mode on Android, or the fitted size provided by PDFKit on iOS.
    * The value never exceeds `maxZoom`.
    *
    * @param scale current zoom scale
@@ -186,6 +184,7 @@ const PdfRendererView = ({
       // old architecture events for iOS, because iOS require unique names
       // @ts-ignore
       onRnPdfPageChange={handlePageChange}
+      onRnPdfScaleChange={handleScaleChange}
       onRnPdfError={handleError}
     />
   );

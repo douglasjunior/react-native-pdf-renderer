@@ -38,9 +38,11 @@
 #else
 @property (nonatomic, copy) RCTBubblingEventBlock onRnPdfPageChange;
 @property (nonatomic, copy) RCTBubblingEventBlock onRnPdfError;
+@property (nonatomic, copy) RCTBubblingEventBlock onRnPdfScaleChange;
 #endif
 
 FOUNDATION_EXPORT NSNotificationName const RNPDFViewErrorNotification;
+FOUNDATION_EXPORT NSNotificationName const RNPDFViewScaleChangeNotification;
 -(void) setDistanceBetweenPages:(NSNumber*) distance;
 -(void) setParams:(NSDictionary*) params;
 

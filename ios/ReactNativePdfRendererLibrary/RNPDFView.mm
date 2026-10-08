@@ -25,11 +25,56 @@
 
 #import "RNPDFView.h"
 
-@implementation RNPDFView
+@implementation RNPDFView {
+    NSTimer * _scaleTimer;
+    CGFloat _lastScale;
+    BOOL _scaleReady;
+}
 
 NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
+NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChangeNotification";
+
+-(void) didMoveToWindow {
+    [super didMoveToWindow];
+    
+    [_scaleTimer invalidate];
+    _scaleTimer = nil;
+    
+    if (self.window != nil) {
+        __weak RNPDFView *weakSelf = self;
+        _scaleTimer = [NSTimer timerWithTimeInterval:1.0 / 60.0 repeats:YES block:^(NSTimer *timer) {
+            [weakSelf dispatchScaleChange];
+        }];
+        [NSRunLoop.mainRunLoop addTimer:_scaleTimer forMode:NSRunLoopCommonModes];
+    }
+}
+
+-(void) dealloc {
+    [_scaleTimer invalidate];
+}
+
+-(void) dispatchScaleChange {
+    if (self.document != nil && (!_scaleReady || self.minScaleFactor <= 0)) {
+        return;
+    }
+    
+    CGFloat maxScale = self.document == nil ? 1 : MAX(1, self.maxScaleFactor / self.minScaleFactor);
+    CGFloat scale = self.document == nil ? 1 : MIN(MAX(self.scaleFactor / self.minScaleFactor, 1), maxScale);
+    CGFloat lastScale = _lastScale == 0 ? 1 : _lastScale;
+    
+    if (scale == lastScale || (scale != 1 && scale != maxScale && ABS(scale - lastScale) < 0.01)) {
+        return;
+    }
+    
+    _lastScale = scale;
+    
+    [NSNotificationCenter.defaultCenter postNotificationName:RNPDFViewScaleChangeNotification object:self userInfo:@{
+        @"scale": [NSNumber numberWithDouble:scale],
+    }];
+}
 
 -(void) setParams:(NSDictionary*) params {
+    _scaleReady = NO;
     NSString *source = [params objectForKey:@"source"];
     NSString *maxZoomString = [params objectForKey:@"maxZoom"];
     NSString *singlePageString = [params objectForKey:@"singlePage"];
@@ -73,11 +118,14 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
           if (maxZoom > 0) {
             self.maxScaleFactor = maxZoom * self.minScaleFactor;
           }
+          self->_scaleReady = YES;
+          [self dispatchScaleChange];
           [self setNeedsLayout];
         });
       });
     } else {
         self.document = nil;
+        [self dispatchScaleChange];
     }
 }
 

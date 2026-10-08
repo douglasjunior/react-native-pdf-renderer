@@ -50,6 +50,7 @@ BOOL observerAdded = NO;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
     }
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:nil];
     if(self = [super init]) {
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
@@ -71,6 +72,20 @@ BOOL observerAdded = NO;
     if (observerAdded) {
         observerAdded = NO;
         [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
+    }
+    [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:nil];
+}
+
+- (void)handleScaleChange:(NSNotification*) notification {
+    if (notification.object != _pdfView) {
+        return;
+    }
+    
+    RNPdfRendererViewEventEmitter::OnScaleChange result = RNPdfRendererViewEventEmitter::OnScaleChange{};
+    result.scale = [notification.userInfo[@"scale"] floatValue];
+    
+    if (_eventEmitter) {
+        self.eventEmitter.onScaleChange(result);
     }
 }
 
