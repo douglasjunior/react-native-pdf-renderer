@@ -25,8 +25,34 @@
 
 #import "RNPDFView.h"
 
+@interface RNPDFView ()
+-(void) wakeScaleTracking:(id) sender;
+-(void) onScaleFrame;
+@end
+
+@interface RNPDFScaleTracker : NSObject <UIGestureRecognizerDelegate>
+@property (nonatomic, weak) RNPDFView *view;
+@end
+
+@implementation RNPDFScaleTracker
+-(void) onScaleFrame {
+    [self.view onScaleFrame];
+}
+
+-(void) wakeScaleTracking:(id) sender {
+    [self.view wakeScaleTracking:sender];
+}
+
+-(BOOL) gestureRecognizer:(UIGestureRecognizer*) gesture
+        shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer*) otherGesture {
+    return YES;
+}
+@end
+
 @implementation RNPDFView {
-    NSTimer * _scaleTimer;
+    CADisplayLink * _scaleLink;
+    RNPDFScaleTracker * _scaleTracker;
+    NSUInteger _stableFrames;
     CGFloat _lastScale;
     BOOL _scaleReady;
 }
@@ -34,23 +60,55 @@
 NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
 NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChangeNotification";
 
+-(instancetype) initWithFrame:(CGRect) frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        _scaleTracker = [RNPDFScaleTracker new];
+        _scaleTracker.view = self;
+
+        UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:_scaleTracker action:@selector(wakeScaleTracking:)];
+        pinch.delegate = _scaleTracker;
+        [self addGestureRecognizer:pinch];
+
+        UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:_scaleTracker action:@selector(wakeScaleTracking:)];
+        doubleTap.numberOfTapsRequired = 2;
+        doubleTap.delegate = _scaleTracker;
+        [self addGestureRecognizer:doubleTap];
+
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(wakeScaleTracking:)
+                                                  name:PDFViewScaleChangedNotification object:self];
+    }
+    return self;
+}
+
 -(void) didMoveToWindow {
     [super didMoveToWindow];
-    
-    [_scaleTimer invalidate];
-    _scaleTimer = nil;
-    
+    [_scaleLink invalidate];
+    _scaleLink = nil;
     if (self.window != nil) {
-        __weak RNPDFView *weakSelf = self;
-        _scaleTimer = [NSTimer timerWithTimeInterval:1.0 / 60.0 repeats:YES block:^(NSTimer *timer) {
-            [weakSelf dispatchScaleChange];
-        }];
-        [NSRunLoop.mainRunLoop addTimer:_scaleTimer forMode:NSRunLoopCommonModes];
+        _scaleLink = [CADisplayLink displayLinkWithTarget:_scaleTracker selector:@selector(onScaleFrame)];
+        _scaleLink.paused = YES;
+        [_scaleLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
     }
 }
 
 -(void) dealloc {
-    [_scaleTimer invalidate];
+    [_scaleLink invalidate];
+    [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewScaleChangedNotification object:self];
+}
+
+-(void) wakeScaleTracking:(id) sender {
+    _stableFrames = 0;
+    _scaleLink.paused = NO;
+}
+
+-(void) onScaleFrame {
+    CGFloat before = _lastScale;
+    [self dispatchScaleChange];
+    _stableFrames = before == _lastScale ? _stableFrames + 1 : 0;
+    if (_stableFrames > 15) {
+        _scaleLink.paused = YES;
+    }
 }
 
 -(void) dispatchScaleChange {
@@ -58,8 +116,9 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
         return;
     }
     
+    CGFloat fit = self.scaleFactorForSizeToFit > 0 ? self.scaleFactorForSizeToFit : self.minScaleFactor;
     CGFloat maxScale = self.document == nil ? 1 : MAX(1, self.maxScaleFactor / self.minScaleFactor);
-    CGFloat scale = self.document == nil ? 1 : MIN(MAX(self.scaleFactor / self.minScaleFactor, 1), maxScale);
+    CGFloat scale = self.document == nil ? 1 : MIN(MAX(self.scaleFactor / fit, 1), maxScale);
     CGFloat lastScale = _lastScale == 0 ? 1 : _lastScale;
     
     if (scale == lastScale || (scale != 1 && scale != maxScale && ABS(scale - lastScale) < 0.01)) {
