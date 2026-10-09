@@ -95,11 +95,9 @@ BOOL observerAdded = NO;
     NSNumber *scale = notification.userInfo[@"scale"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (view.onRnPdfScaleChange) {
-            view.onRnPdfScaleChange(@{
-                @"scale": scale,
-            });
-        }
+        view.onRnPdfScaleChange(@{
+            @"scale": scale,
+        });
     });
 }
 
