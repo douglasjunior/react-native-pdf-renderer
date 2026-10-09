@@ -81,8 +81,10 @@ export type PdfRendererViewPropsType = {
    */
   onPageChange?: (page: number, totalPages: number) => void;
   /**
-   * Invoked when the zoom scale changes, continuously during pinch gestures.
-   * On iOS, also invoked during zoom animations, including double-tap zoom.
+   * Invoked when the zoom scale changes: continuously during pinch gestures
+   * and on double-tap zoom on both platforms. On iOS, zoom animations can also
+   * report intermediate values; on Android, double-tap zoom reports the final
+   * value at once.
    *
    * `1` is the unzoomed baseline: fit-to-width in multi-page mode and fit-to-center
    * in single-page mode on Android, or the fitted size provided by PDFKit on iOS.
