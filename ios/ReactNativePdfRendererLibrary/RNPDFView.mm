@@ -53,6 +53,7 @@
     CADisplayLink * _scaleLink;
     RNPDFScaleTracker * _scaleTracker;
     NSUInteger _stableFrames;
+    NSUInteger _paramsGeneration;
     CGFloat _lastScale;
     BOOL _scaleReady;
 }
@@ -67,11 +68,15 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
         _scaleTracker.view = self;
 
         UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:_scaleTracker action:@selector(wakeScaleTracking:)];
+        pinch.cancelsTouchesInView = NO;
+        pinch.delaysTouchesEnded = NO;
         pinch.delegate = _scaleTracker;
         [self addGestureRecognizer:pinch];
 
         UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:_scaleTracker action:@selector(wakeScaleTracking:)];
         doubleTap.numberOfTapsRequired = 2;
+        doubleTap.cancelsTouchesInView = NO;
+        doubleTap.delaysTouchesEnded = NO;
         doubleTap.delegate = _scaleTracker;
         [self addGestureRecognizer:doubleTap];
 
@@ -108,10 +113,15 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
     _stableFrames = before == _lastScale ? _stableFrames + 1 : 0;
     if (_stableFrames > 15) {
         _scaleLink.paused = YES;
+        [self dispatchScaleChange:YES];
     }
 }
 
 -(void) dispatchScaleChange {
+    [self dispatchScaleChange:NO];
+}
+
+-(void) dispatchScaleChange:(BOOL) force {
     if (self.document != nil && (!_scaleReady || self.minScaleFactor <= 0)) {
         return;
     }
@@ -121,7 +131,7 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
     CGFloat scale = self.document == nil ? 1 : MIN(MAX(self.scaleFactor / fit, 1), maxScale);
     CGFloat lastScale = _lastScale == 0 ? 1 : _lastScale;
     
-    if (scale == lastScale || (scale != 1 && scale != maxScale && ABS(scale - lastScale) < 0.01)) {
+    if (scale == lastScale || (!force && scale != 1 && scale != maxScale && ABS(scale - lastScale) < 0.01)) {
         return;
     }
     
@@ -133,6 +143,7 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
 }
 
 -(void) setParams:(NSDictionary*) params {
+    NSUInteger generation = ++_paramsGeneration;
     _scaleReady = NO;
     NSString *source = [params objectForKey:@"source"];
     NSString *maxZoomString = [params objectForKey:@"maxZoom"];
@@ -177,8 +188,10 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
           if (maxZoom > 0) {
             self.maxScaleFactor = maxZoom * self.minScaleFactor;
           }
-          self->_scaleReady = YES;
-          [self dispatchScaleChange];
+          if (self->_paramsGeneration == generation) {
+            self->_scaleReady = YES;
+            [self dispatchScaleChange];
+          }
           [self setNeedsLayout];
         });
       });
