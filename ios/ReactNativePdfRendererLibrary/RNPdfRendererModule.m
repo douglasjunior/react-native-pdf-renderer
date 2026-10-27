@@ -40,6 +40,7 @@ BOOL observerAdded = NO;
         observerAdded = YES;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:nil];
     }
     
     RNPDFView *view = [[RNPDFView alloc] init];
@@ -52,6 +53,7 @@ BOOL observerAdded = NO;
     if (observerAdded) {
         observerAdded = NO;
         [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
+        [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:nil];
     }
 }
 
@@ -84,8 +86,24 @@ BOOL observerAdded = NO;
     });
 }
 
+- (void)handleScaleChange:(NSNotification*) notification {
+    if ([RNPDFView class] != [notification.object class]) {
+        return;
+    }
+    
+    RNPDFView *view = notification.object;
+    NSNumber *scale = notification.userInfo[@"scale"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        view.onRnPdfScaleChange(@{
+            @"scale": scale,
+        });
+    });
+}
+
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfPageChange, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfError, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onRnPdfScaleChange, RCTBubblingEventBlock)
 
 RCT_CUSTOM_VIEW_PROPERTY(params, NSDictionary, RNPDFView)
 {
