@@ -50,11 +50,11 @@ BOOL observerAdded = NO;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
     }
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:nil];
     if(self = [super init]) {
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
         [self addSubview:_pdfView];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:_pdfView];
     }
     return self;
 }
@@ -73,7 +73,7 @@ BOOL observerAdded = NO;
         observerAdded = NO;
         [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
     }
-    [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:_pdfView];
 }
 
 - (void)handleScaleChange:(NSNotification*) notification {
