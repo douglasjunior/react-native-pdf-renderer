@@ -139,7 +139,7 @@
     <g transform="translate(108, 48)">
       <!-- Pill -->
       <g transform="translate(0, 2)">
-        <rect width="262" height="24" rx="12" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1"/>
+        <rect width="282" height="24" rx="12" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1"/>
         <circle cx="12" cy="12" r="3.5" fill="#3fd0ff"/>
         <text x="24" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#e9ebfa" letter-spacing="1">DOUGLAS JUNIOR · OPEN SOURCE</text>
       </g>
@@ -182,7 +182,7 @@
         <rect width="272" height="110" rx="14" fill="rgba(13, 15, 36, 0.7)" stroke="rgba(139, 123, 255, 0.28)" stroke-width="1.2"/>
         <circle cx="28" cy="28" r="14" fill="rgba(139, 123, 255, 0.15)"/>
         <text x="28" y="33" font-family="system-ui, -apple-system, sans-serif" font-size="14" text-anchor="middle">⌨️</text>
-        <text x="52" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa">react-native-keyboard-manager</text>
+        <text x="52" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#e9ebfa">react-native-keyboard-manager</text>
         <text x="52" y="44" font-family="ui-monospace, monospace" font-size="11" fill="#8b7bff">iOS Keyboard Avoidance</text>
         <text x="16" y="74" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Prevent the keyboard from covering</text>
         <text x="16" y="90" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">inputs on React Native iOS.</text>

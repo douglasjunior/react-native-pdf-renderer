@@ -190,11 +190,12 @@ export default App;
 > [!IMPORTANT]
 > The `source` prop **must point to a local file stored inside the device's storage** (e.g., `file:///data/user/0/...` or `file:///var/mobile/...`).
 
-If your PDF file is hosted on a remote server, download it to device storage first using a file system library such as [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/), `react-native-blob-util`, or `rn-fetch-blob`:
+If your PDF file is hosted on a remote server, download it to device storage first using a file system library such as [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/) (use `expo-file-system/legacy` on Expo SDK 54+), `react-native-blob-util`, or `rn-fetch-blob`:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+// Note: expo-file-system/legacy is used on Expo SDK 54+; earlier SDKs import from 'expo-file-system'
 import * as FileSystem from 'expo-file-system/legacy';
 import PdfRendererView from 'react-native-pdf-renderer';
 
@@ -210,6 +211,9 @@ export function RemotePdfViewer({ url }: { url: string }) {
         setError(null);
         const fileUri = `${FileSystem.documentDirectory}document.pdf`;
         const result = await FileSystem.downloadAsync(url, fileUri);
+        if (result.status < 200 || result.status >= 300) {
+          throw new Error(`Download failed (HTTP ${result.status})`);
+        }
         if (isMounted) {
           setLocalUri(result.uri);
         }

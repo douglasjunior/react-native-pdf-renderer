@@ -239,7 +239,7 @@
   <g transform="translate(80, 0)">
     <!-- Pill: Category / Identity -->
     <g transform="translate(0, 88)">
-      <rect width="322" height="32" rx="16" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1.2"/>
+      <rect width="340" height="32" rx="16" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1.2"/>
       <circle cx="18" cy="16" r="4" fill="#3fd0ff"/>
       <text x="32" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa" letter-spacing="1">REACT NATIVE · ZERO DEPENDENCIES</text>
     </g>
