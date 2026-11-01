@@ -1,49 +1,136 @@
-# React-Native Pdf Renderer
+<p align="center">
+  <img src="docs/cover.svg" alt="React Native PDF Renderer - Pure native, zoomable PDF viewer for Android and iOS" width="800">
+  <br>
+  <sub>A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.</sub>
+</p>
 
-[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/LICENSE)
-[![npm version](https://img.shields.io/npm/v/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer?activeTab=versions)
-[![npm downloads](https://img.shields.io/npm/dt/react-native-pdf-renderer.svg)](https://www.npmjs.com/package/react-native-pdf-renderer)
+<p align="center">
+  <b>React Native PDF Renderer</b> provides high-performance, dependency-free native PDF rendering for React Native by directly utilizing Android's <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer">PdfRenderer</a> and Apple's <a href="https://developer.apple.com/documentation/pdfkit">PDFKit</a>. Enjoy smooth multi-page scrolling, fluid pinch-to-zoom, thumbnail previews, and comprehensive scale events without the maintenance burden of third-party native binaries.
+</p>
 
-⚛ A zoomable, blazing fast, zero dependencies, pure native, typed PDF Renderer for Android and iOS.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/douglasjunior/react-native-pdf-renderer?style=flat-square&color=8B7BFF" alt="MIT License"></a>
+  <a href="https://www.npmjs.com/package/react-native-pdf-renderer"><img src="https://img.shields.io/npm/v/react-native-pdf-renderer?style=flat-square&color=3FD0FF" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/react-native-pdf-renderer"><img src="https://img.shields.io/npm/dt/react-native-pdf-renderer?style=flat-square&color=FF6A8E" alt="npm downloads"></a>
+  <img src="https://img.shields.io/badge/platform-Android_%7C_iOS-lightgrey?style=flat-square" alt="Platform Android and iOS">
+  <img src="https://img.shields.io/badge/React_Native->=0.71.0-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React Native >= 0.71.0">
+  <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript strict">
+  <a href="https://github.com/douglasjunior/react-native-pdf-renderer/pulls"><img src="https://img.shields.io/badge/PRs-welcome-22C55E?style=flat-square" alt="PRs welcome"></a>
+</p>
 
-It uses [PdfRenderer](https://developer.android.com/reference/android/graphics/pdf/PdfRenderer) for Android and [PdfKit](https://developer.apple.com/documentation/pdfkit) for iOS.
+<p align="center">
+  <a href="#-quick-start"><b>Quick Start</b></a> ·
+  <a href="#-why-another-pdf-renderer">Why</a> ·
+  <a href="#-previews">Previews</a> ·
+  <a href="#-requirements">Requirements</a> ·
+  <a href="#-installation">Installation</a> ·
+  <a href="#-basic-usage">Usage</a> ·
+  <a href="#-api-reference">API Reference</a> ·
+  <a href="#-limitations--caveats">Limitations</a> ·
+  <a href="#-testing-with-jest">Testing</a> ·
+  <a href="#-contributing">Contributing</a>
+</p>
 
-|Android|iOS|
-|-|-|
-|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="240"/>|<img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/ios.gif" width="240"/>
+---
 
-## Why another PDF renderer?
+## 🚀 Quick Start
 
-The main reason why I create this library is to avoid using third-party native dependencies, like `com.github.TalbotGooday:AndroidPdfViewer`, `com.github.mhiew:android-pdf-viewer`, `react-native-blob-util` or even `react-native-webview`. 
+```bash
+# 1. Install package
+yarn add react-native-pdf-renderer
+# or: npm i -S react-native-pdf-renderer
 
-But why?
+# 2. Install CocoaPods dependencies for iOS
+cd ios && pod install
+```
 
-Every React Native developer knows (or will discover soon) [the pain of updating the React Native ecosystem](https://x.com/flexbox_/status/1806786055057674337) when a new version of Android or iOS comes out, so here we want to avoid this pain as much as possible.
+```tsx
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import PdfRendererView from 'react-native-pdf-renderer';
 
-## Requirements
+export default function App() {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <PdfRendererView
+        style={{ flex: 1, backgroundColor: '#000000' }}
+        source="file:///path/to/local/file.pdf"
+        distanceBetweenPages={16}
+        maxZoom={5}
+        onPageChange={(current, total) => {
+          console.log(`Page: ${current + 1} of ${total}`);
+        }}
+      />
+    </SafeAreaView>
+  );
+}
+```
 
-- React Native >= 0.71.0
-- iOS >= 12.0
-- Android >= API 21
+---
 
-## Install
+## 💡 Why Another PDF Renderer?
 
-Install dependency package
+The main reason why this library was created is to **avoid using third-party native dependencies**, such as `com.github.TalbotGooday:AndroidPdfViewer`, `com.github.mhiew:android-pdf-viewer`, `react-native-blob-util`, or `react-native-webview`.
+
+### But why?
+
+Every React Native developer knows (or will discover soon) [the pain of updating the React Native ecosystem](https://x.com/flexbox_/status/1806786055057674337) whenever a new major Android or iOS version comes out. Third-party native wrappers often become abandoned, break during Gradle or Xcode updates, or introduce incompatible native architectures.
+
+Here, we eliminate this friction entirely:
+
+- ⚛️ **Pure Platform Native:** Relies exclusively on official platform SDK engines: [PdfRenderer](https://developer.android.com/reference/android/graphics/pdf/PdfRenderer) on Android and [PDFKit](https://developer.apple.com/documentation/pdfkit) on iOS.
+- 🛡️ **Zero Native Bloat:** Zero third-party C++/Java/Obj-C dependencies to link, compile, or debug during React Native upgrades.
+- 🔍 **Pinch-to-Zoom & Pan:** Smooth, continuous gesture-based scaling with configurable zoom ceilings and scale tracking.
+- 📑 **Single & Multi-Page Modes:** Seamless vertical continuous scroll for multi-page documents, or single-page view for thumbnail covers.
+- 🛡️ **OOM & Canvas Crash Prevention:** Built-in `maxPageResolution` safeguards on Android prevent out-of-memory bitmap allocations during deep zooms.
+- 📘 **TypeScript Included:** Written in TypeScript with complete prop definitions and IntelliSense documentation.
+- 🧪 **Mock Ready:** Pre-configured Jest mock included for painless snapshot and unit testing.
+
+---
+
+## 📸 Previews
+
+| Android | iOS |
+|:---:|:---:|
+| <img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/android.gif" width="280" alt="Android PDF Renderer Demo" /> | <img src="https://github.com/douglasjunior/react-native-pdf-renderer/raw/main/screenshots/ios.gif" width="280" alt="iOS PDF Renderer Demo" /> |
+
+---
+
+## 📋 Requirements
+
+| Platform / Tool | Minimum Version | Notes |
+|---|---|---|
+| **React Native** | `>= 0.71.0` | Old & New Architecture support |
+| **iOS** | `>= 12.0` | Uses native `PDFKit` |
+| **Android** | `API 21+` (Android 5.0+) | Uses native `android.graphics.pdf.PdfRenderer` |
+
+---
+
+## 📦 Installation
+
+### 1. Install JavaScript Package
+
+Using yarn:
 ```bash
 yarn add react-native-pdf-renderer
 ```
-Or
+
+Using npm:
 ```bash
 npm i -S react-native-pdf-renderer
 ```
 
-Go to the folder **your-project/ios** and run `pod install`, and you're done. 
+### 2. iOS CocoaPods Setup
 
-### Android specific (optional)
+Navigate to your `ios` folder and run `pod install`:
 
-Customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by setting `ext` in your `android/build.gradle` file.
+```bash
+cd ios && pod install
+```
 
-Example:
+### 3. Android Specific Setup (Optional)
+
+You can customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by configuring `ext` inside your root `android/build.gradle` file:
 
 ```gradle
 buildscript {
@@ -54,117 +141,239 @@ buildscript {
 }
 ```
 
-## Basic usage
+---
 
-There is only one component that you need to use to render the PDF file.
+## 🛠️ Basic Usage
 
-```jsx
+There is only one primary component that you need to render PDF documents: `<PdfRendererView />`.
+
+```tsx
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PdfRendererView from 'react-native-pdf-renderer';
 
 const App = () => {
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={styles.container}>
       <PdfRendererView
-        style={{backgroundColor: 'red'}}
+        style={styles.pdf}
         source="file:///path/to/local/file.pdf"
         distanceBetweenPages={16}
         maxZoom={5}
         onPageChange={(current, total) => {
-          console.log(current, total);
+          console.log(`Current page: ${current + 1} / ${total}`);
+        }}
+        onError={() => {
+          console.warn('Failed to load PDF');
         }}
       />
     </SafeAreaView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  pdf: {
+    flex: 1,
+    backgroundColor: '#1e1e1e',
+  },
+});
 
 export default App;
 ```
 
-The `source` prop must point to a file stored inside the device memory. 
+### 📁 Working with Remote Files
 
-If the file is online, you can use some third-party library like `expo-file-system`, `rn-fetch-blob`, or `react-native-blob-util` to download and save it locally.
+> [!IMPORTANT]
+> The `source` prop **must point to a local file stored inside the device's storage** (e.g., `file:///data/user/0/...` or `file:///var/mobile/...`).
 
-For more details, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/Sample/App.tsx).
+If your PDF file is hosted on a remote server, download it to device storage first using a file system library such as [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/), `react-native-blob-util`, or `rn-fetch-blob`:
 
-## PdfRendererView props
+```tsx
+import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import PdfRendererView from 'react-native-pdf-renderer';
 
-|Name|Type|Default|Description|
-|-|-|-|-|
-|source|`string`||Path to a file stored on the device.|
-|distanceBetweenPages|`number`|`16`|Distance in `DPI` between pages.|
-|maxZoom|`number`|`5`|Max zoom scale.|
-|maxPageResolution|`number`|`2048`|(Android only) Max page resolution (width/height) in pixels when zooming. Defined to prevent Android crash when zooming too much: https://github.com/douglasjunior/react-native-pdf-renderer/issues/26 . |
-|singlePage|`boolean`|`false`|Renders only the first page without scroll. (useful for display thumbnail)|
-|onPageChange|`(current: number, total: number) => void`||Invoked on pages scroll.|
-|onScaleChange|`(scale: number) => void`||(Android only) Invoked when the zoom scale changes, continuously while the pinch gesture is in progress. `1` is the unzoomed baseline: the page at its laid-out size, which is fit-to-width in multi-page mode and fit-to-center when `singlePage` is set. The value never exceeds `maxZoom`.|
-|onError|`() => void`||Invoked when an error occurs.|
-|style|`StyleProp<ViewStyle>`||Styles to be applied to the native [view](https://reactnative.dev/docs/view-style-props).|
+export function RemotePdfViewer({ url }: { url: string }) {
+  const [localUri, setLocalUri] = useState<string | null>(null);
 
-## Limitations
+  useEffect(() => {
+    let isMounted = true;
 
-### Page interactions
+    async function downloadPdf() {
+      const fileUri = `${FileSystem.documentDirectory}document.pdf`;
+      const result = await FileSystem.downloadAsync(url, fileUri);
+      if (isMounted) {
+        setLocalUri(result.uri);
+      }
+    }
 
-Because Android renders the PDF page as a full image, it does not support text selection, accessibility, or handling links. 
+    downloadPdf();
+    return () => {
+      isMounted = false;
+    };
+  }, [url]);
 
-If any of these features are important for your product, we recommend adding a button to open the PDF in an external PDF viewer.
+  if (!localUri) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#3fd0ff" />
+      </View>
+    );
+  }
 
-### Size measuring
+  return (
+    <PdfRendererView
+      style={{ flex: 1 }}
+      source={localUri}
+      distanceBetweenPages={16}
+      maxZoom={5}
+    />
+  );
+}
+```
 
-The `PdfRendererView` is `flex: 1` by default, so you need to make sure that your parents `View`s are `flex: 1` or have a fixed `width/height`.
+For a comprehensive real-world example featuring scale indicators, full-screen toggles, and modal dialogues, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/Sample/App.tsx).
 
-### Border radius
+---
 
-The `borderRadius` style is ignored by React Native custom view in Android and crashes on iOS. (read more [#1](https://github.com/douglasjunior/react-native-pdf-renderer/issues/1#issuecomment-1483395465))
+## 📖 API Reference
 
-If you need `borderRadius`, the best option is to wrap the `PdfRendererView` in another `View`.
+### `<PdfRendererView />` Props
 
-```jsx
+| Prop | Type | Default | Description |
+|---|---|:---:|---|
+| `source` | `string` | — | Path to a local file stored on the device (e.g. `file:///path/to/file.pdf`). |
+| `distanceBetweenPages` | `number` | `16` | Vertical spacing in `DPI` between rendered pages. |
+| `maxZoom` | `number` | `5` | Maximum allowable zoom scale factor. |
+| `maxPageResolution` | `number` | `2048` | *(Android only)* Maximum page resolution (width/height) in pixels when zooming. Designed to prevent Android OOM / Canvas crashes when zooming deeply ([#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26)). |
+| `singlePage` | `boolean` | `false` | Renders only the first page without scrolling. Ideal for displaying document thumbnails. |
+| `onPageChange` | `(current: number, total: number) => void` | — | Callback invoked when the user scrolls between pages. `current` is zero-indexed. |
+| `onScaleChange` | `(scale: number) => void` | — | *(Android only)* Invoked continuously while a pinch gesture is in progress. `1` is the unzoomed baseline (fit-to-width in multi-page mode and fit-to-center in `singlePage` mode). Never exceeds `maxZoom`. |
+| `onError` | `() => void` | — | Callback invoked when an error occurs while rendering the PDF. |
+| `style` | `StyleProp<ViewStyle>` | — | Styles applied to the native view container. *(Note: border radius is not directly supported; see [Limitations](#border-radius)).* |
+| `testID` | `string` | — | Optional identifier used to locate this view in automated end-to-end testing. |
+
+---
+
+## ⚠️ Limitations & Caveats
+
+### Page Interactions
+
+Because Android renders PDF pages as full bitmap images via `android.graphics.pdf.PdfRenderer`, native text selection, screen reader accessibility for PDF contents, and hyperlink clicks within the PDF are not supported on Android.
+
+> [!TIP]
+> If text selection or interactive document links are critical for your use case, we recommend adding an action button to open the PDF in the platform's external system viewer.
+
+### Size Measuring
+
+`PdfRendererView` has `flex: 1` applied by default. Ensure that parent containers either have `flex: 1` or explicitly defined dimensions (`width` and `height`).
+
+### Border Radius
+
+The `borderRadius` style property is ignored by React Native custom views on Android and can cause native crashes on iOS (read more in issue [#1](https://github.com/douglasjunior/react-native-pdf-renderer/issues/1#issuecomment-1483395465)).
+
+If you need rounded corners, wrap `<PdfRendererView />` inside a container `View` with clipping:
+
+```tsx
 <View style={{ flex: 1, borderRadius: 24, overflow: 'hidden' }}>
   <PdfRendererView
-    // ...
+    style={{ flex: 1 }}
+    source="file:///path/to/file.pdf"
   />
 </View>
 ```
 
-### Android crash when zooming too much
+### Android Crash When Zooming Too Much
 
-To prevent Android from crashing when zooming too much, we have a `maxPageResolution` prop that limits the page resolution when zooming. (read more [#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26))
+To protect Android devices from out-of-memory crashes when zooming into large documents, use the `maxPageResolution` prop.
 
-If you are receiving the error `java.lang.RuntimeException: Canvas: trying to draw too large(134806560bytes) bitmap`, try to reduce the `maxPageResolution` prop.
+> [!WARNING]
+> If you encounter `java.lang.RuntimeException: Canvas: trying to draw too large(134806560bytes) bitmap`, reduce `maxPageResolution` (e.g. to `1536` or `1024`). Refer to [Issue #26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26) for details.
 
-## Mock with jest
+---
+
+## 🧪 Testing with Jest
+
+The library bundles a pre-configured mock view to ensure your test suites run smoothly:
 
 ```js
+// jest.setup.js or in your test file
 jest.mock('react-native-pdf-renderer', () => require('react-native-pdf-renderer/dist/mock'));
 ```
 
-## Contribute
+---
 
-New features, bug fixes, and improvements are welcome! For questions and suggestions use the [issues](https://github.com/douglasjunior/react-native-pdf-renderer/issues).
+## 🤝 Contributing
 
-<a href="https://www.patreon.com/douglasjunior"><img src="http://i.imgur.com/xEO164Z.png" alt="Become a Patron!" width="200" /></a>
-[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/douglasnassif)
+Contributions, bug reports, and pull requests are warmly welcome!
 
-## Thanks to
+1. Fork the repository and create your branch from `main`.
+2. Ensure code compiles and adheres to linting rules.
+3. Open a pull request explaining your changes and motivation.
 
-This lib is only possible thanks to the community help:
+For questions, discussions, or feature suggestions, please check out the [Issues](https://github.com/douglasjunior/react-native-pdf-renderer/issues) page.
 
-- RecyclerView `notifyDataSetChanged()` not working on React Native: https://stackoverflow.com/a/49381907/2826279
-- Add pinch to zoom on RecyclerView: https://stackoverflow.com/a/37895783/2826279
-- Using `Matrix` to handle zoom in a View: https://stackoverflow.com/a/55299327/2826279
-- [Daniel Felipe Sartório](https://github.com/danielfelipesartorio) for the help with Android native code
+### Support the Author
 
-## Star History
+If this library saved you time or solved your PDF rendering challenges, consider supporting the maintainer:
 
-[![Star History Chart](https://api.star-history.com/svg?repos=douglasjunior/react-native-pdf-renderer&type=Date)](https://star-history.com/#douglasjunior/react-native-pdf-renderer)
+<p align="left">
+  <a href="https://www.patreon.com/douglasjunior"><img src="https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Become a Patron!" height="32" /></a>
+  &nbsp;
+  <a href="https://paypal.me/douglasnassif"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Donate with PayPal" height="32" /></a>
+</p>
 
-## License
+---
 
-```
+## 🙏 Thanks to
+
+This library is possible thanks to valuable contributions and solutions from the community:
+
+- [RecyclerView `notifyDataSetChanged()` not working on React Native](https://stackoverflow.com/a/49381907/2826279)
+- [Add pinch to zoom on RecyclerView](https://stackoverflow.com/a/37895783/2826279)
+- [Using `Matrix` to handle zoom in a View](https://stackoverflow.com/a/55299327/2826279)
+- [Daniel Felipe Sartório](https://github.com/danielfelipesartorio) for native Android code assistance
+
+---
+
+## ⭐ Star History
+
+<p align="center">
+  <a href="https://star-history.com/#douglasjunior/react-native-pdf-renderer&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=douglasjunior/react-native-pdf-renderer&type=Date&theme=dark" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=douglasjunior/react-native-pdf-renderer&type=Date" width="600" />
+    </picture>
+  </a>
+</p>
+
+---
+
+## 📄 License
+
+```text
 The MIT License (MIT)
 
 Copyright (c) 2023 Douglas Nassif Roma Junior
 ```
 
-See the full [license file](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/LICENSE).
+See the full [license file](LICENSE).
+
+---
+
+## 🌐 Author & More Projects
+
+<p align="center">
+  <a href="https://douglasjunior.work">
+    <img src="docs/portfolio-banner.svg" alt="Discover more open source projects by Douglas Junior" width="800" />
+  </a>
+</p>
+
+<p align="center">
+  Discover more open-source libraries, creative animation engines, and developer tools at <a href="https://douglasjunior.work"><b>douglasjunior.work</b></a>.
+</p>
