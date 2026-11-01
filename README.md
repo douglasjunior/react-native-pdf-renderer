@@ -130,12 +130,12 @@ cd ios && pod install
 
 ### 3. Android Specific Setup (Optional)
 
-You can customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by configuring `ext` inside your root `android/build.gradle` file:
+You can customize the [`androidx.recyclerview:recyclerview`](https://developer.android.com/jetpack/androidx/releases/recyclerview) version by configuring `ext` inside your root `android/build.gradle` file (defaults to `1.4.0`):
 
 ```gradle
 buildscript {
   ext {
-    recyclerviewVersion = "1.2.1"
+    recyclerViewVersion = "1.4.0"
   }
   ...
 }
@@ -143,7 +143,7 @@ buildscript {
 
 ---
 
-## 🛠️ Basic Usage
+## 🛠 Basic Usage
 
 There is only one primary component that you need to render PDF documents: `<PdfRendererView />`.
 
@@ -194,21 +194,29 @@ If your PDF file is hosted on a remote server, download it to device storage fir
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
 import PdfRendererView from 'react-native-pdf-renderer';
 
 export function RemotePdfViewer({ url }: { url: string }) {
   const [localUri, setLocalUri] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     async function downloadPdf() {
-      const fileUri = `${FileSystem.documentDirectory}document.pdf`;
-      const result = await FileSystem.downloadAsync(url, fileUri);
-      if (isMounted) {
-        setLocalUri(result.uri);
+      try {
+        setError(null);
+        const fileUri = `${FileSystem.documentDirectory}document.pdf`;
+        const result = await FileSystem.downloadAsync(url, fileUri);
+        if (isMounted) {
+          setLocalUri(result.uri);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to download PDF');
+        }
       }
     }
 
@@ -218,9 +226,17 @@ export function RemotePdfViewer({ url }: { url: string }) {
     };
   }, [url]);
 
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
   if (!localUri) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#3fd0ff" />
       </View>
     );
@@ -235,6 +251,18 @@ export function RemotePdfViewer({ url }: { url: string }) {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+  },
+});
 ```
 
 For a comprehensive real-world example featuring scale indicators, full-screen toggles, and modal dialogues, see the [Sample Project](https://github.com/douglasjunior/react-native-pdf-renderer/blob/main/Sample/App.tsx).
@@ -260,7 +288,7 @@ For a comprehensive real-world example featuring scale indicators, full-screen t
 
 ---
 
-## ⚠️ Limitations & Caveats
+## ⚠ Limitations & Caveats
 
 ### Page Interactions
 
