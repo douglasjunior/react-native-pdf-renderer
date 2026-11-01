@@ -51,6 +51,8 @@ BOOL observerAdded = NO;
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
     }
     if(self = [super init]) {
+        static const auto defaultProps = std::make_shared<const RNPdfRendererViewProps>();
+        _props = defaultProps;
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
         [self addSubview:_pdfView];
