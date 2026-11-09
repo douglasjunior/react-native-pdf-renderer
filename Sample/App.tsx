@@ -17,49 +17,51 @@ const PdfView = ({ source }: { source: string }) => {
   const dim = Math.min((scale - 1) / 2, 1);
 
   return (
-    <View style={{ flex: 1, backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` }}>
+    <View style={{ flex: 1 }}>
       <Button
         title="Single Page"
         onPress={() => setSinglePage(prev => !prev)}
       />
-      <PdfRendererView
-        style={{ margin: 24, backgroundColor: 'transparent' }}
-        source={source}
-        distanceBetweenPages={16}
-        maxZoom={20}
-        maxPageResolution={2048}
-        singlePage={singlePage}
-        onPageChange={(current, total) => {
-          console.log('onPageChange', { current, total });
-          setCurrentPage(current);
-          setTotalPages(total);
-        }}
-        onScaleChange={newScale => {
-          console.log('onScaleChange', { scale: newScale });
-          setScale(newScale);
-        }}
-        onError={() => {
-          console.warn('Error loading PDF');
-          Alert.alert('Error', 'Error loading PDF');
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 16,
-          left: 0,
-          right: 0,
-          alignItems: 'center',
-        }}>
-        <Text
+      <View style={{ flex: 1, backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` }}>
+        <PdfRendererView
+          style={{ margin: 24, backgroundColor: 'transparent' }}
+          source={source}
+          distanceBetweenPages={16}
+          maxZoom={20}
+          maxPageResolution={2048}
+          singlePage={singlePage}
+          onPageChange={(current, total) => {
+            console.log('onPageChange', { current, total });
+            setCurrentPage(current);
+            setTotalPages(total);
+          }}
+          onScaleChange={newScale => {
+            console.log('onScaleChange', { scale: newScale });
+            setScale(newScale);
+          }}
+          onError={() => {
+            console.warn('Error loading PDF');
+            Alert.alert('Error', 'Error loading PDF');
+          }}
+        />
+        <View
           style={{
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            color: 'black',
-            padding: 4,
-            borderRadius: 4,
+            position: 'absolute',
+            bottom: 16,
+            left: 0,
+            right: 0,
+            alignItems: 'center',
           }}>
-          {currentPage + 1}/{totalPages} · {scale.toFixed(1)}x
-        </Text>
+          <Text
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.5)',
+              color: 'black',
+              padding: 4,
+              borderRadius: 4,
+            }}>
+            {currentPage + 1}/{totalPages} · {scale.toFixed(1)}x
+          </Text>
+        </View>
       </View>
     </View>
   );
