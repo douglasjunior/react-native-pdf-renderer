@@ -1,0 +1,458 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <!-- Background Cosmic Gradients -->
+    <radialGradient id="nebula-violet" cx="18%" cy="20%" r="65%">
+      <stop offset="0%" stop-color="#5842d6" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebula-cyan" cx="82%" cy="22%" r="60%">
+      <stop offset="0%" stop-color="#1882be" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebula-pink" cx="45%" cy="92%" r="55%">
+      <stop offset="0%" stop-color="#be3c78" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#04050d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cosmic-stripe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8b7bff"/>
+      <stop offset="35%" stop-color="#3fd0ff"/>
+      <stop offset="70%" stop-color="#ff6a8e"/>
+      <stop offset="100%" stop-color="#ffd56a"/>
+    </linearGradient>
+    <linearGradient id="title-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#e9ebfa"/>
+      <stop offset="100%" stop-color="#3fd0ff"/>
+    </linearGradient>
+    <linearGradient id="phone-border" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3fd0ff" stop-opacity="0.65"/>
+      <stop offset="50%" stop-color="#8b7bff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff6a8e" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="pdf-chart-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd56a"/>
+      <stop offset="100%" stop-color="#ff6a8e"/>
+    </linearGradient>
+    <linearGradient id="touch-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3fd0ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#8b7bff" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-violet" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="shadow-page" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <!-- Phone Screen Clip -->
+    <clipPath id="screen-clip">
+      <rect x="736" y="58" width="468" height="524" rx="30"/>
+    </clipPath>
+
+    <!-- Document Page Clip inside phone viewer -->
+    <clipPath id="page-clip">
+      <rect x="760" y="128" width="420" height="352" rx="14"/>
+    </clipPath>
+
+    <style>
+      <![CDATA[
+      .anim-pinch-1,
+      .anim-pinch-2 {
+        opacity: 0;
+      }
+      .anim-hud-zoom {
+        display: none;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .anim-hud-zoom {
+          display: inline;
+        }
+        .anim-star-twinkle {
+          animation: starTwinkle 4s ease-in-out infinite;
+        }
+        .anim-pdf-zoom {
+          animation: pdfZoom 7s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+        .anim-pinch-1 {
+          animation: pinch1 7s ease-in-out infinite;
+        }
+        .anim-pinch-2 {
+          animation: pinch2 7s ease-in-out infinite;
+        }
+        .anim-touch-ripple {
+          animation: touchRipple 7s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+        .anim-hud-1x {
+          animation: hudFadeA 7s ease-in-out infinite;
+        }
+        .anim-hud-zoom {
+          animation: hudFadeB 7s ease-in-out infinite;
+        }
+      }
+
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 0.25; }
+        50% { opacity: 0.85; }
+      }
+
+      @keyframes pdfZoom {
+        0%, 15% {
+          transform: scale(1);
+        }
+        32%, 72% {
+          transform: scale(1.42);
+        }
+        88%, 100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes pinch1 {
+        0%, 15% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+        18% {
+          opacity: 1;
+        }
+        32%, 72% {
+          transform: translate(-38px, 32px);
+          opacity: 0.9;
+        }
+        80% {
+          opacity: 0;
+        }
+        88%, 100% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+      }
+
+      @keyframes pinch2 {
+        0%, 15% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+        18% {
+          opacity: 1;
+        }
+        32%, 72% {
+          transform: translate(38px, -32px);
+          opacity: 0.9;
+        }
+        80% {
+          opacity: 0;
+        }
+        88%, 100% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+      }
+
+      @keyframes touchRipple {
+        0%, 16% {
+          opacity: 0;
+          transform: scale(0.6);
+        }
+        20%, 30% {
+          opacity: 0.8;
+          transform: scale(1.2);
+        }
+        35%, 100% {
+          opacity: 0;
+          transform: scale(1.6);
+        }
+      }
+
+      @keyframes hudFadeA {
+        0%, 20% { opacity: 1; }
+        28%, 76% { opacity: 0; }
+        84%, 100% { opacity: 1; }
+      }
+
+      @keyframes hudFadeB {
+        0%, 20% { opacity: 0; }
+        28%, 76% { opacity: 1; }
+        84%, 100% { opacity: 0; }
+      }
+      ]]>
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1280" height="640" rx="20" fill="#04050d"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-violet)"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-cyan)"/>
+  <rect width="1280" height="640" rx="20" fill="url(#nebula-pink)"/>
+
+  <!-- Border & Subtle Background Grid -->
+  <g opacity="0.10">
+    <line x1="80" y1="0" x2="80" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="360" y1="0" x2="360" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="520" y1="0" x2="520" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="680" y1="0" x2="680" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="840" y1="0" x2="840" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="1000" y1="0" x2="1000" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="1160" y1="0" x2="1160" y2="640" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="80" x2="1280" y2="80" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="200" x2="1280" y2="200" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1280" y2="320" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="440" x2="1280" y2="440" stroke="#8b7bff" stroke-width="1"/>
+    <line x1="0" y1="560" x2="1280" y2="560" stroke="#8b7bff" stroke-width="1"/>
+  </g>
+
+  <!-- Stars -->
+  <g class="anim-star-twinkle" fill="#ffd56a">
+    <circle cx="140" cy="62" r="1.5" opacity="0.6"/>
+    <circle cx="270" cy="600" r="1.2" opacity="0.4"/>
+    <circle cx="610" cy="105" r="1.7" opacity="0.7"/>
+    <circle cx="680" cy="530" r="1.3" opacity="0.5"/>
+    <circle cx="1260" cy="110" r="1.8" opacity="0.8"/>
+    <circle cx="1140" cy="618" r="1.3" opacity="0.4"/>
+  </g>
+  <g fill="#3fd0ff">
+    <circle cx="105" cy="335" r="1.3" opacity="0.5"/>
+    <circle cx="560" cy="320" r="1.6" opacity="0.6"/>
+    <circle cx="710" cy="75" r="1.2" opacity="0.4"/>
+    <circle cx="1262" cy="390" r="1.5" opacity="0.7"/>
+  </g>
+
+  <!-- Outer Frame -->
+  <rect x="1" y="1" width="1278" height="638" rx="19" fill="none" stroke="rgba(150, 160, 255, 0.16)" stroke-width="2"/>
+  <!-- Cosmic Gradient Stripe at Bottom -->
+  <rect x="0" y="635" width="1280" height="5" fill="url(#cosmic-stripe)"/>
+
+  <!-- ==================== LEFT COLUMN: CONTENT ==================== -->
+  <g transform="translate(80, 0)">
+    <!-- Pill: Category / Identity -->
+    <g transform="translate(0, 88)">
+      <rect width="340" height="32" rx="16" fill="rgba(139, 123, 255, 0.12)" stroke="#8b7bff" stroke-width="1.2"/>
+      <circle cx="18" cy="16" r="4" fill="#3fd0ff"/>
+      <text x="32" y="21" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa" letter-spacing="1">REACT NATIVE · ZERO DEPENDENCIES</text>
+    </g>
+
+    <!-- Main Title -->
+    <text x="0" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="800" fill="#ffffff" letter-spacing="-0.5">
+      react-native-
+    </text>
+    <text x="0" y="234" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="800" fill="url(#title-grad)" letter-spacing="-0.5">
+      pdf-renderer
+    </text>
+
+    <!-- Subtitle / One-liner -->
+    <text x="0" y="278" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" fill="#9ba1c7" font-weight="400">
+      Pure native, zoomable, blazing-fast PDF viewer for Android &amp; iOS.
+    </text>
+    <text x="0" y="304" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" fill="#838ab2" font-weight="400">
+      Powered by native <tspan fill="#3fd0ff" font-weight="600">PdfRenderer</tspan> on Android &amp; <tspan fill="#8b7bff" font-weight="600">PDFKit</tspan> on iOS.
+    </text>
+
+    <!-- Feature Bullet Cards -->
+    <g transform="translate(0, 342)">
+      <!-- Item 1: Pure Native & Zero Dependencies -->
+      <g transform="translate(0, 0)">
+        <rect width="570" height="52" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="26" cy="26" r="11" fill="rgba(88, 224, 138, 0.15)"/>
+        <text x="26" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#58e08a" text-anchor="middle">✓</text>
+        <text x="50" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Zero Third-Party Dependencies</text>
+        <text x="50" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Eliminates heavy binary dependencies and RN upgrade headaches</text>
+      </g>
+
+      <!-- Item 2: Pinch to Zoom & High Resolution -->
+      <g transform="translate(0, 64)">
+        <rect width="570" height="52" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="26" cy="26" r="11" fill="rgba(63, 208, 255, 0.15)"/>
+        <text x="26" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#3fd0ff" text-anchor="middle">⚡</text>
+        <text x="50" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Smooth Pinch-to-Zoom &amp; Scale Callbacks</text>
+        <text x="50" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Fluid gesture scaling with configurable zoom limits and OOM safeguards</text>
+      </g>
+
+      <!-- Item 3: Multi-Page & Single-Page Modes -->
+      <g transform="translate(0, 128)">
+        <rect width="570" height="52" rx="12" fill="rgba(13, 15, 36, 0.65)" stroke="rgba(150, 160, 255, 0.14)" stroke-width="1"/>
+        <circle cx="26" cy="26" r="11" fill="rgba(139, 123, 255, 0.15)"/>
+        <text x="26" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#8b7bff" text-anchor="middle">📄</text>
+        <text x="50" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#e9ebfa">Multi-Page Scroll &amp; Thumbnail Previews</text>
+        <text x="50" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#9ba1c7">Continuous page scroll, single-page covers, and strict TypeScript types</text>
+      </g>
+    </g>
+
+    <!-- Bottom Metadata Chips -->
+    <g transform="translate(0, 545)">
+      <rect width="94" height="26" rx="6" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.12)"/>
+      <text x="47" y="17" font-family="ui-monospace, monospace" font-size="11" fill="#9ba1c7" text-anchor="middle">MIT License</text>
+
+      <rect x="102" width="152" height="26" rx="6" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.12)"/>
+      <text x="178" y="17" font-family="ui-monospace, monospace" font-size="11" fill="#9ba1c7" text-anchor="middle">React Native &gt;= 0.71</text>
+
+      <rect x="262" width="120" height="26" rx="6" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.12)"/>
+      <text x="322" y="17" font-family="ui-monospace, monospace" font-size="11" fill="#9ba1c7" text-anchor="middle">Android API 21+</text>
+
+      <rect x="390" width="82" height="26" rx="6" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.12)"/>
+      <text x="431" y="17" font-family="ui-monospace, monospace" font-size="11" fill="#9ba1c7" text-anchor="middle">iOS 12.0+</text>
+
+      <rect x="480" width="90" height="26" rx="6" fill="rgba(63, 208, 255, 0.1)" stroke="rgba(63, 208, 255, 0.28)"/>
+      <text x="525" y="17" font-family="ui-monospace, monospace" font-size="11" fill="#3fd0ff" text-anchor="middle">TypeScript</text>
+    </g>
+  </g>
+
+  <!-- ==================== RIGHT COLUMN: ANIMATED VIEWER MOCKUP ==================== -->
+  <g transform="translate(720, 48)">
+    <!-- Glow behind preview viewport -->
+    <rect x="16" y="-6" width="500" height="556" rx="36" fill="none" stroke="rgba(63, 208, 255, 0.25)" stroke-width="14" opacity="0.35" filter="url(#glow-cyan)"/>
+    <rect x="16" y="-6" width="500" height="556" rx="36" fill="none" stroke="rgba(139, 123, 255, 0.35)" stroke-width="18" opacity="0.3" filter="url(#glow-violet)"/>
+
+    <!-- Device / Tablet Frame Chassis -->
+    <rect x="16" y="-6" width="500" height="556" rx="32" fill="#0c0e27" stroke="url(#phone-border)" stroke-width="2.5"/>
+
+    <!-- Screen Inner Area (Clipped) -->
+    <g transform="translate(-704, -48)" clip-path="url(#screen-clip)">
+      <!-- App Screen Background -->
+      <rect x="736" y="58" width="468" height="524" fill="#080a1c"/>
+
+      <!-- App Header Bar -->
+      <rect x="736" y="58" width="468" height="58" fill="rgba(20, 24, 52, 0.85)"/>
+      <line x1="736" y1="116" x2="1204" y2="116" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1"/>
+
+      <!-- Back Icon -->
+      <circle cx="762" cy="87" r="14" fill="rgba(255, 255, 255, 0.08)"/>
+      <path d="M765 82 L759 87 L765 92" stroke="#e9ebfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- Document Title & Subtitle -->
+      <text x="788" y="83" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#ffffff">A17_FlightPlan.pdf</text>
+      <text x="788" y="99" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#9ba1c7">618 pages · Pure Native Renderer</text>
+
+      <!-- Page Counter Pill (Top Right) -->
+      <g transform="translate(1080, 73)">
+        <rect width="104" height="28" rx="14" fill="rgba(139, 123, 255, 0.18)" stroke="rgba(139, 123, 255, 0.4)" stroke-width="1"/>
+        <text x="52" y="18" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa" text-anchor="middle">Page 1 / 618</text>
+      </g>
+
+      <!-- PDF Canvas Background -->
+      <rect x="736" y="116" width="468" height="420" fill="#0d1028"/>
+
+      <!-- PDF Document Structure (Animated Pinch & Zoom) -->
+      <g clip-path="url(#page-clip)">
+        <g class="anim-pdf-zoom">
+          <!-- Stacked Shadow Page 2 Behind -->
+          <rect x="854" y="152" width="260" height="350" rx="6" fill="#181c40" opacity="0.7" transform="rotate(2 970 320)"/>
+
+          <!-- Primary Document Page 1 (Crisp PDF Sheet) -->
+          <g filter="url(#shadow-page)">
+            <rect x="836" y="142" width="268" height="364" rx="8" fill="#f8f9ff"/>
+
+            <!-- PDF Page Header & Badge -->
+            <g transform="translate(856, 160)">
+              <!-- Red PDF Badge -->
+              <rect width="44" height="22" rx="5" fill="#ef4444"/>
+              <text x="22" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">PDF</text>
+
+              <!-- Document Title Lines -->
+              <rect x="54" y="3" width="130" height="12" rx="3" fill="#2d3356"/>
+              <rect x="54" y="18" width="80" height="6" rx="2" fill="#929bc2"/>
+            </g>
+
+            <!-- Document Text Skeleton Lines (Top Block) -->
+            <g transform="translate(856, 204)">
+              <rect y="0" width="228" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="13" width="210" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="26" width="220" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="39" width="165" height="7" rx="3" fill="#c2c7e4"/>
+            </g>
+
+            <!-- Embedded Vector Graphic / Chart in PDF -->
+            <g transform="translate(856, 264)">
+              <rect width="228" height="90" rx="8" fill="url(#pdf-chart-grad)" opacity="0.9"/>
+              <!-- Chart Sparkline / Path -->
+              <path d="M12 70 L50 48 L90 62 L130 30 L170 45 L216 18" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="50" cy="48" r="4" fill="#ffffff"/>
+              <circle cx="130" cy="30" r="4" fill="#ffffff"/>
+              <circle cx="216" cy="18" r="4.5" fill="#ffffff"/>
+              <text x="14" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#ffffff">FLIGHT VECTOR DATA</text>
+            </g>
+
+            <!-- Document Text Skeleton Lines (Bottom Block) -->
+            <g transform="translate(856, 372)">
+              <rect y="0" width="228" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="13" width="195" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="26" width="220" height="7" rx="3" fill="#c2c7e4"/>
+              <rect y="39" width="140" height="7" rx="3" fill="#c2c7e4"/>
+            </g>
+
+            <!-- Page Number Footer -->
+            <text x="970" y="466" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#8890ba" text-anchor="middle">- 1 -</text>
+          </g>
+        </g>
+
+        <!-- Touch Interaction Gesture Overlay: Dual Pinch Fingers -->
+        <!-- Finger 1: Lower-Left Touch Point -->
+        <g transform="translate(940, 320)">
+          <g class="anim-pinch-1">
+            <circle cx="0" cy="0" r="28" fill="url(#touch-glow)" filter="url(#glow-cyan)" opacity="0.4"/>
+            <circle class="anim-touch-ripple" cx="0" cy="0" r="22" fill="none" stroke="#3fd0ff" stroke-width="2"/>
+            <circle cx="0" cy="0" r="16" fill="rgba(63, 208, 255, 0.45)" stroke="#3fd0ff" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+          </g>
+        </g>
+
+        <!-- Finger 2: Upper-Right Touch Point -->
+        <g transform="translate(1000, 260)">
+          <g class="anim-pinch-2">
+            <circle cx="0" cy="0" r="28" fill="url(#touch-glow)" filter="url(#glow-cyan)" opacity="0.4"/>
+            <circle class="anim-touch-ripple" cx="0" cy="0" r="22" fill="none" stroke="#3fd0ff" stroke-width="2"/>
+            <circle cx="0" cy="0" r="16" fill="rgba(63, 208, 255, 0.45)" stroke="#3fd0ff" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- Dynamic Zoom Scale Floating HUD Badge -->
+      <g transform="translate(886, 490)">
+        <rect width="168" height="34" rx="17" fill="rgba(7, 9, 25, 0.88)" stroke="rgba(63, 208, 255, 0.4)" stroke-width="1.2" filter="url(#glow-cyan)"/>
+        <!-- State A: 1.0x Scale -->
+        <g class="anim-hud-1x">
+          <circle cx="24" cy="17" r="4" fill="#58e08a"/>
+          <text x="36" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#e9ebfa">Scale: 1.0x (Fit)</text>
+        </g>
+        <!-- State B: 1.4x Scale -->
+        <g class="anim-hud-zoom">
+          <circle cx="24" cy="17" r="4" fill="#3fd0ff"/>
+          <text x="36" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#3fd0ff">Scale: 1.4x Zoom</text>
+        </g>
+      </g>
+
+      <!-- Bottom Platform Engines Status Bar -->
+      <g transform="translate(736, 536)">
+        <rect width="468" height="46" fill="rgba(14, 18, 42, 0.95)"/>
+        <line x1="0" y1="0" x2="468" y2="0" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1"/>
+
+        <!-- Android Engine Badge -->
+        <g transform="translate(24, 11)">
+          <rect width="190" height="24" rx="12" fill="rgba(63, 208, 255, 0.12)" stroke="rgba(63, 208, 255, 0.35)" stroke-width="1"/>
+          <circle cx="14" cy="12" r="3.5" fill="#3fd0ff"/>
+          <text x="26" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#e9ebfa">Android · PdfRenderer</text>
+        </g>
+
+        <!-- iOS Engine Badge -->
+        <g transform="translate(254, 11)">
+          <rect width="190" height="24" rx="12" fill="rgba(139, 123, 255, 0.12)" stroke="rgba(139, 123, 255, 0.35)" stroke-width="1"/>
+          <circle cx="14" cy="12" r="3.5" fill="#8b7bff"/>
+          <text x="26" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#e9ebfa">Apple iOS · PDFKit</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
