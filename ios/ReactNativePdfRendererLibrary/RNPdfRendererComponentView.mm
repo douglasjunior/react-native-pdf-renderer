@@ -41,19 +41,17 @@ using namespace facebook::react;
     RNPDFView * _pdfView;
 }
 
-BOOL observerAdded = NO;
-
 -(instancetype)init
 {
-    if (!observerAdded) {
-        observerAdded = YES;
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
-    }
     if(self = [super init]) {
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
         [self addSubview:_pdfView];
+        
+        // Observe only this view's own PDF view, so that every component instance
+        // receives its own events instead of just the first one created.
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:_pdfView];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:_pdfView];
     }
     return self;
 }
@@ -68,27 +66,16 @@ BOOL observerAdded = NO;
 
 - (void)dealloc
 {
-    if (observerAdded) {
-        observerAdded = NO;
-        [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
-    }
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void) handleError:(NSNotification*) notification {
-    if (notification.object != _pdfView) {
-        return;
-    }
-    
     if (_eventEmitter) {
         self.eventEmitter.onError({});
     }
 }
 
 - (void)handlePageChange:(NSNotification*) notification {
-    if (notification.object != _pdfView) {
-        return;
-    }
-    
     NSUInteger currentPageNumber = [_pdfView.document indexForPage:_pdfView.currentPage];
     
     RNPdfRendererViewEventEmitter::OnPageChange result = RNPdfRendererViewEventEmitter::OnPageChange{};
