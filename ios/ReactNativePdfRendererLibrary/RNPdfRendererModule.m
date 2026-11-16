@@ -34,73 +34,9 @@
 
 RCT_EXPORT_MODULE(RNPdfRendererView)
 
-BOOL observerAdded = NO;
-
 - (UIView *)view
 {
-    if (!observerAdded) {
-        observerAdded = YES;
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:nil];
-    }
-    
-    RNPDFView *view = [[RNPDFView alloc] init];
-    
-    return view;
-}
-
-- (void)dealloc
-{
-    if (observerAdded) {
-        observerAdded = NO;
-        [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
-        [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:nil];
-    }
-}
-
-- (void) handleError:(NSNotification*) notification {
-    if ([RNPDFView class] != [notification.object class]) {
-        return;
-    }
-    
-    RNPDFView *view = notification.object;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        view.onRnPdfError(@{});
-    });
-}
-
-- (void)handlePageChange:(NSNotification*) notification {
-    if ([RNPDFView class] != [notification.object class]) {
-        return;
-    }
-    
-    RNPDFView *view = notification.object;
-    
-    NSUInteger currentPageNumber = [view.document indexForPage:view.currentPage];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        view.onRnPdfPageChange(@{
-            @"position": [NSNumber numberWithInteger:currentPageNumber],
-            @"total":  [NSNumber numberWithInteger:view.document.pageCount],
-        });
-    });
-}
-
-- (void)handleScaleChange:(NSNotification*) notification {
-    if ([RNPDFView class] != [notification.object class]) {
-        return;
-    }
-    
-    RNPDFView *view = notification.object;
-    NSNumber *scale = notification.userInfo[@"scale"];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        view.onRnPdfScaleChange(@{
-            @"scale": scale,
-        });
-    });
+    return [[RNPDFView alloc] init];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfPageChange, RCTBubblingEventBlock)
