@@ -41,9 +41,9 @@ using namespace facebook::react;
     RNPDFView * _pdfView;
 }
 
--(instancetype)init
+-(instancetype)initWithFrame:(CGRect)frame
 {
-    if(self = [super init]) {
+    if(self = [super initWithFrame:frame]) {
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
         [self addSubview:_pdfView];
@@ -76,6 +76,10 @@ using namespace facebook::react;
 }
 
 - (void)handlePageChange:(NSNotification*) notification {
+    if (_pdfView.document == nil || _pdfView.currentPage == nil) {
+        return;
+    }
+    
     NSUInteger currentPageNumber = [_pdfView.document indexForPage:_pdfView.currentPage];
     
     RNPdfRendererViewEventEmitter::OnPageChange result = RNPdfRendererViewEventEmitter::OnPageChange{};
