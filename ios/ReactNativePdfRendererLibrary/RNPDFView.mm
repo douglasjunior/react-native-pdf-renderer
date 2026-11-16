@@ -29,6 +29,59 @@
 
 NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
 
+#ifndef RCT_NEW_ARCH_ENABLED
+- (instancetype)init
+{
+    return [self initWithFrame:CGRectZero];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+        // Observe only this view's own notifications, so that every PDF view
+        // receives its own events instead of relying on a shared, process-wide observer.
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:self];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:self];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self];
+}
+
+- (void)handleError:(NSNotification*) notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.onRnPdfError) {
+            self.onRnPdfError(@{});
+        }
+    });
+}
+
+- (void)handlePageChange:(NSNotification*) notification
+{
+    if (self.onRnPdfPageChange == nil || self.document == nil || self.currentPage == nil) {
+        return;
+    }
+    
+    // Snapshot the page number before hopping to the main queue, so a burst of
+    // notifications does not collapse several page changes into the final page.
+    NSUInteger currentPageNumber = [self.document indexForPage:self.currentPage];
+    NSUInteger total = self.document.pageCount;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.onRnPdfPageChange) {
+            self.onRnPdfPageChange(@{
+                @"position": [NSNumber numberWithUnsignedInteger:currentPageNumber],
+                @"total":  [NSNumber numberWithUnsignedInteger:total],
+            });
+        }
+    });
+}
+#endif
+
 -(void) setParams:(NSDictionary*) params {
     NSString *source = [params objectForKey:@"source"];
     NSString *maxZoomString = [params objectForKey:@"maxZoom"];
