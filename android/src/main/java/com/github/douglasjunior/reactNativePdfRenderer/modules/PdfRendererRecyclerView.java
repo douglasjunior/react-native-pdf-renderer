@@ -65,6 +65,7 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private int mWidth;
     private int mHeight;
     private int mCurrentItemPosition = -1;
+    private int mPendingScrollIndex = -1;
     private boolean mSinglePage;
 
     public PdfRendererRecyclerView(@NonNull Context context, PdfRendererRecyclerViewListener listener) {
@@ -169,12 +170,33 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
     public void updateSource(File file) throws IOException {
         mCurrentItemPosition = -1;
+        var pendingScrollIndex = mPendingScrollIndex;
+        mPendingScrollIndex = -1;
         var adapter = (PdfRendererAdapter) getAdapter();
         if (adapter == null) return;
         adapter.close();
         adapter.updateSource(file);
         adapter.notifyDataSetChanged();
+        if (pendingScrollIndex != -1) scrollToIndex(pendingScrollIndex);
         post(this::dispatchPageChangeEvent);
+    }
+
+    public void scrollToIndex(int index) {
+        if (mSinglePage) return;
+
+        var adapter = (PdfRendererAdapter) getAdapter();
+        if (adapter == null) return;
+
+        var itemCount = adapter.getItemCount();
+        if (itemCount == 0) {
+            mPendingScrollIndex = index;
+            return;
+        }
+        if (index < 0 || index >= itemCount) return;
+
+        resetZoom();
+        mLayoutManager.scrollToPositionWithOffset(index, 0);
+        forceRequestLayout();
     }
 
     @Override
