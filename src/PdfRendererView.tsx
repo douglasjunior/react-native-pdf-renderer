@@ -155,7 +155,7 @@ const PdfRendererView = (
   }: PdfRendererViewPropsType,
   ref: React.ForwardedRef<PdfRendererViewRefType>,
 ): React.JSX.Element => {
-  const nativeRef = useRef<React.ElementRef<typeof PdfRendererNative>>(null);
+  const nativeRef = useRef<React.ComponentRef<typeof PdfRendererNative>>(null);
 
   useImperativeHandle(
     ref,
