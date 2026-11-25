@@ -9,8 +9,11 @@ node_modules/
 __tests__/
 screenshots/
 Sample/
-scripts/
 android/build/
 android/.idea/
 android/.gradle/
 DEPENDENTS.md
+docs/
+.eslintignore
+.gitattributes
+AGENTS.md

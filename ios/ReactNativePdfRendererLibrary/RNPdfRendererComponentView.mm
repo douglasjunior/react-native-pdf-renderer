@@ -41,19 +41,18 @@ using namespace facebook::react;
     RNPDFView * _pdfView;
 }
 
-BOOL observerAdded = NO;
-
--(instancetype)init
+- (instancetype)initWithFrame:(CGRect)frame
 {
-    if (!observerAdded) {
-        observerAdded = YES;
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:nil];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:nil];
-    }
-    if(self = [super init]) {
+    if (self = [super initWithFrame:frame]) {
+        static const auto defaultProps = std::make_shared<const RNPdfRendererViewProps>();
+        _props = defaultProps;
+
         _pdfView = [RNPDFView new];
         _pdfView.backgroundColor = UIColor.clearColor;
         [self addSubview:_pdfView];
+
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:_pdfView];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:_pdfView];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:_pdfView];
     }
     return self;
@@ -69,11 +68,7 @@ BOOL observerAdded = NO;
 
 - (void)dealloc
 {
-    if (observerAdded) {
-        observerAdded = NO;
-        [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewPageChangedNotification object:nil];
-    }
-    [NSNotificationCenter.defaultCenter removeObserver:self name:RNPDFViewScaleChangeNotification object:_pdfView];
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)handleScaleChange:(NSNotification*) notification {

@@ -72,7 +72,7 @@ public class PdfRendererViewManagerImpl {
         var maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
 
         if (TextUtils.isEmpty(source)) return;
-        var file = new File(source.replace("file://", ""));
+        var file = new File(source.replaceFirst("^file:/*", "/"));
 
         view.post(() -> {
             try {
@@ -83,7 +83,7 @@ public class PdfRendererViewManagerImpl {
                 view.updateSource(file);
 
                 view.forceRequestLayout();
-            } catch (IOException e) {
+            } catch (IOException | SecurityException e) {
                 if (BuildConfig.DEBUG) {
                     // noinspection CallToPrintStackTrace
                     e.printStackTrace();

@@ -403,7 +403,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
 
         public void updateSource(File file) throws IOException {
             mFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            mPdfRenderer = new PdfRenderer(mFileDescriptor);
+            try {
+                mPdfRenderer = new PdfRenderer(mFileDescriptor);
+            } catch (IOException | SecurityException e) {
+                close();
+                throw e;
+            }
         }
 
         public void close() {

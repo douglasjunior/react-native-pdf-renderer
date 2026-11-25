@@ -1,0 +1,111 @@
+# Publishes the package to npm whenever a GitHub release is published.
+#
+# The version comes from the release tag (`1.2.3` or `v1.2.3`), is written to
+# package.json before `npm publish`, and then committed back to the default
+# branch so the repository matches what is on npm.
+#
+# The published package.json points `main` and `types` to the compiled `dist/`
+# folder. That change only exists in the workflow workspace: the commit pushed
+# back to the default branch carries just the new version, so `main` and
+# `react-native` keep pointing to `src` in the repository.
+#
+# Authentication uses npm Trusted Publishing (OIDC), so no token is stored in
+# GitHub. One-time setup on npmjs.com → package → Settings → Trusted Publisher:
+#   Provider: GitHub Actions · Repository: douglasjunior/react-native-pdf-renderer
+#   Workflow filename: publish.yml · Environment: (leave empty)
+#
+# The version commit is pushed by the `douglasjunior-bot` GitHub App, which is on
+# the bypass list of the ruleset that protects the default branch. The App Client ID
+# and private key live in the RELEASE_APP_CLIENT_ID and RELEASE_APP_PRIVATE_KEY secrets.
+#
+# A release marked as "pre-release" is published under the `next` dist-tag
+# instead of `latest`.
+
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # npm Trusted Publishing and provenance
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish ${{ github.event.release.tag_name }} to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Use an npm version that supports Trusted Publishing
+        # Trusted Publishing (OIDC) requires npm >= 11.5.1.
+        run: npm install -g npm@^11.5.1
+
+      - name: Read the version from the release tag
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version="${TAG#v}"
+          if ! node -e 'process.exit(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/.test(process.argv[1]) ? 0 : 1)' "$version"; then
+            echo "::error::Release tag '$TAG' is not a semver version (expected e.g. 1.2.3 or v1.2.3)."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Set the version in the package
+        run: npm pkg set "version=${{ steps.version.outputs.version }}"
+
+      - run: yarn build
+
+      - name: Point main and types to dist
+        run: npm pkg set main=dist types=dist
+
+      - name: Publish to npm
+        run: npm publish --access public --tag "${{ github.event.release.prerelease && 'next' || 'latest' }}"
+
+      - name: Read the App's bot user id
+        id: bot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: echo "id=$(gh api "/users/${SLUG}%5Bbot%5D" --jq .id)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit the version to ${{ github.event.repository.default_branch }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.bot.outputs.id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+          git checkout -- package.json
+          git fetch origin "$BRANCH"
+          git checkout -B "$BRANCH" "origin/$BRANCH"
+          npm pkg set "version=$VERSION"
+          git add package.json
+          if git diff --cached --quiet; then
+            echo "package.json on $BRANCH is already at $VERSION."
+          else
+            git commit -m "chore(release): $VERSION [skip ci]"
+            git push origin "$BRANCH"
+          fi

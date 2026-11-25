@@ -33,9 +33,11 @@ import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
+import com.facebook.react.uimanager.ViewManagerDelegate;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.viewmanagers.RNPdfRendererViewManagerDelegate;
 import com.facebook.react.viewmanagers.RNPdfRendererViewManagerInterface;
 import com.github.douglasjunior.reactNativePdfRenderer.PdfRendererViewManagerImpl;
 
@@ -45,9 +47,17 @@ import java.util.Map;
 public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecyclerView> implements RNPdfRendererViewManagerInterface<PdfRendererRecyclerView>, PdfRendererRecyclerView.PdfRendererRecyclerViewListener {
 
     private final ReactApplicationContext mReactApplicationContext;
+    private final ViewManagerDelegate<PdfRendererRecyclerView> mDelegate;
 
     public PdfRendererViewManager(ReactApplicationContext reactApplicationContext) {
         this.mReactApplicationContext = reactApplicationContext;
+        this.mDelegate = new RNPdfRendererViewManagerDelegate<>(this);
+    }
+
+    @Nullable
+    @Override
+    protected ViewManagerDelegate<PdfRendererRecyclerView> getDelegate() {
+        return mDelegate;
     }
 
     @NonNull

@@ -1,0 +1,14 @@
+name: Commit authors
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  commit-authors:
+    name: Commit authors
+    uses: douglasjunior/workflows/.github/workflows/commit-authors.yml@v1
