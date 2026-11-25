@@ -134,4 +134,9 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     public void setParams(PdfRendererRecyclerView view, @Nullable ReadableMap params) {
         PdfRendererViewManagerImpl.setParams(view, params, () -> onError(view));
     }
+
+    @Override
+    public void scrollToIndex(PdfRendererRecyclerView view, int index) {
+        view.scrollToIndex(index);
+    }
 }
