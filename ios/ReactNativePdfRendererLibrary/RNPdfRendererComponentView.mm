@@ -109,6 +109,7 @@ using namespace facebook::react;
         
         NSDictionary* params = @{
             @"source": sourceString,
+            @"initialPageIndex": @(newViewProps.params.initialPageIndex),
             @"maxZoom": @(newViewProps.params.maxZoom),
             @"singlePage": @(newViewProps.params.singlePage)
         };
@@ -131,9 +132,9 @@ using namespace facebook::react;
     _pdfView.frame = self.bounds;
 }
 
-- (void)scrollToIndex:(NSInteger)index
+- (void)scrollToIndex:(NSInteger)index source:(NSString *)source
 {
-    [_pdfView scrollToIndex:index];
+    [_pdfView scrollToIndex:index source:source];
 }
 
 - (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args

@@ -26,6 +26,7 @@ import { codegenNativeCommands, codegenNativeComponent } from 'react-native';
 
 export type NativeParams = {
   source?: string;
+  initialPageIndex?: CodegenTypes.Int32;
   singlePage: boolean;
   maxZoom: CodegenTypes.Float;
 };
@@ -52,6 +53,7 @@ interface NativeCommands {
   scrollToIndex: (
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     index: CodegenTypes.Int32,
+    source: string,
   ) => void;
 }
 

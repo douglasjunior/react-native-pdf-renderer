@@ -27,10 +27,13 @@
 
 @implementation RNPDFView {
     NSNumber *_pendingScrollIndex;
-    BOOL _hasSource;
+    NSString *_source;
+    NSString *_pendingScrollSource;
     BOOL _waitingForDocumentLayout;
     NSUInteger _documentLoad;
     NSUInteger _loadingPageCount;
+    PDFPage *_initialPage;
+    float _initialPageMaxZoom;
 }
 
 NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
@@ -43,13 +46,18 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
     PDFDisplayMode displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
     
     NSUInteger documentLoad = ++_documentLoad;
-    if (_hasSource || source.length == 0) {
+    _initialPage = nil;
+    if (source.length == 0 || (_pendingScrollSource.length > 0 && ![_pendingScrollSource isEqualToString:source])) {
         _pendingScrollIndex = nil;
+        _pendingScrollSource = nil;
     }
-    _hasSource = source.length > 0;
-    _waitingForDocumentLayout = _hasSource;
+    _source = source ?: @"";
+    if (_pendingScrollIndex != nil) {
+        _pendingScrollSource = _source;
+    }
+    _waitingForDocumentLayout = _source.length > 0;
 
-    if (_hasSource) {
+    if (_waitingForDocumentLayout) {
         float maxZoom = maxZoomString != nil ? [maxZoomString floatValue] : 0;
         
         if (![source hasPrefix:@"file://"]) {
@@ -59,6 +67,10 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         NSURL *url = [NSURL URLWithString:source];
         PDFDocument *pdfDocument = [[PDFDocument alloc] initWithURL:url];
         _loadingPageCount = pdfDocument.pageCount;
+        NSInteger initialPageIndex = [[params objectForKey:@"initialPageIndex"] integerValue];
+        PDFPage *initialPage = !singlePage && initialPageIndex > 0 && (NSUInteger)initialPageIndex < _loadingPageCount
+            ? [pdfDocument pageAtIndex:initialPageIndex]
+            : nil;
         
         self.autoScales = YES;
         self.displayDirection = kPDFDisplayDirectionVertical;
@@ -77,6 +89,9 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
                 return;
             }
             self.document = pdfDocument;
+            self->_initialPage = initialPage;
+            self->_initialPageMaxZoom = maxZoom;
+            [self applyInitialPage];
         });
         
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -96,11 +111,23 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
           }
           [self setNeedsLayout];
           self->_waitingForDocumentLayout = NO;
-          NSNumber *pendingScrollIndex = self->_pendingScrollIndex;
-          self->_pendingScrollIndex = nil;
-          if (pendingScrollIndex != nil && pdfDocument != nil && self.document == pdfDocument) {
-            [self layoutIfNeeded];
+          BOOL initialPageApplied = self->_initialPage == nil;
+          self->_initialPage = nil;
+          NSNumber *pendingScrollIndex = nil;
+          if ([self->_pendingScrollSource isEqualToString:self->_source]) {
+            pendingScrollIndex = self->_pendingScrollIndex;
+            self->_pendingScrollIndex = nil;
+            self->_pendingScrollSource = nil;
+          }
+          if (pdfDocument == nil || self.document != pdfDocument) {
+            return;
+          }
+          [self layoutIfNeeded];
+          if (pendingScrollIndex != nil) {
             [self scrollToIndex:pendingScrollIndex.integerValue];
+          } else if (initialPage != nil && (!initialPageApplied || self.currentPage == initialPage)) {
+            // Apply it if layout never allowed it; otherwise realign after the scale reset unless the user scrolled away.
+            [self goToPageTop:initialPage];
           }
         });
       });
@@ -110,8 +137,42 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
     }
 }
 
+-(void) layoutSubviews {
+    [super layoutSubviews];
+    [self applyInitialPage];
+}
+
+-(void) applyInitialPage {
+    CGFloat fitScale = self.scaleFactorForSizeToFit;
+    // Before PDFKit computes a fit scale the page lands in the wrong place, so keep it for the next layout pass.
+    if (_initialPage == nil || CGRectIsEmpty(self.bounds) || fitScale <= 0) {
+        return;
+    }
+    PDFPage *page = _initialPage;
+    _initialPage = nil;
+    self.minScaleFactor = fitScale;
+    if (_initialPageMaxZoom > 0) {
+        self.maxScaleFactor = _initialPageMaxZoom * fitScale;
+    }
+    [self goToPageTop:page];
+}
+
 -(void) scrollToIndex:(NSInteger) index {
-    if (self.displayMode == kPDFDisplaySinglePage || index < 0) {
+    [self scrollToIndex:index source:_source ?: @""];
+}
+
+-(void) scrollToIndex:(NSInteger) index source:(NSString*) source {
+    if (index < 0) {
+        return;
+    }
+    if (![source isEqualToString:_source ?: @""]) {
+        if (source.length > 0) {
+            _pendingScrollIndex = @(index);
+            _pendingScrollSource = source;
+        }
+        return;
+    }
+    if (self.displayMode == kPDFDisplaySinglePage) {
         return;
     }
     PDFDocument *document = self.document;
@@ -121,6 +182,7 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
     }
     if (pageCount == 0 || _waitingForDocumentLayout) {
         _pendingScrollIndex = @(index);
+        _pendingScrollSource = source;
         return;
     }
 
@@ -138,12 +200,16 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         }
     }
     self.scaleFactor = self.minScaleFactor;
-    PDFPage *page = [document pageAtIndex:index];
+    [self goToPageTop:[document pageAtIndex:index]];
+}
+
+-(void) goToPageTop:(PDFPage*) page {
     CGRect pageBounds = [page boundsForBox:self.displayBox];
     CGRect bounds = [self convertRect:pageBounds fromPage:page];
     CGPoint top = [self convertPoint:CGPointMake(CGRectGetMinX(bounds), CGRectGetMinY(bounds)) toPage:page];
     [self goToDestination:[[PDFDestination alloc] initWithPage:page atPoint:top]];
 
+    // goToDestination can leave the page top slightly below the view top, so finish the alignment on PDFKit's scroll view.
     CGFloat remainingOffset = CGRectGetMinY([self convertRect:pageBounds fromPage:page]) - CGRectGetMinY(self.bounds);
     if (remainingOffset > 1) {
         UIView *ancestor = self.documentView.superview;

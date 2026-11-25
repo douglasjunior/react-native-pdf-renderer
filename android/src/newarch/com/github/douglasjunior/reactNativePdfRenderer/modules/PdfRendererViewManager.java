@@ -136,7 +136,7 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     }
 
     @Override
-    public void scrollToIndex(PdfRendererRecyclerView view, int index) {
-        view.scrollToIndex(index);
+    public void scrollToIndex(PdfRendererRecyclerView view, int index, String source) {
+        view.scrollToIndex(index, source);
     }
 }

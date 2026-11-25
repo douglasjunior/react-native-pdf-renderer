@@ -280,6 +280,7 @@ For a comprehensive real-world example featuring scale indicators, full-screen t
 | Prop | Type | Default | Description |
 |---|---|:---:|---|
 | `source` | `string` | — | Path to a local file stored on the device (e.g. `file:///path/to/file.pdf`). |
+| `initialPageIndex` | `number` | `0` | Zero-based page index shown when the document opens. It is read when `source` changes; changing only `initialPageIndex` does nothing. Changing `singlePage` or `maxZoom` reloads the document, which opens on this page again. Out-of-range values and `singlePage` open the first page. Use `scrollToIndex` to navigate in an already open document. |
 | `distanceBetweenPages` | `number` | `16` | Vertical spacing in `DPI` between rendered pages. |
 | `maxZoom` | `number` | `5` | Maximum allowable zoom scale factor. |
 | `maxPageResolution` | `number` | `2048` | *(Android only)* Maximum page resolution (width/height) in pixels when zooming. Designed to prevent Android OOM / Canvas crashes when zooming deeply ([#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26)). |

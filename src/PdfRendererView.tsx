@@ -24,8 +24,10 @@ import React, {
   forwardRef,
   useCallback,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import {
   NativeSyntheticEvent,
@@ -53,6 +55,17 @@ export type PdfRendererViewPropsType = {
    * Ex.: `file:///path/to/file.pdf`
    */
   source?: string;
+  /**
+   * 0-based index of the page shown when the document opens.
+   *
+   * Read on mount and when `source` changes; changing only this prop does nothing.
+   * Changing `singlePage` or `maxZoom` reloads the document on this page. Out-of-range
+   * values and `singlePage` open the first page. Use `scrollToIndex` to navigate
+   * an already open document.
+   *
+   * Default: 0
+   */
+  initialPageIndex?: number;
   /**
    * Distance in `DPI` between pages.
    *
@@ -148,6 +161,7 @@ const PdfRendererView = (
     onError = undefined,
     style,
     source,
+    initialPageIndex = 0,
     singlePage = false,
     distanceBetweenPages = 16,
     maxZoom = 5,
@@ -156,6 +170,25 @@ const PdfRendererView = (
   ref: React.ForwardedRef<PdfRendererViewRefType>,
 ): React.JSX.Element => {
   const nativeRef = useRef<React.ComponentRef<typeof PdfRendererNative>>(null);
+  const commandSource = useRef(source ?? '');
+  const validInitialPageIndex =
+    Number.isInteger(initialPageIndex) &&
+    initialPageIndex >= 0 &&
+    initialPageIndex <= 0x7fffffff
+      ? initialPageIndex
+      : 0;
+  const [documentParams, setDocumentParams] = useState(() => ({
+    source,
+    initialPageIndex: validInitialPageIndex,
+  }));
+
+  if (documentParams.source !== source) {
+    setDocumentParams({ source, initialPageIndex: validInitialPageIndex });
+  }
+
+  useLayoutEffect(() => {
+    commandSource.current = source ?? '';
+  }, [source]);
 
   useImperativeHandle(
     ref,
@@ -164,7 +197,7 @@ const PdfRendererView = (
         if (!nativeRef.current) {
           return;
         }
-        Commands.scrollToIndex(nativeRef.current, index);
+        Commands.scrollToIndex(nativeRef.current, index, commandSource.current);
       },
     }),
     [],
@@ -209,11 +242,11 @@ const PdfRendererView = (
 
   const params: NativeParams = useMemo(
     () => ({
-      source,
+      ...documentParams,
       singlePage,
       maxZoom,
     }),
-    [source, singlePage, maxZoom],
+    [documentParams, singlePage, maxZoom],
   );
 
   return (

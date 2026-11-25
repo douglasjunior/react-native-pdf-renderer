@@ -89,12 +89,12 @@ BOOL observerAdded = NO;
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfPageChange, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfError, RCTBubblingEventBlock)
 
-RCT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag index:(NSInteger)index)
+RCT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag index:(NSInteger)index source:(NSString *)source)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[reactTag];
         if ([view isKindOfClass:RNPDFView.class]) {
-            [(RNPDFView *)view scrollToIndex:index];
+            [(RNPDFView *)view scrollToIndex:index source:source];
         }
     }];
 }
