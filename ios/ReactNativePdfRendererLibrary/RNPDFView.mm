@@ -25,7 +25,13 @@
 
 #import "RNPDFView.h"
 
-@implementation RNPDFView
+@implementation RNPDFView {
+    NSNumber *_pendingScrollIndex;
+    BOOL _hasSource;
+    BOOL _waitingForDocumentLayout;
+    NSUInteger _documentLoad;
+    NSUInteger _loadingPageCount;
+}
 
 NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotification";
 
@@ -33,10 +39,18 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
     NSString *source = [params objectForKey:@"source"];
     NSString *maxZoomString = [params objectForKey:@"maxZoom"];
     NSString *singlePageString = [params objectForKey:@"singlePage"];
+    BOOL singlePage = singlePageString != nil ? [singlePageString boolValue] : NO;
+    PDFDisplayMode displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
     
-    if (source != nil) {
+    NSUInteger documentLoad = ++_documentLoad;
+    if (_hasSource || source.length == 0) {
+        _pendingScrollIndex = nil;
+    }
+    _hasSource = source.length > 0;
+    _waitingForDocumentLayout = _hasSource;
+
+    if (_hasSource) {
         float maxZoom = maxZoomString != nil ? [maxZoomString floatValue] : 0;
-        BOOL singlePage = singlePageString != nil ? [singlePageString boolValue] : NO;
         
         if (![source hasPrefix:@"file://"]) {
             source = [NSString stringWithFormat:@"%@%@", @"file://", source];
@@ -44,6 +58,7 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         
         NSURL *url = [NSURL URLWithString:source];
         PDFDocument *pdfDocument = [[PDFDocument alloc] initWithURL:url];
+        _loadingPageCount = pdfDocument.pageCount;
         
         self.autoScales = YES;
         self.displayDirection = kPDFDisplayDirectionVertical;
@@ -51,9 +66,12 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         if (@available(iOS 12.0, *)) {
             self.pageShadowsEnabled = NO;
         }
-        self.displayMode = singlePage ? kPDFDisplaySinglePage : kPDFDisplaySinglePageContinuous;
+        self.displayMode = displayMode;
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            if (documentLoad != self->_documentLoad) {
+                return;
+            }
             if (pdfDocument == nil || pdfDocument.pageCount == 0) {
                 [NSNotificationCenter.defaultCenter postNotificationName:RNPDFViewErrorNotification object:self];
                 return;
@@ -69,15 +87,62 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         sleep(1);
         
         dispatch_async(dispatch_get_main_queue(), ^{
+          if (documentLoad != self->_documentLoad) {
+            return;
+          }
           self.minScaleFactor = self.scaleFactorForSizeToFit == 0 ? 1 : self.scaleFactorForSizeToFit;
           if (maxZoom > 0) {
             self.maxScaleFactor = maxZoom * self.minScaleFactor;
           }
           [self setNeedsLayout];
+          self->_waitingForDocumentLayout = NO;
+          NSNumber *pendingScrollIndex = self->_pendingScrollIndex;
+          self->_pendingScrollIndex = nil;
+          if (pendingScrollIndex != nil && pdfDocument != nil && self.document == pdfDocument) {
+            [self layoutIfNeeded];
+            [self scrollToIndex:pendingScrollIndex.integerValue];
+          }
         });
       });
     } else {
         self.document = nil;
+        self.displayMode = displayMode;
+    }
+}
+
+-(void) scrollToIndex:(NSInteger) index {
+    if (self.displayMode == kPDFDisplaySinglePage || index < 0) {
+        return;
+    }
+    PDFDocument *document = self.document;
+    NSUInteger pageCount = _waitingForDocumentLayout ? _loadingPageCount : document.pageCount;
+    if (pageCount > 0 && (NSUInteger)index >= pageCount) {
+        return;
+    }
+    if (pageCount == 0 || _waitingForDocumentLayout) {
+        _pendingScrollIndex = @(index);
+        return;
+    }
+
+    self.scaleFactor = self.minScaleFactor;
+    PDFPage *page = [document pageAtIndex:index];
+    CGRect pageBounds = [page boundsForBox:self.displayBox];
+    CGRect bounds = [self convertRect:pageBounds fromPage:page];
+    CGPoint top = [self convertPoint:CGPointMake(CGRectGetMinX(bounds), CGRectGetMinY(bounds)) toPage:page];
+    [self goToDestination:[[PDFDestination alloc] initWithPage:page atPoint:top]];
+
+    CGFloat remainingOffset = CGRectGetMinY([self convertRect:pageBounds fromPage:page]) - CGRectGetMinY(self.bounds);
+    if (remainingOffset > 1) {
+        UIView *ancestor = self.documentView.superview;
+        while (ancestor != nil && ancestor != self && ![ancestor isKindOfClass:UIScrollView.class]) {
+            ancestor = ancestor.superview;
+        }
+        if ([ancestor isKindOfClass:UIScrollView.class]) {
+            UIScrollView *scrollView = (UIScrollView*) ancestor;
+            CGPoint offset = scrollView.contentOffset;
+            offset.y += remainingOffset;
+            [scrollView setContentOffset:offset animated:NO];
+        }
     }
 }
 

@@ -27,6 +27,8 @@
 #else
 
 #import "RNPdfRendererModule.h"
+#import <React/RCTBridge.h>
+#import <React/RCTUIManager.h>
 
 @implementation RNPdfRendererModule
 
@@ -86,6 +88,16 @@ BOOL observerAdded = NO;
 
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfPageChange, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onRnPdfError, RCTBubblingEventBlock)
+
+RCT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag index:(NSInteger)index)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        UIView *view = viewRegistry[reactTag];
+        if ([view isKindOfClass:RNPDFView.class]) {
+            [(RNPDFView *)view scrollToIndex:index];
+        }
+    }];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(params, NSDictionary, RNPDFView)
 {

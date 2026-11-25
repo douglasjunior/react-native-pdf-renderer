@@ -29,7 +29,6 @@ import React, {
 } from 'react';
 import {
   NativeSyntheticEvent,
-  Platform,
   StyleProp,
   StyleSheet,
   ViewStyle,
@@ -162,7 +161,7 @@ const PdfRendererView = (
     ref,
     () => ({
       scrollToIndex: (index: number) => {
-        if (Platform.OS !== 'android' || !nativeRef.current) {
+        if (!nativeRef.current) {
           return;
         }
         Commands.scrollToIndex(nativeRef.current, index);

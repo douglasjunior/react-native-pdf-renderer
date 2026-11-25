@@ -43,5 +43,6 @@
 FOUNDATION_EXPORT NSNotificationName const RNPDFViewErrorNotification;
 -(void) setDistanceBetweenPages:(NSNumber*) distance;
 -(void) setParams:(NSDictionary*) params;
+-(void) scrollToIndex:(NSInteger) index;
 
 @end

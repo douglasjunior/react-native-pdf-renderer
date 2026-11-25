@@ -131,6 +131,16 @@ using namespace facebook::react;
     _pdfView.frame = self.bounds;
 }
 
+- (void)scrollToIndex:(NSInteger)index
+{
+    [_pdfView scrollToIndex:index];
+}
+
+- (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args
+{
+    RCTRNPdfRendererViewHandleCommand(self, commandName, args);
+}
+
 // Event emitter convenience method
 - (const RNPdfRendererViewEventEmitter &)eventEmitter
 {
