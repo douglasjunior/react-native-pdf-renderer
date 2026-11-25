@@ -1,13 +1,14 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json",
+  "extends": "@react-native/typescript-config",
   "compilerOptions": {
+    "rootDir": "./src",
     "outDir": "./dist",
     "noEmit": false,
-    "allowImportingTsExtensions": false,
     "declaration": true,
     "jsx": "react",
     "sourceMap": true,
-    "removeComments": false,
+    "allowImportingTsExtensions": false,
+    "types": []
   },
   "include": ["src"]
 }

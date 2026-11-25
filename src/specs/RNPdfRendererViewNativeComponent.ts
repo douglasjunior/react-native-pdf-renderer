@@ -20,36 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import type { HostComponent, ViewProps } from 'react-native';
-import {
-  BubblingEventHandler,
-  Float,
-  Int32,
-} from 'react-native/Libraries/Types/CodegenTypes';
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+import type { CodegenTypes, HostComponent, ViewProps } from 'react-native';
+import { codegenNativeComponent } from 'react-native';
 
 export type NativeParams = {
   source?: string;
   singlePage: boolean;
-  maxZoom: Float;
+  maxZoom: CodegenTypes.Float;
 };
 
 type PageChangeEventPayload = {
-  position: Int32;
-  total: Int32;
+  position: CodegenTypes.Int32;
+  total: CodegenTypes.Int32;
 };
 
 type ScaleChangeEventPayload = {
-  scale: Float;
+  scale: CodegenTypes.Float;
 };
 
 export interface NativeProps extends ViewProps {
-  maxPageResolution: Float;
-  distanceBetweenPages: Float;
+  maxPageResolution: CodegenTypes.Float;
+  distanceBetweenPages: CodegenTypes.Float;
   params: NativeParams;
-  onPageChange: BubblingEventHandler<PageChangeEventPayload>;
-  onScaleChange: BubblingEventHandler<ScaleChangeEventPayload>;
-  onError: BubblingEventHandler<{}>;
+  onPageChange: CodegenTypes.BubblingEventHandler<PageChangeEventPayload>;
+  onScaleChange: CodegenTypes.BubblingEventHandler<ScaleChangeEventPayload>;
+  onError: CodegenTypes.BubblingEventHandler<{}>;
 }
 
 export default codegenNativeComponent<NativeProps>(
