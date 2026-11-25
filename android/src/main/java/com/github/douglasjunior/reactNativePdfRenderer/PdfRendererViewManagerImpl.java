@@ -26,8 +26,10 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
@@ -43,6 +45,7 @@ public class PdfRendererViewManagerImpl {
     private static final String ON_PAGE_CHANGE_EVENT = "onPageChange";
     private static final String ON_SCALE_CHANGE_EVENT = "onScaleChange";
     private static final String ON_ERROR_EVENT = "onError";
+    private static final String SCROLL_TO_INDEX_COMMAND = "scrollToIndex";
 
     public static Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
         return new HashMap<>() {{
@@ -91,6 +94,12 @@ public class PdfRendererViewManagerImpl {
                 errorCallback.run();
             }
         });
+    }
+
+    public static void receiveCommand(PdfRendererRecyclerView view, String commandId, @Nullable ReadableArray args) {
+        if (!SCROLL_TO_INDEX_COMMAND.equals(commandId) || args == null || args.size() == 0) return;
+
+        view.scrollToIndex(args.getInt(0));
     }
 
     public static Event<?> createOnPageChangeEvent(int surfaceId, int targetId, int position, int total) {

@@ -20,8 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import type * as React from 'react';
 import type { CodegenTypes, HostComponent, ViewProps } from 'react-native';
-import { codegenNativeComponent } from 'react-native';
+import { codegenNativeCommands, codegenNativeComponent } from 'react-native';
 
 export type NativeParams = {
   source?: string;
@@ -46,6 +47,17 @@ export interface NativeProps extends ViewProps {
   onScaleChange: CodegenTypes.BubblingEventHandler<ScaleChangeEventPayload>;
   onError: CodegenTypes.BubblingEventHandler<{}>;
 }
+
+interface NativeCommands {
+  scrollToIndex: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    index: CodegenTypes.Int32,
+  ) => void;
+}
+
+export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
+  supportedCommands: ['scrollToIndex'],
+});
 
 export default codegenNativeComponent<NativeProps>(
   'RNPdfRendererView',

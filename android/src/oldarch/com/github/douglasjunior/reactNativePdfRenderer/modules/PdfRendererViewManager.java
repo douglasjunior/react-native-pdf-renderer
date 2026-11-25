@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -78,6 +79,11 @@ public class PdfRendererViewManager extends SimpleViewManager<PdfRendererRecycle
     @ReactProp(name = "maxPageResolution")
     public void setMaxPageResolution(PdfRendererRecyclerView view, float maxPageResolution) {
         view.setMaxPageResolution(maxPageResolution);
+    }
+
+    @Override
+    public void receiveCommand(@NonNull PdfRendererRecyclerView root, String commandId, @Nullable ReadableArray args) {
+        PdfRendererViewManagerImpl.receiveCommand(root, commandId, args);
     }
 
     private void sendEvent(Event<?> event) {
