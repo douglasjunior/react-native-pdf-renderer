@@ -124,6 +124,19 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         return;
     }
 
+    CGFloat minScale = self.minScaleFactor;
+    CGFloat fitScale = self.scaleFactorForSizeToFit;
+    if (fitScale > 0 && fitScale != minScale) {
+        CGFloat maxScale = self.maxScaleFactor;
+        CGFloat zoomLimit = minScale > 0 ? MAX(1, maxScale / minScale) : 1;
+        if (fitScale > maxScale) {
+            self.maxScaleFactor = fitScale * zoomLimit;
+            self.minScaleFactor = fitScale;
+        } else {
+            self.minScaleFactor = fitScale;
+            self.maxScaleFactor = fitScale * zoomLimit;
+        }
+    }
     self.scaleFactor = self.minScaleFactor;
     PDFPage *page = [document pageAtIndex:index];
     CGRect pageBounds = [page boundsForBox:self.displayBox];
@@ -139,8 +152,9 @@ NSNotificationName const RNPDFViewErrorNotification = @"RNPDFViewErrorNotificati
         }
         if ([ancestor isKindOfClass:UIScrollView.class]) {
             UIScrollView *scrollView = (UIScrollView*) ancestor;
+            CGFloat maxOffsetY = MAX(0, scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.adjustedContentInset.bottom);
             CGPoint offset = scrollView.contentOffset;
-            offset.y += remainingOffset;
+            offset.y = MIN(offset.y + remainingOffset, maxOffsetY);
             [scrollView setContentOffset:offset animated:NO];
         }
     }
