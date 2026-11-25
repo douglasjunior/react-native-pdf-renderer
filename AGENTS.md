@@ -86,7 +86,8 @@ Never:
 - edit `version` in `package.json` or point `main`/`types` to `dist` in the repo; the workflow owns both;
 - commit `dist/*` (except `dist/.gitkeep`), `ios/Pods`, `vendor/bundle`, or Yarn Berry artifacts;
 - edit generated/lock files by hand (`yarn.lock`, `Podfile.lock`) or run `yarn install` with Yarn 4;
-- add dependencies to `dependencies` (the lib has none; keep it that way).
+- add dependencies to `dependencies` (the lib has none; keep it that way);
+- run Android emulators or iOS simulators headless (`-no-window` or `xcrun simctl boot` without opening the UI) unless the user explicitly asks; always open the visible emulator/simulator window (e.g., windowed `emulator` on Android and Xcode `DeviceHub.app` / `Simulator.app` on iOS).
 
 ## Conventions
 
