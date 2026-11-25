@@ -114,10 +114,11 @@ function AppContent() {
       /**
        * Download the PDF file with any other library, like "expo-file-system", "rn-fetch-blob" or "react-native-blob-util"
        */
-      const destination = new File(Paths.document, 'file.pdf');
-      const downloadedFile = await File.downloadFileAsync(PDF_URL, destination, {
-        idempotent: true,
-      });
+      const downloadedFile = await File.downloadFileAsync(
+        PDF_URL,
+        Paths.document,
+        { idempotent: true },
+      );
       /*
        * Then, set the local file URI to state and pass to the PdfRendererView source prop.
        */
