@@ -83,7 +83,7 @@ public class PdfRendererViewManagerImpl {
                 view.updateSource(file);
 
                 view.forceRequestLayout();
-            } catch (IOException e) {
+            } catch (IOException | SecurityException e) {
                 if (BuildConfig.DEBUG) {
                     // noinspection CallToPrintStackTrace
                     e.printStackTrace();
