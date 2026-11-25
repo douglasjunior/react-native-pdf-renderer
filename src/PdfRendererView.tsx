@@ -20,15 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React, { useCallback, useMemo } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   NativeSyntheticEvent,
+  Platform,
   StyleProp,
   StyleSheet,
   ViewStyle,
 } from 'react-native';
 
-import PdfRendererNative, { NativeParams } from './specs/RNPdfRendererViewNativeComponent';
+import PdfRendererNative, {
+  Commands,
+  NativeParams,
+} from './specs/RNPdfRendererViewNativeComponent';
 
 export type PdfRendererViewPropsType = {
   testID?: string;
@@ -99,6 +109,22 @@ export type PdfRendererViewPropsType = {
   onError?: () => void;
 };
 
+export type PdfRendererViewRefType = {
+  /**
+   * Scrolls to the page at the given index, resetting the zoom first.
+   *
+   * The index is 0-based, the same `page` value reported by `onPageChange`:
+   * `0` is the first page and `totalPages - 1` is the last one.
+   *
+   * Does nothing when the index is out of range or when `singlePage` is set.
+   * When called before the document finishes loading, the scroll is applied
+   * as soon as it loads.
+   *
+   * @param index 0-based page index
+   */
+  scrollToIndex: (index: number) => void;
+};
+
 type OnPageChangeEventType = {
   position: number;
   total: number;
@@ -115,18 +141,36 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfRendererView = ({
-  testID = undefined,
-  onPageChange,
-  onScaleChange,
-  onError = undefined,
-  style,
-  source,
-  singlePage = false,
-  distanceBetweenPages = 16,
-  maxZoom = 5,
-  maxPageResolution = 2048,
-}: PdfRendererViewPropsType): React.JSX.Element => {
+const PdfRendererView = (
+  {
+    testID = undefined,
+    onPageChange,
+    onScaleChange,
+    onError = undefined,
+    style,
+    source,
+    singlePage = false,
+    distanceBetweenPages = 16,
+    maxZoom = 5,
+    maxPageResolution = 2048,
+  }: PdfRendererViewPropsType,
+  ref: React.ForwardedRef<PdfRendererViewRefType>,
+): React.JSX.Element => {
+  const nativeRef = useRef<React.ElementRef<typeof PdfRendererNative>>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToIndex: (index: number) => {
+        if (Platform.OS !== 'android' || !nativeRef.current) {
+          return;
+        }
+        Commands.scrollToIndex(nativeRef.current, index);
+      },
+    }),
+    [],
+  );
+
   const viewStyles: StyleProp<ViewStyle> = useMemo(
     () => [
       styles.default,
@@ -175,6 +219,7 @@ const PdfRendererView = ({
 
   return (
     <PdfRendererNative
+      ref={nativeRef}
       testID={testID}
       maxPageResolution={maxPageResolution}
       distanceBetweenPages={distanceBetweenPages}
@@ -191,4 +236,4 @@ const PdfRendererView = ({
   );
 };
 
-export default PdfRendererView;
+export default forwardRef(PdfRendererView);
