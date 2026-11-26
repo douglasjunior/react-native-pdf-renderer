@@ -26,8 +26,10 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
@@ -43,6 +45,7 @@ public class PdfRendererViewManagerImpl {
     private static final String ON_PAGE_CHANGE_EVENT = "onPageChange";
     private static final String ON_SCALE_CHANGE_EVENT = "onScaleChange";
     private static final String ON_ERROR_EVENT = "onError";
+    private static final String SCROLL_TO_INDEX_COMMAND = "scrollToIndex";
 
     public static Map<String, Object> getExportedCustomBubblingEventTypeConstants() {
         return new HashMap<>() {{
@@ -65,24 +68,24 @@ public class PdfRendererViewManagerImpl {
     }
 
     public static void setParams(PdfRendererRecyclerView view, ReadableMap params, Runnable errorCallback) {
-        if (params == null) return;
-
-        var source = params.getString("source");
-        var singlePage = params.hasKey("singlePage") && params.getBoolean("singlePage");
+        var source = params != null && params.hasKey("source") ? params.getString("source") : null;
+        var singlePage = params != null && params.hasKey("singlePage") && params.getBoolean("singlePage");
+        if (TextUtils.isEmpty(source)) {
+            view.postSourceUpdate("", singlePage, null);
+            return;
+        }
         var maxZoom = params.hasKey("maxZoom") ? Double.valueOf(params.getDouble("maxZoom")).floatValue() : 5;
-
-        if (TextUtils.isEmpty(source)) return;
+        var initialPageIndex = params.hasKey("initialPageIndex") && !params.isNull("initialPageIndex")
+                ? params.getInt("initialPageIndex") : 0;
         var file = new File(source.replaceFirst("^file:/*", "/"));
 
-        view.post(() -> {
+        view.postSourceUpdate(source, singlePage, () -> {
             try {
                 view.setSinglePage(singlePage);
                 view.setMaxZoom(maxZoom);
                 view.setOverScrollMode(singlePage ? View.OVER_SCROLL_NEVER : View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
-                view.updateSource(file);
-
-                view.forceRequestLayout();
+                view.updateSource(file, initialPageIndex);
             } catch (IOException | SecurityException e) {
                 if (BuildConfig.DEBUG) {
                     // noinspection CallToPrintStackTrace
@@ -91,6 +94,12 @@ public class PdfRendererViewManagerImpl {
                 errorCallback.run();
             }
         });
+    }
+
+    public static void receiveCommand(PdfRendererRecyclerView view, String commandId, @Nullable ReadableArray args) {
+        if (!SCROLL_TO_INDEX_COMMAND.equals(commandId) || args == null || args.size() < 2) return;
+
+        view.scrollToIndex(args.getInt(0), args.getString(1));
     }
 
     public static Event<?> createOnPageChangeEvent(int surfaceId, int targetId, int position, int total) {

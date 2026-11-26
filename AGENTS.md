@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`react-native-pdf-renderer` is a pure-native, zero-third-party-dependency React Native PDF renderer (Android + iOS). Public API: `<PdfRendererView />` component and `PdfRendererViewPropsType` type, plus a Jest mock at `src/mock.tsx` (`dist/mock` when published). It is a Fabric component (New Architecture) with an old-architecture fallback. Usage, prop tables, and limitations live in `README.md`; do not duplicate them here.
+`react-native-pdf-renderer` is a pure-native, zero-third-party-dependency React Native PDF renderer (Android + iOS). Public API: `<PdfRendererView />` component (with an imperative `scrollToIndex(index)` ref method), `PdfRendererViewPropsType` and `PdfRendererViewRefType` types, plus a Jest mock at `src/mock.tsx` (`dist/mock` when published). It is a Fabric component (New Architecture) with an old-architecture fallback. Usage, prop tables, and limitations live in `README.md`; do not duplicate them here.
 
 ## Prerequisites
 
@@ -35,10 +35,10 @@ There are no unit tests for the library or the native code; native behavior is v
 
 ## Repository map
 
-- `src/index.ts`: public entry point, re-exporting `PdfRendererView` (default) and `PdfRendererViewPropsType`.
-- `src/PdfRendererView.tsx`: merges prop defaults (`singlePage: false`, `distanceBetweenPages: 16`, `maxZoom: 5`, `maxPageResolution: 2048`), strips `borderRadius`, groups `{source, singlePage, maxZoom}` into `params`, and renders `RNPdfRendererView`.
-- `src/specs/RNPdfRendererViewNativeComponent.ts`: Fabric native component spec (`NativeParams`, `NativeProps`, `codegenNativeComponent<NativeProps>('RNPdfRendererView')`); codegen input (`package.json#codegenConfig`: name `rnpdfrenderer_codegen`, Android package `com.github.douglasjunior.reactNativePdfRenderer`, iOS componentProvider `RNPdfRendererView` -> `RNPdfRendererComponentView`).
-- `src/mock.tsx`: Jest mock component (`PdfRendererViewMock`), exposed as `react-native-pdf-renderer/dist/mock` when published.
+- `src/index.ts`: public entry point, re-exporting `PdfRendererView` (default), `PdfRendererViewPropsType` and `PdfRendererViewRefType`.
+- `src/PdfRendererView.tsx`: merges prop defaults (`singlePage: false`, `distanceBetweenPages: 16`, `maxZoom: 5`, `maxPageResolution: 2048`), strips `borderRadius`, groups `{source, initialPageIndex, singlePage, maxZoom}` into `params` (`initialPageIndex` is only re-read when `source` changes), exposes `scrollToIndex` via `forwardRef`/`useImperativeHandle`, and renders `RNPdfRendererView`.
+- `src/specs/RNPdfRendererViewNativeComponent.ts`: Fabric native component spec (`NativeParams`, `NativeProps`, `Commands` with `scrollToIndex(viewRef, index, source)`, `codegenNativeComponent<NativeProps>('RNPdfRendererView')`); codegen input (`package.json#codegenConfig`: name `rnpdfrenderer_codegen`, Android package `com.github.douglasjunior.reactNativePdfRenderer`, iOS componentProvider `RNPdfRendererView` -> `RNPdfRendererComponentView`).
+- `src/mock.tsx`: Jest mock component (`PdfRendererViewMock`, with a no-op `scrollToIndex` ref method), exposed as `react-native-pdf-renderer/dist/mock` when published.
 - `android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/`: `PdfRendererPackage.java`, `PdfRendererViewManagerImpl.java` (shared prop handling and event builders), `modules/PdfRendererRecyclerView.java` (renders pages via `android.graphics.pdf.PdfRenderer` + `RecyclerView`), `modules/ObservableZoom.java`, `modules/ScaleTracker.java`.
 - `android/src/newarch/.../modules/` and `android/src/oldarch/.../modules/`: two `PdfRendererViewManager.java` implementations; `android/build.gradle` selects one depending on `newArchEnabled`.
 - `ios/ReactNativePdfRendererLibrary/`: `RNPDFView.h/.mm` (`PDFKit` `PDFView` wrapper, page break margins, zoom limits), `RNPdfRendererComponentView.h/.mm` (Fabric view under `#ifdef RCT_NEW_ARCH_ENABLED`), `RNPdfRendererModule.h/.m` (old-arch bridge, `#else` branch). `ReactNativePdfRenderer.podspec` globs `ios/ReactNativePdfRendererLibrary/**/*.{h,m,mm,swift}`; it calls `install_modules_dependencies` when `RCT_NEW_ARCH_ENABLED=1`, else depends on `React-Core`.
@@ -47,7 +47,7 @@ There are no unit tests for the library or the native code; native behavior is v
 
 ## Render & event flow
 
-JS `PdfRendererView` merges defaults, strips `borderRadius` (`borderRadius: undefined`), and passes `params: { source, singlePage, maxZoom }`, `distanceBetweenPages`, `maxPageResolution`, and event handlers to `RNPdfRendererView`. Native strips `file://` (Android) or ensures `file://` (iOS) to open the local PDF file, emits `onPageChange` (`{ position, total }`), `onScaleChange` (`{ scale }`), and `onError` (`{}`). On iOS old architecture, `PdfRendererView` also passes `onRnPdfPageChange`, `onRnPdfScaleChange`, and `onRnPdfError` because iOS requires unique event names on legacy `RCTViewManager`.
+JS `PdfRendererView` merges defaults, strips `borderRadius` (`borderRadius: undefined`), and passes `params: { source, initialPageIndex, singlePage, maxZoom }`, `distanceBetweenPages`, `maxPageResolution`, and event handlers to `RNPdfRendererView`. Native strips `file://` (Android) or ensures `file://` (iOS) to open the local PDF file, emits `onPageChange` (`{ position, total }`), `onScaleChange` (`{ scale }`), and `onError` (`{}`). On iOS old architecture, `PdfRendererView` also passes `onRnPdfPageChange`, `onRnPdfScaleChange`, and `onRnPdfError` because iOS requires unique event names on legacy `RCTViewManager`. `scrollToIndex` is a native command that also sends the current `source`, so native code queues it while that document loads and drops it if the source no longer matches; it resets zoom and is ignored in `singlePage` mode.
 
 ## Invariants (do not break)
 

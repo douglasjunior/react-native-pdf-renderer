@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,6 +66,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
     private int mWidth;
     private int mHeight;
     private int mCurrentItemPosition = -1;
+    private int mPendingScrollIndex = -1;
+    private String mSource = "";
+    private String mPendingScrollSource = "";
+    private int mSourceUpdateGeneration;
+    private boolean mSourceUpdatePending;
+    private boolean mPendingSinglePage;
     private boolean mSinglePage;
 
     public PdfRendererRecyclerView(@NonNull Context context, PdfRendererRecyclerViewListener listener) {
@@ -154,6 +161,8 @@ public class PdfRendererRecyclerView extends RecyclerView {
     }
 
     private void dispatchPageChangeEvent() {
+        if (mSourceUpdatePending) return;
+
         var newPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
         if (newPosition < 0) newPosition = mLayoutManager.findLastVisibleItemPosition();
 
@@ -167,14 +176,78 @@ public class PdfRendererRecyclerView extends RecyclerView {
         }
     }
 
-    public void updateSource(File file) throws IOException {
+    public void postSourceUpdate(String source, boolean singlePage, @Nullable Runnable sourceUpdate) {
+        if (sourceUpdate == null || (!mPendingScrollSource.isEmpty() && !mPendingScrollSource.equals(source))) {
+            mPendingScrollIndex = -1;
+            mPendingScrollSource = "";
+        }
+        mSource = source;
+        if (mPendingScrollIndex != -1) mPendingScrollSource = source;
+        var generation = ++mSourceUpdateGeneration;
+        mSourceUpdatePending = sourceUpdate != null;
+        mPendingSinglePage = singlePage;
+        if (sourceUpdate == null) return;
+
+        post(() -> {
+            if (generation != mSourceUpdateGeneration) return;
+            mSourceUpdatePending = false;
+            sourceUpdate.run();
+        });
+    }
+
+    public void updateSource(File file, int initialPageIndex) throws IOException {
         mCurrentItemPosition = -1;
+        var pendingScrollIndex = -1;
+        if (mPendingScrollSource.equals(mSource)) {
+            pendingScrollIndex = mPendingScrollIndex;
+            mPendingScrollIndex = -1;
+            mPendingScrollSource = "";
+        }
         var adapter = (PdfRendererAdapter) getAdapter();
         if (adapter == null) return;
         adapter.close();
         adapter.updateSource(file);
         adapter.notifyDataSetChanged();
+        var itemCount = adapter.getItemCount();
+        var hasPendingIndex = pendingScrollIndex >= 0 && pendingScrollIndex < itemCount;
+        var targetIndex = hasPendingIndex ? pendingScrollIndex : initialPageIndex;
+        if (mSinglePage || targetIndex < 0 || targetIndex >= itemCount) {
+            targetIndex = 0;
+        }
+        if (!mSinglePage && (targetIndex > 0 || hasPendingIndex)) {
+            resetZoom();
+        }
+        mLayoutManager.scrollToPositionWithOffset(targetIndex, 0);
+        forceRequestLayout();
         post(this::dispatchPageChangeEvent);
+    }
+
+    public void scrollToIndex(int index, @Nullable String source) {
+        if (index < 0 || source == null) return;
+        if (!source.equals(mSource)) {
+            if (!source.isEmpty()) {
+                mPendingScrollIndex = index;
+                mPendingScrollSource = source;
+            }
+            return;
+        }
+
+        var adapter = (PdfRendererAdapter) getAdapter();
+        if (adapter == null) return;
+
+        var itemCount = adapter.getItemCount();
+        if (mSourceUpdatePending || itemCount == 0) {
+            if (!mPendingSinglePage) {
+                mPendingScrollIndex = index;
+                mPendingScrollSource = source;
+            }
+            return;
+        }
+        if (mSinglePage || index >= itemCount) return;
+
+        resetZoom();
+        mLayoutManager.scrollToPositionWithOffset(index, 0);
+        forceRequestLayout();
     }
 
     @Override

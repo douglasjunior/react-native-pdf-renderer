@@ -45,5 +45,7 @@ FOUNDATION_EXPORT NSNotificationName const RNPDFViewErrorNotification;
 FOUNDATION_EXPORT NSNotificationName const RNPDFViewScaleChangeNotification;
 -(void) setDistanceBetweenPages:(NSNumber*) distance;
 -(void) setParams:(NSDictionary*) params;
+-(void) scrollToIndex:(NSInteger) index;
+-(void) scrollToIndex:(NSInteger) index source:(NSString*) source;
 
 @end

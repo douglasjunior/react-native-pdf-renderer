@@ -20,13 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 
 import { View } from 'react-native';
-import { PdfRendererViewPropsType } from './PdfRendererView';
+import {
+  PdfRendererViewPropsType,
+  PdfRendererViewRefType,
+} from './PdfRendererView';
 
-const PdfRendererViewMock = (props: PdfRendererViewPropsType) => {
+const PdfRendererViewMock = (
+  props: PdfRendererViewPropsType,
+  ref: React.ForwardedRef<PdfRendererViewRefType>,
+) => {
+  useImperativeHandle(ref, () => ({ scrollToIndex: () => undefined }), []);
+
   return <View testID={props.testID} style={props.style} />;
 };
 
-export default PdfRendererViewMock;
+export default forwardRef(PdfRendererViewMock);

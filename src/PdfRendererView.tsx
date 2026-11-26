@@ -20,7 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import React, { useCallback, useMemo } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   NativeSyntheticEvent,
   StyleProp,
@@ -28,7 +36,10 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import PdfRendererNative, { NativeParams } from './specs/RNPdfRendererViewNativeComponent';
+import PdfRendererNative, {
+  Commands,
+  NativeParams,
+} from './specs/RNPdfRendererViewNativeComponent';
 
 export type PdfRendererViewPropsType = {
   testID?: string;
@@ -44,6 +55,17 @@ export type PdfRendererViewPropsType = {
    * Ex.: `file:///path/to/file.pdf`
    */
   source?: string;
+  /**
+   * 0-based index of the page shown when the document opens.
+   *
+   * Read on mount and when `source` changes; changing only this prop does nothing.
+   * Changing `singlePage` or `maxZoom` reloads the document on this page. Out-of-range
+   * values and `singlePage` open the first page. Use `scrollToIndex` to navigate
+   * an already open document.
+   *
+   * Default: 0
+   */
+  initialPageIndex?: number;
   /**
    * Distance in `DPI` between pages.
    *
@@ -99,6 +121,22 @@ export type PdfRendererViewPropsType = {
   onError?: () => void;
 };
 
+export type PdfRendererViewRefType = {
+  /**
+   * Scrolls to the page at the given index, resetting the zoom first.
+   *
+   * The index is 0-based, the same `page` value reported by `onPageChange`:
+   * `0` is the first page and `totalPages - 1` is the last one.
+   *
+   * Does nothing when the index is out of range or when `singlePage` is set.
+   * When called before the document finishes loading, the scroll is applied
+   * as soon as it loads.
+   *
+   * @param index 0-based page index
+   */
+  scrollToIndex: (index: number) => void;
+};
+
 type OnPageChangeEventType = {
   position: number;
   total: number;
@@ -115,18 +153,56 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfRendererView = ({
-  testID = undefined,
-  onPageChange,
-  onScaleChange,
-  onError = undefined,
-  style,
-  source,
-  singlePage = false,
-  distanceBetweenPages = 16,
-  maxZoom = 5,
-  maxPageResolution = 2048,
-}: PdfRendererViewPropsType): React.JSX.Element => {
+const PdfRendererView = (
+  {
+    testID = undefined,
+    onPageChange,
+    onScaleChange,
+    onError = undefined,
+    style,
+    source,
+    initialPageIndex = 0,
+    singlePage = false,
+    distanceBetweenPages = 16,
+    maxZoom = 5,
+    maxPageResolution = 2048,
+  }: PdfRendererViewPropsType,
+  ref: React.ForwardedRef<PdfRendererViewRefType>,
+): React.JSX.Element => {
+  const nativeRef = useRef<React.ComponentRef<typeof PdfRendererNative>>(null);
+  const commandSource = useRef(source ?? '');
+  const validInitialPageIndex =
+    Number.isInteger(initialPageIndex) &&
+    initialPageIndex >= 0 &&
+    initialPageIndex <= 0x7fffffff
+      ? initialPageIndex
+      : 0;
+  const [documentParams, setDocumentParams] = useState(() => ({
+    source,
+    initialPageIndex: validInitialPageIndex,
+  }));
+
+  if (documentParams.source !== source) {
+    setDocumentParams({ source, initialPageIndex: validInitialPageIndex });
+  }
+
+  useLayoutEffect(() => {
+    commandSource.current = source ?? '';
+  }, [source]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToIndex: (index: number) => {
+        if (!nativeRef.current) {
+          return;
+        }
+        Commands.scrollToIndex(nativeRef.current, index, commandSource.current);
+      },
+    }),
+    [],
+  );
+
   const viewStyles: StyleProp<ViewStyle> = useMemo(
     () => [
       styles.default,
@@ -166,15 +242,16 @@ const PdfRendererView = ({
 
   const params: NativeParams = useMemo(
     () => ({
-      source,
+      ...documentParams,
       singlePage,
       maxZoom,
     }),
-    [source, singlePage, maxZoom],
+    [documentParams, singlePage, maxZoom],
   );
 
   return (
     <PdfRendererNative
+      ref={nativeRef}
       testID={testID}
       maxPageResolution={maxPageResolution}
       distanceBetweenPages={distanceBetweenPages}
@@ -192,4 +269,4 @@ const PdfRendererView = ({
   );
 };
 
-export default PdfRendererView;
+export default forwardRef(PdfRendererView);

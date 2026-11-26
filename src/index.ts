@@ -21,4 +21,7 @@
 // SOFTWARE.
 
 export { default } from './PdfRendererView';
-export type { PdfRendererViewPropsType } from './PdfRendererView';
+export type {
+  PdfRendererViewPropsType,
+  PdfRendererViewRefType,
+} from './PdfRendererView';

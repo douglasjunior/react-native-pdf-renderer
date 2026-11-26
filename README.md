@@ -280,6 +280,7 @@ For a comprehensive real-world example featuring scale indicators, full-screen t
 | Prop | Type | Default | Description |
 |---|---|:---:|---|
 | `source` | `string` | — | Path to a local file stored on the device (e.g. `file:///path/to/file.pdf`). |
+| `initialPageIndex` | `number` | `0` | Zero-based page index shown when the document opens. It is read when `source` changes; changing only `initialPageIndex` does nothing. Changing `singlePage` or `maxZoom` reloads the document, which opens on this page again. Out-of-range values and `singlePage` open the first page. Use `scrollToIndex` to navigate in an already open document. |
 | `distanceBetweenPages` | `number` | `16` | Vertical spacing in `DPI` between rendered pages. |
 | `maxZoom` | `number` | `5` | Maximum allowable zoom scale factor. |
 | `maxPageResolution` | `number` | `2048` | *(Android only)* Maximum page resolution (width/height) in pixels when zooming. Designed to prevent Android OOM / Canvas crashes when zooming deeply ([#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26)). |
@@ -289,6 +290,39 @@ For a comprehensive real-world example featuring scale indicators, full-screen t
 | `onError` | `() => void` | — | Callback invoked when an error occurs while rendering the PDF. |
 | `style` | `StyleProp<ViewStyle>` | — | Styles applied to the native view container. *(Note: border radius is not directly supported; see [Limitations](#border-radius)).* |
 | `testID` | `string` | — | Optional identifier used to locate this view in automated end-to-end testing. |
+
+### `<PdfRendererView />` Methods
+
+Methods are called through a `ref`, typed with `PdfRendererViewRefType`:
+
+```tsx
+import React, { useRef } from 'react';
+import { Button } from 'react-native';
+import PdfRendererView, { PdfRendererViewRefType } from 'react-native-pdf-renderer';
+
+const App = () => {
+  const pdfRef = useRef<PdfRendererViewRefType>(null);
+
+  return (
+    <>
+      <Button
+        title="Go to page 10"
+        onPress={() => pdfRef.current?.scrollToIndex(9)}
+      />
+      <PdfRendererView
+        ref={pdfRef}
+        source="file:///path/to/file.pdf"
+      />
+    </>
+  );
+};
+
+export default App;
+```
+
+| Method | Type | Description |
+|---|---|---|
+| `scrollToIndex` | `(index: number) => void` | Scrolls to the page at `index`, resetting the zoom first. The index is **zero-based**, the same `current` value reported by `onPageChange`: `0` is the first page and `total - 1` is the last one. Out-of-range indexes are silently ignored, and so is any call while `singlePage` is enabled. When called before the document finishes loading (e.g. in a `useEffect` right after mount), the scroll is applied as soon as it loads. |
 
 ---
 

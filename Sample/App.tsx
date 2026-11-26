@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Button,
@@ -9,7 +9,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import PdfRendererView from 'react-native-pdf-renderer';
+import PdfRendererView, {
+  PdfRendererViewRefType,
+} from 'react-native-pdf-renderer';
 import { File, Paths } from 'expo-file-system';
 // import ReactNativeBlobUtil from 'react-native-blob-util';
 
@@ -23,6 +25,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pdfWrapper: {
+    flex: 1,
+  },
+  pageButtons: {
+    flexDirection: 'row',
+    gap: 1,
+    marginTop: 8,
+  },
+  pageButton: {
     flex: 1,
   },
   pdf: {
@@ -49,6 +59,7 @@ const PdfView = ({ source }: { source: string }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [singlePage, setSinglePage] = useState(false);
   const [scale, setScale] = useState(1);
+  const pdfRef = useRef<PdfRendererViewRefType>(null);
 
   const dim = Math.min((scale - 1) / 2, 1);
 
@@ -58,12 +69,33 @@ const PdfView = ({ source }: { source: string }) => {
         title="Single Page"
         onPress={() => setSinglePage(prev => !prev)}
       />
+      <View style={styles.pageButtons}>
+        <View style={styles.pageButton}>
+          <Button
+            title="First"
+            onPress={() => pdfRef.current?.scrollToIndex(0)}
+          />
+        </View>
+        <View style={styles.pageButton}>
+          <Button
+            title="Page 10"
+            onPress={() => pdfRef.current?.scrollToIndex(9)}
+          />
+        </View>
+        <View style={styles.pageButton}>
+          <Button
+            title="Last"
+            onPress={() => pdfRef.current?.scrollToIndex(totalPages - 1)}
+          />
+        </View>
+      </View>
       <View
         style={[
           styles.pdfWrapper,
           { backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` },
         ]}>
         <PdfRendererView
+          ref={pdfRef}
           style={styles.pdf}
           source={source}
           distanceBetweenPages={16}
