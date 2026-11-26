@@ -64,11 +64,7 @@ const PdfView = ({ source }: { source: string }) => {
   const dim = Math.min((scale - 1) / 2, 1);
 
   return (
-    <View
-      style={[
-        styles.pdfWrapper,
-        { backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` },
-      ]}>
+    <View style={styles.pdfWrapper}>
       <Button
         title="Single Page"
         onPress={() => setSinglePage(prev => !prev)}
@@ -93,32 +89,38 @@ const PdfView = ({ source }: { source: string }) => {
           />
         </View>
       </View>
-      <PdfRendererView
-        ref={pdfRef}
-        style={styles.pdf}
-        source={source}
-        distanceBetweenPages={16}
-        maxZoom={20}
-        maxPageResolution={2048}
-        singlePage={singlePage}
-        onPageChange={(current, total) => {
-          console.log('onPageChange', { current, total });
-          setCurrentPage(current);
-          setTotalPages(total);
-        }}
-        onScaleChange={newScale => {
-          console.log('onScaleChange', { scale: newScale });
-          setScale(newScale);
-        }}
-        onError={() => {
-          console.warn('Error loading PDF');
-          Alert.alert('Error', 'Error loading PDF');
-        }}
-      />
-      <View style={styles.pageIndicatorContainer}>
-        <Text style={styles.pageIndicatorText}>
-          {currentPage + 1}/{totalPages} · {scale.toFixed(1)}x
-        </Text>
+      <View
+        style={[
+          styles.pdfWrapper,
+          { backgroundColor: `rgba(0, 0, 0, ${0.85 * dim})` },
+        ]}>
+        <PdfRendererView
+          ref={pdfRef}
+          style={styles.pdf}
+          source={source}
+          distanceBetweenPages={16}
+          maxZoom={20}
+          maxPageResolution={2048}
+          singlePage={singlePage}
+          onPageChange={(current, total) => {
+            console.log('onPageChange', { current, total });
+            setCurrentPage(current);
+            setTotalPages(total);
+          }}
+          onScaleChange={newScale => {
+            console.log('onScaleChange', { scale: newScale });
+            setScale(newScale);
+          }}
+          onError={() => {
+            console.warn('Error loading PDF');
+            Alert.alert('Error', 'Error loading PDF');
+          }}
+        />
+        <View style={styles.pageIndicatorContainer}>
+          <Text style={styles.pageIndicatorText}>
+            {currentPage + 1}/{totalPages} · {scale.toFixed(1)}x
+          </Text>
+        </View>
       </View>
     </View>
   );

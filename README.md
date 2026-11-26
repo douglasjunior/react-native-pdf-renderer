@@ -286,7 +286,7 @@ For a comprehensive real-world example featuring scale indicators, full-screen t
 | `maxPageResolution` | `number` | `2048` | *(Android only)* Maximum page resolution (width/height) in pixels when zooming. Designed to prevent Android OOM / Canvas crashes when zooming deeply ([#26](https://github.com/douglasjunior/react-native-pdf-renderer/issues/26)). |
 | `singlePage` | `boolean` | `false` | Renders only the first page without scrolling. Ideal for displaying document thumbnails. |
 | `onPageChange` | `(current: number, total: number) => void` | — | Callback invoked when the user scrolls between pages. `current` is zero-indexed. |
-| `onScaleChange` | `(scale: number) => void` | — | *(Android only)* Invoked continuously while a pinch gesture is in progress. `1` is the unzoomed baseline (fit-to-width in multi-page mode and fit-to-center in `singlePage` mode). Never exceeds `maxZoom`. |
+| `onScaleChange` | `(scale: number) => void` | — | Invoked when the zoom scale changes: continuously during pinch gestures and on double-tap zoom on both platforms. On iOS, zoom animations can also report intermediate values; on Android, double-tap zoom reports the final value at once. `1` is the unzoomed baseline: fit-to-width in multi-page mode and fit-to-center in single-page mode on Android, or the fitted size provided by PDFKit on iOS. The value never exceeds `maxZoom`. |
 | `onError` | `() => void` | — | Callback invoked when an error occurs while rendering the PDF. |
 | `style` | `StyleProp<ViewStyle>` | — | Styles applied to the native view container. *(Note: border radius is not directly supported; see [Limitations](#border-radius)).* |
 | `testID` | `string` | — | Optional identifier used to locate this view in automated end-to-end testing. |
