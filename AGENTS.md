@@ -47,7 +47,7 @@ There are no unit tests for the library or the native code; native behavior is v
 
 ## Render & event flow
 
-JS `PdfRendererView` merges defaults, strips `borderRadius` (`borderRadius: undefined`), and passes `params: { source, singlePage, maxZoom }`, `distanceBetweenPages`, `maxPageResolution`, and event handlers to `RNPdfRendererView`. Native strips `file://` (Android) or ensures `file://` (iOS) to open the local PDF file, emits `onPageChange` (`{ position, total }`), `onScaleChange` (`{ scale }`, Android only), and `onError` (`{}`). On iOS old architecture, `PdfRendererView` also passes `onRnPdfPageChange` and `onRnPdfError` because iOS requires unique event names on legacy `RCTViewManager`.
+JS `PdfRendererView` merges defaults, strips `borderRadius` (`borderRadius: undefined`), and passes `params: { source, singlePage, maxZoom }`, `distanceBetweenPages`, `maxPageResolution`, and event handlers to `RNPdfRendererView`. Native strips `file://` (Android) or ensures `file://` (iOS) to open the local PDF file, emits `onPageChange` (`{ position, total }`), `onScaleChange` (`{ scale }`), and `onError` (`{}`). On iOS old architecture, `PdfRendererView` also passes `onRnPdfPageChange`, `onRnPdfScaleChange`, and `onRnPdfError` because iOS requires unique event names on legacy `RCTViewManager`.
 
 ## Invariants (do not break)
 
@@ -55,7 +55,7 @@ JS `PdfRendererView` merges defaults, strips `borderRadius` (`borderRadius: unde
 - `source` expects a local file path/URI; never add network downloading to the library itself.
 - `borderRadius` must stay stripped (`borderRadius: undefined`) in `src/PdfRendererView.tsx` to avoid iOS crashes (#1).
 - `RNPdfRendererComponentView` returns `NO` from `+(BOOL)shouldBeRecycled` so Fabric does not recycle stale PDF views across mounts.
-- Keep `onRnPdfPageChange` and `onRnPdfError` in `src/PdfRendererView.tsx` and `ios/ReactNativePdfRendererLibrary/RNPdfRendererModule.m` for iOS old-architecture compatibility.
+- Keep `onRnPdfPageChange`, `onRnPdfScaleChange`, and `onRnPdfError` in `src/PdfRendererView.tsx` and `ios/ReactNativePdfRendererLibrary/RNPdfRendererModule.m` for iOS old-architecture compatibility.
 - Keep `src/mock.tsx` compatible with `PdfRendererViewPropsType` (`dist/mock` documented in `README.md`).
 - Keep `"jsx": "react"` in `tsconfig.json` so `tsc` emits `.js` (not `.jsx`) files in `dist/`.
 - Keep `package.json` `main` and `react-native` pointing to `src`, and preserve `dist/.gitkeep`.

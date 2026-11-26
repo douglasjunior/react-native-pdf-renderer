@@ -53,6 +53,7 @@ using namespace facebook::react;
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:_pdfView];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:_pdfView];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:_pdfView];
     }
     return self;
 }
@@ -68,6 +69,19 @@ using namespace facebook::react;
 - (void)dealloc
 {
     [NSNotificationCenter.defaultCenter removeObserver:self];
+}
+
+- (void)handleScaleChange:(NSNotification*) notification {
+    if (notification.object != _pdfView) {
+        return;
+    }
+    
+    RNPdfRendererViewEventEmitter::OnScaleChange result = RNPdfRendererViewEventEmitter::OnScaleChange{};
+    result.scale = [notification.userInfo[@"scale"] floatValue];
+    
+    if (_eventEmitter) {
+        self.eventEmitter.onScaleChange(result);
+    }
 }
 
 - (void) handleError:(NSNotification*) notification {
