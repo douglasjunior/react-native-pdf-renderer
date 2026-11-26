@@ -95,7 +95,7 @@ using namespace facebook::react;
 }
 
 - (void)handlePageChange:(NSNotification*) notification {
-    if (notification.object != _pdfView) {
+    if (notification.object != _pdfView || _pdfView.document == nil || _pdfView.currentPage == nil) {
         return;
     }
     

@@ -87,6 +87,11 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
         doubleTap.delegate = _scaleTracker;
         [self addGestureRecognizer:doubleTap];
 
+#ifndef RCT_NEW_ARCH_ENABLED
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handlePageChange:) name:PDFViewPageChangedNotification object:self];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleError:) name:RNPDFViewErrorNotification object:self];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleScaleChange:) name:RNPDFViewScaleChangeNotification object:self];
+#endif
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(wakeScaleTracking:)
                                                   name:PDFViewScaleChangedNotification object:self];
     }
@@ -106,7 +111,7 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
 
 -(void) dealloc {
     [_scaleLink invalidate];
-    [NSNotificationCenter.defaultCenter removeObserver:self name:PDFViewScaleChangedNotification object:self];
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 -(void) wakeScaleTracking:(id) sender {
@@ -148,6 +153,48 @@ NSNotificationName const RNPDFViewScaleChangeNotification = @"RNPDFViewScaleChan
         @"scale": [NSNumber numberWithDouble:scale],
     }];
 }
+
+#ifndef RCT_NEW_ARCH_ENABLED
+- (void)handleError:(NSNotification*) notification
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.onRnPdfError) {
+            self.onRnPdfError(@{});
+        }
+    });
+}
+
+- (void)handleScaleChange:(NSNotification*) notification
+{
+    NSNumber *scale = notification.userInfo[@"scale"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.onRnPdfScaleChange) {
+            self.onRnPdfScaleChange(@{ @"scale": scale });
+        }
+    });
+}
+
+- (void)handlePageChange:(NSNotification*) notification
+{
+    if (self.onRnPdfPageChange == nil || self.document == nil || self.currentPage == nil) {
+        return;
+    }
+
+    // Snapshot the page number before hopping to the main queue, so a burst of
+    // notifications does not collapse several page changes into the final page.
+    NSUInteger currentPageNumber = [self.document indexForPage:self.currentPage];
+    NSUInteger total = self.document.pageCount;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.onRnPdfPageChange) {
+            self.onRnPdfPageChange(@{
+                @"position": [NSNumber numberWithUnsignedInteger:currentPageNumber],
+                @"total":  [NSNumber numberWithUnsignedInteger:total],
+            });
+        }
+    });
+}
+#endif
 
 -(void) setParams:(NSDictionary*) params {
     _scaleReady = NO;
